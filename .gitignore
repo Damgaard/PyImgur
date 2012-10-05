@@ -1,0 +1,7 @@
+*.pyc
+*.egg*
+*.un*
+/bin
+/scripts
+test_auth.py
+local.jpg
