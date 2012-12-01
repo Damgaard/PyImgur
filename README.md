@@ -16,6 +16,10 @@ imgur.upload_image(image_path, API_KEY)
 
 You don't have to work with urllib, oauth or spend time trying to figure out Imgur's API. Instead you can focus on what's importment to you. Your application.
 
+## Development
+
+A closed beta of Imgur's API ver 3.0 has begun, the new version greatly expands on what can be done with the API. Current development of PyImgur is with the closed beta and will remain closed-source until Imgur's API ver 3.0 becomes publicly accesable.
+
 ## What can I do with Imgur?
 
 You can do almost everything you can do through the web frontend.
