@@ -60,7 +60,7 @@ class AnonymousTest(unittest.TestCase):
         self.assertTrue(image_info['image']['title'], 'title')
         self.assertTrue(image_info['image']['caption'], 'caption')
         deletehash = image_info['image']['deletehash']
-        result = delete_image(deletehash)
+        delete_image(deletehash)
 
     def test_upload_without_api_key(self):
         self.assertRaises(errors.Code401, upload_image, LOCAL_FILE)
@@ -81,18 +81,17 @@ class AuthenticatedTest(unittest.TestCase):
         self.assertTrue(all_images != noalbumimages)
 
     def test_count_albums(self):
+        info = info_albums()
         albums = count_albums()
-        self.assertTrue(albums > 0)
-
-    def test_count_albums(self):
-        images = count_images()
-        self.assertTrue(images > 0)
+        self.assertEqual(len(info), albums)
 
     def test_count_images(self):
         initial_count = count_images()
         image_info = upload_image(LOCAL_FILE)
         second_count = count_images()
         self.assertEqual(second_count, initial_count + 1)
+        deletehash = image_info['image']['deletehash']
+        delete_image(deletehash)
 
     def test_create_album_defaults(self):
         my_defaults = create_album()
@@ -148,11 +147,6 @@ class AuthenticatedTest(unittest.TestCase):
     def test_info_account(self):
         info = info_account()
         self.assertTrue('is_pro' in info.keys())
-
-    def test_info_account(self):
-        info = info_albums()
-        albums = count_albums()
-        self.assertEqual(len(info), albums)
 
     def test_order_albums(self):
         unittest.skip('Upstream bug.')

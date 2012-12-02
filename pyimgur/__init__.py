@@ -79,7 +79,8 @@ def delete_image(img_hash):
                         method='DELETE')['images']
     else:
         # With deletehash
-        return _request(_API_PATH['delete_image'] % img_hash, locals())['delete']
+        return _request(_API_PATH['delete_image'] % img_hash, locals()) \
+                                                                     ['delete']
 
 def download_image(img_hash, size='original'):
     """
@@ -99,7 +100,8 @@ def download_image(img_hash, size='original'):
             info['image']['hash'])
     full_name = name + file_extension
     with open(full_name, 'wb') as local_file:
-        local_file.write(requests.get(path).content)
+        request_result = requests.get(path)
+        local_file.write(request_result.content)
     return full_name
 
 def info_album(album_id):
@@ -130,7 +132,7 @@ def sideload(url, edit=False):
 def stats(view='month'):
     """Return imgur-wide statistics."""
     if view not in ('', 'today', 'week', 'month'):
-       raise LookupError('View must be today, week or month')
+        raise LookupError('View must be today, week or month')
     return _request(_API_PATH['stats'], locals())['stats']
 
 ######################,
@@ -149,9 +151,9 @@ def upload_image(image_path=None, url=None, title=None, caption=None,
         raise LookupError('Precisely one of image_path or url must be given')
 
     if image_path:
-        with open(image_path, 'rb') as f:
-            binary_data = f.read()
-        image = b64encode(binary_data)
+        with open(image_path, 'rb') as image_file:
+            binary_data = image_file.read()
+            image = b64encode(binary_data)
     else:
         image = url
 
@@ -184,7 +186,7 @@ def oauth_set_credentials(consumer_key=None, consumer_secret=None,
             _client.token = oauth.Token(token_key, token_secret)
             changed_something = True
         else:
-            raise errors.AccessDenied('No consumer info set!')
+            raise errors.AccessDeniedError('No consumer info set!')
     if not changed_something:
         raise LookupError('oauth_set_credentials must be called with a pair '
                           'of either consumer_secret and consumer_key or '
@@ -199,7 +201,6 @@ def oauth_pin(callback_url=''):
     parameters. If no callback_url is provided, the user will be sent to a
     imgur site after authorisation where the pin will be displayed.
     """
-    global _client
     if _client == None:
         raise errors.AccessDeniedError('You need to give consumer key & secret'
                                        ' with oauth_set_credentials first.')

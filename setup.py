@@ -1,4 +1,4 @@
-import os, re
+import os
 try:
     from setuptools import setup
 except ImportError:
