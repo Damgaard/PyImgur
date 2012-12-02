@@ -24,7 +24,7 @@ import os
 import unittest
 import uuid
 
-from . import *
+from pyimgur import *
 import test_auth as auth
 
 LOCAL_FILE = "local.jpg"

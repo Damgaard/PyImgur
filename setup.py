@@ -4,13 +4,13 @@ try:
 except ImportError:
     from distutils.core import setup
 
-PACKAGE_NAME = 'PyImgur'
+PACKAGE_NAME = 'pyimgur'
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 INIT = open(os.path.join(HERE, PACKAGE_NAME, '__init__.py')).read()
 README = open(os.path.join(HERE, 'README.md')).read()
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 setup(
     name=PACKAGE_NAME,

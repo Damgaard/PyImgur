@@ -26,9 +26,7 @@ import os
 import requests
 import oauth2 as oauth
 
-from . import decorators
-from . import errors
-
+from pyimgur import decorators, errors
 from pyimgur.helpers import _request, _test_response, _to_imgur_list
 
 _BASE_URL = "http://api.imgur.com/"
