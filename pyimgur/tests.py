@@ -160,6 +160,14 @@ class AuthenticatedTest(unittest.TestCase):
     def test_order_album_images(self):
         unittest.skip('Upstream bug.')
 
+    def test_upload_to_account_web(self):
+        oauth_set_credentials(auth.CONSUMER_KEY, auth.CONSUMER_SECRET,
+                              auth.TOKEN_KEY, auth.TOKEN_SECRET)
+        image_info = upload_image(url=WEB_IMG)
+        deletehash = image_info['image']['deletehash']
+        result = delete_image(deletehash)
+        self.assertEqual(result['message'], 'Success')
+
 
 class DownloadImageTest(unittest.TestCase):
     def test_download(self):
