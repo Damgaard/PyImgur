@@ -16,7 +16,7 @@
 """
 Test suite for PyImgur.
 
-Running the test suite takes 40-45 seconds.
+Running the test suite takes about 75 seconds.
 """
 
 import filecmp

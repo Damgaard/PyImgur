@@ -26,12 +26,7 @@ import pyimgur
 
 @decorator
 def require_authentication(function, *args, **kwargs):
-    """
-    Decorator for functions that require an api key.
-
-    So far, the only function that doesn't require this is
-    info_image.
-    """
+    """This function requires oauth_authentication to be executed."""
     if pyimgur._client is None or pyimgur._client.token is None:
         raise pyimgur.errors.AccessDeniedError('You need to be authenticated '
                                                'to do that')

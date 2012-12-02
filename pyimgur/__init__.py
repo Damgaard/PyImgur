@@ -14,7 +14,10 @@
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
 '''
-Main file and main functions for PyImgur.
+The easy way of using Imgur.
+
+The default settings in PyImgur are identical with the Imgur default settings.
+See https://github.com/Damgaard/PyImgur for details on how to use PyImgur.
 '''
 
 from base64 import b64encode
@@ -136,6 +139,12 @@ def stats(view='month'):
 
 def upload_image(image_path=None, url=None, title=None, caption=None,
                  api_key=None):
+    """
+    Upload the image at either the url or image_path.
+
+    If you provide an api_key, your image will be uploaded anonymously else
+    it will be uploaded to your authenticated account if you're logged in.
+    """
     if bool(image_path) == bool(url):
         raise LookupError('Precisely one of image_path or url must be given')
 

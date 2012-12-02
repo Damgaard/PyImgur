@@ -28,7 +28,7 @@ You can do almost everything you can do through the web frontend.
  * Upload images from the computer. Both anonymously and authenticated.
  * Delete images. By deletehash or any your authenticated account has uploaded.
  * Download images by image hash.
- * Find out what todays/this weeks/this months most popular images were. 
+ * Find out what todays/this weeks/this months most popular images were.
  * Find out all sorts of information about images or albums.
  * Get the oembed code for an image (json only at the moment).
  * Easily use oauth authentication to log in as a specific user.
@@ -37,13 +37,13 @@ You can do almost everything you can do through the web frontend.
  * Create and delete albums.
  * Edit the albums settings to make them private, display in grid and more.
  * Edit albums cover pictures.
- * Edit an image uploaded to an authenticated account. 
+ * Edit an image uploaded to an authenticated account.
  * Add images to albums.
  * And more!
 
 ## What can't I do?
 
-Some things aren't possible at all with the API, either due to limitations or bugs.
+Some things aren't possible at all with the API, either due to limitations or upstream bugs.
 
  * Find out user information.
  * See comments on images.
