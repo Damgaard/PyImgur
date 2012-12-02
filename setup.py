@@ -10,17 +10,17 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 INIT = open(os.path.join(HERE, PACKAGE_NAME, '__init__.py')).read()
 README = open(os.path.join(HERE, 'README.md')).read()
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 
 setup(
     name=PACKAGE_NAME,
     version=VERSION,
     author='Andreas Damgaard Pedersen',
     author_email='andreas.damgaard.pedersen@gmail.com',
-    url='',
+    url='https://github.com/Damgaard/PyImgur',
     description=('The easy way of using Imgur.'),
     long_description=README,
-    classifiers=['Development Status :: 5 - Production/Stable',
+    classifiers=['Development Status :: 4 - Beta',
                  'Environment :: Console',
                  'Intended Audience :: Developers',
                  'License :: OSI Approved :: GNU General Public License (GPL)',

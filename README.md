@@ -72,7 +72,7 @@ Alternatively, download the source from [Python Package Index](google.com), extr
 python setup.py install
 ```
 
-Imgur works with Python 2.7 and 3.3. It has the dependencies x, y and z. Installing via pip automatically installs these dependencies. Installing via setup.py requires you to manually ensure that these modules are present.
+Imgur works with Python 2.7. It has the dependencies decorator, requests and oauth2. Installing via pip automatically installs these dependencies. Installing via setup.py requires you to manually ensure that these modules are present.
 
 ## License
 
