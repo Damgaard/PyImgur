@@ -181,7 +181,6 @@ def oauth_set_credentials(consumer_key=None, consumer_secret=None,
                           'of either consumer_secret and consumer_key or '
                           'token_key and token_secret.')
 
-@decorators._client_has_consumer
 def oauth_pin(callback_url=''):
     """
     Get a url where the user can go to authorize our application.
@@ -192,6 +191,9 @@ def oauth_pin(callback_url=''):
     imgur site after authorisation where the pin will be displayed.
     """
     global _client
+    if _client == None:
+        raise errors.AccessDeniedError('You need to give consumer key & secret'
+                                       ' with oauth_set_credentials first.')
     if not (callback_url == '' or callback_url.startswith('http')):
         raise LookupError('Callback_url must start with http')
     _client.token = None

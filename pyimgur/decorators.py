@@ -14,7 +14,7 @@
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
 '''
-Decorators. Mainly used to ensure proper authentication before use.
+Decorators. Used to ensure proper authentication before use.
 '''
 
 from decorator import decorator
@@ -36,15 +36,3 @@ def require_authentication(function, *args, **kwargs):
         raise pyimgur.errors.AccessDeniedError('You need to be authenticated '
                                                'to do that')
     return function(*args, **kwargs)
-
-@decorator
-def _client_has_consumer(function, *args, **kwargs):
-    """
-    Decorator for functions that require consumer info has been added to _client
-
-    So far, the only function that doesn't require this is info_image.
-    """
-    if pyimgur._client != None:
-        return function(*args, **kwargs)
-    else:
-        raise pyimgur.errors.AccessDeniedError('You need to be authenticated to do that')
