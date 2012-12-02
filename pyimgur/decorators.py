@@ -17,39 +17,34 @@
 Decorators. Mainly used to ensure proper authentication before use.
 '''
 
-from functools import wraps
+from decorator import decorator
 
 # I would love to do from . import errors, _client. But sadly this gives
 # problems as _client is not defined at the runtime.
 
 import pyimgur
 
-def require_authentication(function):
+@decorator
+def require_authentication(function, *args, **kwargs):
     """
     Decorator for functions that require an api key.
 
     So far, the only function that doesn't require this is
     info_image.
     """
+    if pyimgur._client is None or pyimgur._client.token is None:
+        raise pyimgur.errors.AccessDeniedError('You need to be authenticated '
+                                               'to do that')
+    return function(*args, **kwargs)
 
-    @wraps(function)
-    def wrapped(*args, **kwargs):
-        if pyimgur._client is None or pyimgur._client.token is None:
-            raise pyimgur.errors.AccessDeniedError('You need to be authenticated to do that')
-        return function(*args, **kwargs)
-    return wrapped
-
-def _client_has_consumer(function):
+@decorator
+def _client_has_consumer(function, *args, **kwargs):
     """
     Decorator for functions that require consumer info has been added to _client
 
     So far, the only function that doesn't require this is info_image.
     """
-
-    @wraps(function)
-    def wrapped(*args, **kwargs):
-        if pyimgur._client != None:
-            return function(*args, **kwargs)
-        else:
-            raise pyimgur.errors.AccessDeniedError('You need to be authenticated to do that')
-    return wrapped
+    if pyimgur._client != None:
+        return function(*args, **kwargs)
+    else:
+        raise pyimgur.errors.AccessDeniedError('You need to be authenticated to do that')

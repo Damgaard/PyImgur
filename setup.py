@@ -32,6 +32,6 @@ setup(
     keywords='imgur api wrapper PyImgur',
     packages=[PACKAGE_NAME],
     package_data={'': ['COPYING'], PACKAGE_NAME: ['*.ini']},
-    install_requires=['requests', 'oauth2'],
+    install_requires=['decorator', 'requests', 'oauth2'],
     test_suite='pyimgur',
     )
