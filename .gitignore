@@ -1,9 +1,0 @@
-*.pyc
-*.egg*
-*.un*
-/bin
-/dist
-/docs
-/scripts
-test_auth.py
-local.jpg
