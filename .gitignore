@@ -1,0 +1,17 @@
+# Images #
+##########
+
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Other #
+#########
+
+*.pdf
+
+# Client Programs to demonstrate program #
+##########################################
+
+client/
