@@ -173,10 +173,10 @@ class Image:
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
         payload = {'title': title, 'description': description}
-        result = request.send_request("https://api.imgur.com/3/image/%s" %
-                                      self.deletehash, params=payload,
-                                      method='POST')
-        if result:
+        is_updated = request.send_request("https://api.imgur.com/3/image/%s" %
+                                          self.deletehash, params=payload,
+                                          method='POST')
+        if is_updated:
             self.title = title or self.title
             self.description = description or self.description
-        return result
+        return is_updated
