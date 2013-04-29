@@ -28,6 +28,13 @@ def populate(self, json_dict):
         setattr(self, key, value)
 
 
+def to_imgur_list(regular_list):
+    """Turn a python list into the format imgur expects."""
+    if regular_list is None:
+        return None
+    return ",".join(str(id) for id in regular_list)
+
+
 class Imgur:
     DEFAULT_LONG_URL = "imgur.com"
     # Put these urls into a configuration object that retrieves the values from
