@@ -48,9 +48,23 @@ class Imgur:
         """Is the given url a valid imgur url?"""
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
 
+    def create_album(self, title=None, description=None, ids=None, cover=None):
+        url = "https://api.imgur.com/3/album/"
+        payload = {'ids': to_imgur_list(ids), 'title': title,
+                   'description': description, 'cover': cover}
+        new_album = request.send_request(url, params=payload, method='POST')
+        album = self.get_album(new_album['id'])
+        album.deletehash = new_album['deletehash']
+        return album
+
     def get_at_url(self, url):
         """Return whatever is at the imgur url as an object."""
         pass
+
+    def get_album(self, id):
+        """Return information about this album."""
+        json = request.send_request("https://api.imgur.com/3/album/%s" % id)
+        return Album(json, self)
 
     def get_image(self, id):
         """Return a Image object representing the image with id."""
@@ -77,6 +91,65 @@ class Imgur:
         return_image = self.get_image(img['id'])
         return_image.deletehash = img['deletehash']
         return return_image
+
+
+class Album:
+    def __init__(self, json_dict, imgur):
+        self.deletehash = None
+        self.images = []
+        self.imgur = imgur
+        populate(self, json_dict)
+
+    def __repr__(self):
+        return "<Album %s>" % self.id
+
+    def add_images(self, ids):
+        """Add images to the album."""
+        pass
+
+    def delete(self):
+        url = "https://api.imgur.com/3/album/%s" % self.deletehash
+        return request.send_request(url, method="DELETE")
+
+    def favorite(self):
+        """Favorite the album."""
+        pass
+
+    # TODO: Doing it like this seem to obfuscate the API. Since we change
+    # the state of the album without the user taking a direct action.
+    def get_images(self):
+        images = request.send_request("https://api.imgur.com/3/album/%s/images"
+                                      % self.id)
+        self.images = [Image(img, self.imgur) for img in images]
+        return self.images
+
+    def remove_images(self, ids):
+        """Remove images from the album."""
+        pass
+
+    def set_images(self, ids):
+        """Set the images in this album."""
+        pass
+
+    def update(self, title=None, description=None, ids=None, cover=None,
+               layout=None, privacy=None):
+        """Update the albums information."""
+        url = "https://api.imgur.com/3/album/%s" % self.deletehash
+        ids = to_imgur_list(ids)
+        payload = {'title': title, 'description': description,
+                   'ids': ids, 'cover': cover,
+                   'layout': layout, 'privacy': privacy}
+        is_updated = request.send_request(url, params=payload, method='POST')
+        if is_updated:
+            self.title = title or self.title
+            self.description = description or self.description
+            self.layout = layout or self.layout
+            self.privacy = privacy or self.privacy
+            if cover is not None:
+                self.cover = Image(cover)
+            if ids:
+                self.images = [Image(img, self.imgur) for img in ids]
+        return is_updated
 
 
 class Image:

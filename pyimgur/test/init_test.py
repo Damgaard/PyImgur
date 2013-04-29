@@ -94,3 +94,17 @@ def test_to_imgur_list():
     assert None  == pyimgur.to_imgur_list(None)
     assert "QK1fZ9L"  == pyimgur.to_imgur_list(["QK1fZ9L"])
     assert "QK1fZ9L,NsuNI"  == pyimgur.to_imgur_list(["QK1fZ9L", "NsuNI"])
+
+
+def test_create_album():
+    album = im.create_album()
+    assert isinstance(album, pyimgur.Album)
+    album.delete()
+
+
+def test_update_album():
+    album = im.create_album(TITLE)
+    assert album.title == TITLE
+    album.update("Different title")
+    assert album.title == "Different title"
+    album.delete()
