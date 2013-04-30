@@ -28,13 +28,6 @@ def populate(self, json_dict):
         setattr(self, key, value)
 
 
-def to_imgur_list(regular_list):
-    """Turn a python list into the format imgur expects."""
-    if regular_list is None:
-        return None
-    return ",".join(str(id) for id in regular_list)
-
-
 class Imgur:
     DEFAULT_LONG_URL = "imgur.com"
     # Put these urls into a configuration object that retrieves the values from
@@ -54,7 +47,7 @@ class Imgur:
 
     def create_album(self, title=None, description=None, ids=None, cover=None):
         url = "https://api.imgur.com/3/album/"
-        payload = {'ids': to_imgur_list(ids), 'title': title,
+        payload = {'ids': ids, 'title': title,
                    'description': description, 'cover': cover}
         new_album = request.send_request(url, params=payload, method='POST')
         album = self.get_album(new_album['id'])
@@ -189,7 +182,6 @@ class Album(object):
                layout=None, privacy=None):
         """Update the albums information."""
         url = "https://api.imgur.com/3/album/%s" % self.deletehash
-        ids = to_imgur_list(ids)
         payload = {'title': title, 'description': description,
                    'ids': ids, 'cover': cover,
                    'layout': layout, 'privacy': privacy}
