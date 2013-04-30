@@ -48,6 +48,10 @@ class Imgur:
         """Is the given url a valid imgur url?"""
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
 
+    def create_account(self, username):
+        """Create this user on Imgur."""
+        pass
+
     def create_album(self, title=None, description=None, ids=None, cover=None):
         url = "https://api.imgur.com/3/album/"
         payload = {'ids': to_imgur_list(ids), 'title': title,
@@ -60,6 +64,12 @@ class Imgur:
     def get_at_url(self, url):
         """Return whatever is at the imgur url as an object."""
         pass
+
+    def get_account(self, username):
+        """Return information about this account."""
+        url = "https://api.imgur.com/3/account/%s" % username
+        json = request.send_request(url)
+        return Account(json, self)
 
     def get_album(self, id):
         """Return information about this album."""
@@ -98,7 +108,46 @@ class Imgur:
         return return_image
 
 
-class Album:
+def get_album_or_image(json, imgur):
+    """Return a gallery image/album depending on what the json represent."""
+    if json['is_album']:
+        return Gallery_album(json, imgur)
+    return Gallery_image(json, imgur)
+
+
+class Account:
+    def __init__(self, json_dict, imgur):
+        self.imgur = imgur
+        populate(self, json_dict)
+
+    def __repr__(self):
+        return "<Account %s>" % self.url
+
+    def delete(self):
+        """Delete this user."""
+        pass
+
+    def get_favorites(self):
+        """Return the users favorited images."""
+        pass
+
+    def get_gallery_favorites(self):
+        url = "https://api.imgur.com/3/account/%s/gallery_favorites" % self.url
+        resp = request.send_request(url)
+        return [Image(img, self.imgur) for img in resp]
+
+    # TODO: This returns a subset of the available informations in
+    # Gallery_image and Gallery_album. A second call would be neccesary to get
+    # them all.
+    def get_submissions(self):
+        # TODO: Add pagination
+        url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
+                                                                     0)
+        resp = request.send_request(url)
+        return [get_album_or_image(thing) for thing in resp]
+
+
+class Album(object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
         self.images = []
@@ -157,7 +206,15 @@ class Album:
         return is_updated
 
 
-class Comment:
+class Gallery_album(Album):
+    def __init__(self, json, imgur):
+        super(Gallery_album, self).__init__()
+
+    def __repr__(self):
+        return "<Gallery_album %s>" % self.id
+
+
+class Comment(object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
         self.imgur = imgur
@@ -200,7 +257,7 @@ class Comment:
         pass
 
 
-class Image:
+class Image(object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
         self.imgur = imgur
@@ -228,3 +285,11 @@ class Image:
             self.title = title or self.title
             self.description = description or self.description
         return is_updated
+
+
+class Gallery_image(Image):
+    def __init__(self, json, imgur):
+        super(Gallery_image, self).__init__(json, imgur)
+
+    def __repr__(self):
+        return "<Gallery_image %s>" % self.id
