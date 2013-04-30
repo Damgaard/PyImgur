@@ -28,6 +28,34 @@ def populate(self, json_dict):
         setattr(self, key, value)
 
 
+class Gallery_item(object):
+    """Functionality shared by Gallery_image and Gallery_album."""
+    def comment(self, comment):
+        pass
+
+    def downvote(self):
+        pass
+
+    def get_comment_count(self):
+        # Can't this just be implemented with len(get_comments) or
+        # len(get_comment_ids). Are we dealing with some pagination here, some
+        # other limit or is the ratelimit cost lower for this than the others?
+        pass
+
+    def get_comment_ids(self):
+        # What's the advantage of this over get_comments?
+        pass
+
+    def get_comments(self):
+        pass
+
+    def get_votes(self):
+        pass
+
+    def upvote(self):
+        pass
+
+
 class Imgur:
     DEFAULT_LONG_URL = "imgur.com"
     # Put these urls into a configuration object that retrieves the values from
@@ -74,10 +102,42 @@ class Imgur:
         json = request.send_request("https://api.imgur.com/3/comment/%s" % id)
         return Comment(json, self)
 
+    def get_gallery(self, section='hot', sort='viral', page=0, window='day',
+                    showViral=True):
+        """Return the albums and and images in the gallery."""
+        # TODO: Add pagination
+        url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
+               (section, sort, window, page, showViral))
+               # TODO add a coversion of showViral from Python talk to Imgur
+               # talk. Maybe it can be sent as a parameter? That's possible
+               # with GETs right? Even though they get sent over the url
+        resp = request.send_request(url)
+        return [get_album_or_image(thing, self) for thing in resp]
+
     def get_image(self, id):
         """Return a Image object representing the image with id."""
         resp = request.send_request("https://api.imgur.com/3/image/%s" % id)
         return Image(resp, self)
+
+    def get_subreddit_gallery(self, subreddit, sort='time', page=0,
+                              window='top'):
+        """View gallery images for a subreddit."""
+        url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%d" %
+               (subreddit, sort, window, page))
+        resp = request.send_request(url)
+        return [get_album_or_image(thing, self) for thing in resp]
+
+    def get_subreddit_image(self):
+        """View a single image in the subreddit."""
+        # I think this duplicates get_gallery_image. So there should be no
+        # reason to implement it.
+        pass
+
+    def search_gallery(self, q):
+        """Search the gallery with a given query string."""
+        url = "https://api.imgur.com/3/gallery/search?q=%s" % q
+        resp = request.send_request(url)
+        return [get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(self, path, title=None, description=None, album_id=None):
         """Upload the image at path and return it."""
@@ -137,7 +197,7 @@ class Account:
         url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
                                                                      0)
         resp = request.send_request(url)
-        return [get_album_or_image(thing) for thing in resp]
+        return [get_album_or_image(thing, self.imgur) for thing in resp]
 
 
 class Album(object):
@@ -178,6 +238,10 @@ class Album(object):
         """Set the images in this album."""
         pass
 
+    def submit_to_gallery():
+        """Add this to the gallery."""
+        pass
+
     def update(self, title=None, description=None, ids=None, cover=None,
                layout=None, privacy=None):
         """Update the albums information."""
@@ -198,9 +262,9 @@ class Album(object):
         return is_updated
 
 
-class Gallery_album(Album):
-    def __init__(self, json, imgur):
-        super(Gallery_album, self).__init__()
+class Gallery_album(Album, Gallery_item):
+    def __init__(self, *args, **kwargs):
+        super(Gallery_album, self).__init__(*args, **kwargs)
 
     def __repr__(self):
         return "<Gallery_album %s>" % self.id
@@ -267,6 +331,16 @@ class Image(object):
         """Favorite the image."""
         pass
 
+    def remove_from_gallery():
+        """Remove this image from the gallery."""
+        # TODO. Text implies this is image only and won't work with albums.
+        # Confirm
+        pass
+
+    def submit_to_gallery():
+        """Add this to the gallery."""
+        pass
+
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
         payload = {'title': title, 'description': description}
@@ -279,7 +353,7 @@ class Image(object):
         return is_updated
 
 
-class Gallery_image(Image):
+class Gallery_image(Image, Gallery_item):
     def __init__(self, json, imgur):
         super(Gallery_image, self).__init__(json, imgur)
 
