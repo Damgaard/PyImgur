@@ -66,6 +66,11 @@ class Imgur:
         json = request.send_request("https://api.imgur.com/3/album/%s" % id)
         return Album(json, self)
 
+    def get_comment(self, id):
+        """Return information about this comment."""
+        json = request.send_request("https://api.imgur.com/3/comment/%s" % id)
+        return Comment(json, self)
+
     def get_image(self, id):
         """Return a Image object representing the image with id."""
         resp = request.send_request("https://api.imgur.com/3/image/%s" % id)
@@ -152,6 +157,49 @@ class Album:
         return is_updated
 
 
+class Comment:
+    def __init__(self, json_dict, imgur):
+        self.deletehash = None
+        self.imgur = imgur
+        populate(self, json_dict)
+        # Possible via webend, not exposed via json
+        # self.permalink == ?!??!
+
+    def __repr__(self):
+        return "<Comment %s>" % self.id
+
+    def delete(self):
+        """Delete the comment."""
+        pass
+
+    def downvote(self):
+        """Downvote this comment."""
+        pass
+
+    def get_replies(self):
+        """Create a reply for the given comment."""
+        json = request.send_request("https://api.imgur.com/3/comment/"
+                                    "%s/replies" % self.id)
+        child_comments = json['children']
+        return [Comment(com, self.imgur) for com in child_comments]
+
+    # Question. Can you only reply to images? If you can comment on other
+    # comments, then how do you do that? Use comment_id instead of image_id?
+    # It's clearly possible to reply to a comment.
+    # http://imgur.com/gallery/LA2RQqp/comment/49538390
+    # If it is image_only, then this should probably be moved to Image
+    def reply(self, image_id, text):
+        """Create a reply for the given comment."""
+        pass
+
+    def report(self):
+        """Reply comment for being inappropriate."""
+
+    def upvote(self):
+        """Upvote this comment."""
+        pass
+
+
 class Image:
     def __init__(self, json_dict, imgur):
         self.deletehash = None
@@ -159,7 +207,7 @@ class Image:
         populate(self, json_dict)
 
     def __repr__(self):
-        return "<Comment %s>" % self.id
+        return "<Image %s>" % self.id
 
     def delete(self):
         """Delete the image."""
