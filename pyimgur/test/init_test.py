@@ -93,9 +93,10 @@ def test_update_image():
 
 
 def test_to_imgur_list():
-    assert None == pyimgur.to_imgur_list(None)
-    assert "QK1fZ9L" == pyimgur.to_imgur_list(["QK1fZ9L"])
-    assert "QK1fZ9L,NsuNI" == pyimgur.to_imgur_list(["QK1fZ9L", "NsuNI"])
+    assert None == pyimgur.request.to_imgur_list(None)
+    assert "QK1fZ9L" == pyimgur.request.to_imgur_list(["QK1fZ9L"])
+    assert "QK1fZ9L,NsuNI" == pyimgur.request.to_imgur_list(["QK1fZ9L",
+                                                             "NsuNI"])
 
 
 def test_create_album():
