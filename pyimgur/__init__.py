@@ -25,6 +25,9 @@ import request
 
 class Basic_object(object):
     """Contains the basic functionality shared by a lot of PyImgurs classes."""
+    def __repr__(self):
+        return "<%s %s>" % (type(self).__name__, self.id)
+
     def populate(self, json_dict):
         for key, value in json_dict.iteritems():
             setattr(self, key, value)
@@ -175,8 +178,9 @@ class Account(Basic_object):
         self.imgur = imgur
         self.populate(json_dict)
 
+    # Overrides __repr__ method in Basic_object
     def __repr__(self):
-        return "<Account %s>" % self.url
+        return "<%s %s>" % (type(self).__name__, self.url)
 
     def delete(self):
         """Delete this user."""
@@ -208,9 +212,6 @@ class Album(Basic_object):
         self.images = []
         self.imgur = imgur
         self.populate(json_dict)
-
-    def __repr__(self):
-        return "<Album %s>" % self.id
 
     def add_images(self, ids):
         """Add images to the album."""
@@ -268,9 +269,6 @@ class Gallery_album(Album, Gallery_item):
     def __init__(self, *args, **kwargs):
         super(Gallery_album, self).__init__(*args, **kwargs)
 
-    def __repr__(self):
-        return "<Gallery_album %s>" % self.id
-
 
 class Comment(Basic_object):
     def __init__(self, json_dict, imgur):
@@ -279,9 +277,6 @@ class Comment(Basic_object):
         self.populate(json_dict)
         # Possible via webend, not exposed via json
         # self.permalink == ?!??!
-
-    def __repr__(self):
-        return "<Comment %s>" % self.id
 
     def delete(self):
         """Delete the comment."""
@@ -321,9 +316,6 @@ class Image(Basic_object):
         self.imgur = imgur
         self.populate(json_dict)
 
-    def __repr__(self):
-        return "<Image %s>" % self.id
-
     def delete(self):
         """Delete the image."""
         return request.send_request("https://api.imgur.com/3/image/%s" %
@@ -358,6 +350,3 @@ class Image(Basic_object):
 class Gallery_image(Image, Gallery_item):
     def __init__(self, json, imgur):
         super(Gallery_image, self).__init__(json, imgur)
-
-    def __repr__(self):
-        return "<Gallery_image %s>" % self.id
