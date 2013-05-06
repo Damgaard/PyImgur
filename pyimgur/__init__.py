@@ -23,9 +23,11 @@ import request
 # Needs to be moved into another file or to be standard behaviour in a clas
 # this function inherits from.
 
-def populate(self, json_dict):
-    for key, value in json_dict.iteritems():
-        setattr(self, key, value)
+class Basic_object(object):
+    """Contains the basic functionality shared by a lot of PyImgurs classes."""
+    def populate(self, json_dict):
+        for key, value in json_dict.iteritems():
+            setattr(self, key, value)
 
 
 class Gallery_item(object):
@@ -168,10 +170,10 @@ def get_album_or_image(json, imgur):
     return Gallery_image(json, imgur)
 
 
-class Account:
+class Account(Basic_object):
     def __init__(self, json_dict, imgur):
         self.imgur = imgur
-        populate(self, json_dict)
+        self.populate(json_dict)
 
     def __repr__(self):
         return "<Account %s>" % self.url
@@ -200,12 +202,12 @@ class Account:
         return [get_album_or_image(thing, self.imgur) for thing in resp]
 
 
-class Album(object):
+class Album(Basic_object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
         self.images = []
         self.imgur = imgur
-        populate(self, json_dict)
+        self.populate(json_dict)
 
     def __repr__(self):
         return "<Album %s>" % self.id
@@ -270,11 +272,11 @@ class Gallery_album(Album, Gallery_item):
         return "<Gallery_album %s>" % self.id
 
 
-class Comment(object):
+class Comment(Basic_object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
         self.imgur = imgur
-        populate(self, json_dict)
+        self.populate(json_dict)
         # Possible via webend, not exposed via json
         # self.permalink == ?!??!
 
@@ -313,11 +315,11 @@ class Comment(object):
         pass
 
 
-class Image(object):
+class Image(Basic_object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
         self.imgur = imgur
-        populate(self, json_dict)
+        self.populate(json_dict)
 
     def __repr__(self):
         return "<Image %s>" % self.id

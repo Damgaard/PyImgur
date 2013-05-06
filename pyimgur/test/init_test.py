@@ -36,14 +36,15 @@ im = pyimgur.Imgur()
 TITLE = "Fancy title!"
 DESCRIPTION = "Hello Description"
 
-class Empty:
+
+class Empty(pyimgur.Basic_object):
     pass
 
-"""
+
 def test_populate():
     info = {'score': 1, 'hello': 'world'}
     inst = Empty()
-    pyimgur.populate(inst, info)
+    inst.populate(info)
     assert 'score' in vars(inst)
     assert 'hello' in vars(inst)
     assert inst.score == 1
@@ -81,7 +82,7 @@ def test_upload_image_with_args():
     assert image.description == DESCRIPTION
     assert image.deletehash is not None
     image.delete()
-"""
+
 
 def test_update_image():
     image = im.upload_image('paradox.png')
