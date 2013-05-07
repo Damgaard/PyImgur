@@ -19,6 +19,8 @@ import re
 from cache import Default_cache
 import request
 
+from authentication import headers
+
 
 # Needs to be moved into another file or to be standard behaviour in a clas
 # this function inherits from.
@@ -54,7 +56,7 @@ class Gallery_item(object):
 
     def get_comments(self):
         url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
-        resp = request.send_request(url)
+        resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
 
     def get_votes(self):
@@ -73,6 +75,10 @@ class Imgur:
         self.long_url = long_url or self.DEFAULT_LONG_URL
         self.cache = cache or Default_cache()
 
+    def _send_request(self, *args, **kwargs):
+        """Handles sending requests to Imgur and updates ratelimit info."""
+        return request.send_request(*args, authentication=headers, **kwargs)
+
     def is_imgur_url(self, url):
         """Is the given url a valid imgur url?"""
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
@@ -85,7 +91,7 @@ class Imgur:
         url = "https://api.imgur.com/3/album/"
         payload = {'ids': ids, 'title': title,
                    'description': description, 'cover': cover}
-        new_album = request.send_request(url, params=payload, method='POST')
+        new_album = self._send_request(url, params=payload, method='POST')
         album = self.get_album(new_album['id'])
         album.deletehash = new_album['deletehash']
         return album
@@ -97,17 +103,17 @@ class Imgur:
     def get_account(self, username):
         """Return information about this account."""
         url = "https://api.imgur.com/3/account/%s" % username
-        json = request.send_request(url)
+        json = self._send_request(url)
         return Account(json, self)
 
     def get_album(self, id):
         """Return information about this album."""
-        json = request.send_request("https://api.imgur.com/3/album/%s" % id)
+        json = self._send_request("https://api.imgur.com/3/album/%s" % id)
         return Album(json, self)
 
     def get_comment(self, id):
         """Return information about this comment."""
-        json = request.send_request("https://api.imgur.com/3/comment/%s" % id)
+        json = self._send_request("https://api.imgur.com/3/comment/%s" % id)
         return Comment(json, self)
 
     def get_gallery(self, section='hot', sort='viral', page=0, window='day',
@@ -119,12 +125,12 @@ class Imgur:
                # TODO add a coversion of showViral from Python talk to Imgur
                # talk. Maybe it can be sent as a parameter? That's possible
                # with GETs right? Even though they get sent over the url
-        resp = request.send_request(url)
+        resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
     def get_image(self, id):
         """Return a Image object representing the image with id."""
-        resp = request.send_request("https://api.imgur.com/3/image/%s" % id)
+        resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
         return Image(resp, self)
 
     def get_subreddit_gallery(self, subreddit, sort='time', page=0,
@@ -132,7 +138,7 @@ class Imgur:
         """View gallery images for a subreddit."""
         url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%d" %
                (subreddit, sort, window, page))
-        resp = request.send_request(url)
+        resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
     def get_subreddit_image(self):
@@ -144,7 +150,7 @@ class Imgur:
     def search_gallery(self, q):
         """Search the gallery with a given query string."""
         url = "https://api.imgur.com/3/gallery/search?q=%s" % q
-        resp = request.send_request(url)
+        resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(self, path, title=None, description=None, album_id=None):
@@ -156,8 +162,8 @@ class Imgur:
         payload = {'album_id': album_id, 'image': image,
                    'title': title, 'description': description}
 
-        img = request.send_request("https://api.imgur.com/3/image",
-                                   params=payload, method='POST')
+        img = self._send_request("https://api.imgur.com/3/image",
+                                 params=payload, method='POST')
         # The information returned when we upload the image is only a subset
         # of the information about an image. When it was uploaded (datetime)
         # for instance isn't returned. We have to re-request the image to get
@@ -195,7 +201,7 @@ class Account(Basic_object):
 
     def get_gallery_favorites(self):
         url = "https://api.imgur.com/3/account/%s/gallery_favorites" % self.url
-        resp = request.send_request(url)
+        resp = self.imgur._send_request(url)
         return [Image(img, self.imgur) for img in resp]
 
     # TODO: This returns a subset of the available informations in
@@ -205,7 +211,7 @@ class Account(Basic_object):
         # TODO: Add pagination
         url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
                                                                      0)
-        resp = request.send_request(url)
+        resp = self.imgur._send_request(url)
         return [get_album_or_image(thing, self.imgur) for thing in resp]
 
 
@@ -222,7 +228,7 @@ class Album(Basic_object):
 
     def delete(self):
         url = "https://api.imgur.com/3/album/%s" % self.deletehash
-        return request.send_request(url, method="DELETE")
+        return self.imgur._send_request(url, method="DELETE")
 
     def favorite(self):
         """Favorite the album."""
@@ -231,8 +237,8 @@ class Album(Basic_object):
     # TODO: Doing it like this seem to obfuscate the API. Since we change
     # the state of the album without the user taking a direct action.
     def get_images(self):
-        images = request.send_request("https://api.imgur.com/3/album/%s/images"
-                                      % self.id)
+        url = "https://api.imgur.com/3/album/%s/images" % self.id
+        images = self.imgur._send_request(url)
         self.images = [Image(img, self.imgur) for img in images]
         return self.images
 
@@ -255,7 +261,7 @@ class Album(Basic_object):
         payload = {'title': title, 'description': description,
                    'ids': ids, 'cover': cover,
                    'layout': layout, 'privacy': privacy}
-        is_updated = request.send_request(url, params=payload, method='POST')
+        is_updated = self.imgur._send_request(url, params=payload, method='POST')
         if is_updated:
             self.title = title or self.title
             self.description = description or self.description
@@ -291,8 +297,8 @@ class Comment(Basic_object):
 
     def get_replies(self):
         """Create a reply for the given comment."""
-        json = request.send_request("https://api.imgur.com/3/comment/"
-                                    "%s/replies" % self.id)
+        url = "https://api.imgur.com/3/comment/%s/replies" % self.id
+        json = self.imgur._send_request(url)
         child_comments = json['children']
         return [Comment(com, self.imgur) for com in child_comments]
 
@@ -321,8 +327,8 @@ class Image(Basic_object):
 
     def delete(self):
         """Delete the image."""
-        return request.send_request("https://api.imgur.com/3/image/%s" %
-                                    self.deletehash, method='DELETE')
+        return self.imgur._send_request("https://api.imgur.com/3/image/%s" %
+                                        self.deletehash, method='DELETE')
 
     def favorite(self):
         """Favorite the image."""
@@ -341,9 +347,9 @@ class Image(Basic_object):
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
         payload = {'title': title, 'description': description}
-        is_updated = request.send_request("https://api.imgur.com/3/image/%s" %
-                                          self.deletehash, params=payload,
-                                          method='POST')
+        url = "https://api.imgur.com/3/image/%s" % self.deletehash
+        is_updated = self.imgur._send_request(url, params=payload,
+                                              method='POST')
         if is_updated:
             self.title = title or self.title
             self.description = description or self.description

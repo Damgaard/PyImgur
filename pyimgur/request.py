@@ -18,8 +18,6 @@
 import json
 import requests
 
-from authentication import headers
-
 
 def to_imgur_list(regular_list):
     """Turn a python list into the format imgur expects."""
@@ -40,10 +38,13 @@ def to_imgur_format(params):
     return parsed
 
 
-def send_request(url, params=None, authentication=None, method='GET'):
+def send_request(url, params=None, method='GET', authentication=None):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
+    # We may need to add more elements to the header later. For now, it seems
+    # the only thing in the header is the authentication
+    headers = authentication
     # NOTE I could also convert the returned output to the correct object here.
     # The reason I don't is that some queries just want the json, so they can
     # update an existing object. This we do with lazy evaluation. Here we
