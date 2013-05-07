@@ -42,17 +42,20 @@ class Gallery_item(object):
         pass
 
     def get_comment_count(self):
-        # Can't this just be implemented with len(get_comments) or
-        # len(get_comment_ids). Are we dealing with some pagination here, some
-        # other limit or is the ratelimit cost lower for this than the others?
-        pass
+        # So far I've decided not to implement this and get_comment_ids. Their
+        # functionality seems convered by get_comments on the assumption that
+        # there is no limit to the number of comments returned.
+        raise NotImplementedError("Use len(get_comments) instead")
 
     def get_comment_ids(self):
-        # What's the advantage of this over get_comments?
-        pass
+        raise NotImplementedError("Use get_comments instead to return the "
+                                  "Comment objects and retrieve the ids from "
+                                  "that call")
 
     def get_comments(self):
-        pass
+        url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
+        resp = request.send_request(url)
+        return [Comment(com, self.imgur) for com in resp]
 
     def get_votes(self):
         pass

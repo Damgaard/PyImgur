@@ -111,3 +111,25 @@ def test_update_album():
     album.update("Different title")
     assert album.title == "Different title"
     album.delete()
+
+
+def test_get_comments_count_error():
+    gallery = im.get_gallery()
+    gallery_item = gallery[0]
+    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
+        gallery_item.get_comment_count()
+
+
+def test_get_comments_ids_error():
+    gallery = im.get_gallery()
+    gallery_item = gallery[0]
+    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
+        gallery_item.get_comment_ids()
+
+
+def test_get_comments():
+    gallery = im.get_gallery()
+    gallery_item = gallery[0]
+    comments = gallery_item.get_comments()
+    assert isinstance(comments, list)
+    assert isinstance(comments[0], pyimgur.Comment)
