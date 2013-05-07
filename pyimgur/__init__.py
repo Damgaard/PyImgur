@@ -466,3 +466,13 @@ class Image(Basic_object):
 class Gallery_image(Image, Gallery_item):
     def __init__(self, json, imgur):
         super(Gallery_image, self).__init__(json, imgur)
+
+
+class Message(object):
+    # Requires login to test
+    pass
+
+
+class Notification(object):
+    # Requires login to test
+    pass
