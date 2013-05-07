@@ -63,5 +63,7 @@ def send_request(url, params=None, method='GET', authentication=None):
         resp = requests.delete(url, verify=False, headers=headers)
     if not resp.ok:
         resp.raise_for_status()
-    result = json.loads(resp.content)['data']
-    return result
+    content = json.loads(resp.content)['data']
+    ratelimit_info = {key: value for (key, value) in resp.headers.items() if
+                      key.startswith('x-ratelimit')}
+    return content, ratelimit_info

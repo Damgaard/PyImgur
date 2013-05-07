@@ -22,7 +22,7 @@ import request
 from authentication import headers
 
 
-# Needs to be moved into another file or to be standard behaviour in a clas
+# Needs to be moved into another file or to be standard behaviour in a class
 # this function inherits from.
 
 class Basic_object(object):
@@ -74,10 +74,27 @@ class Imgur:
     def __init__(self, long_url=None, short_url=None, cache=None):
         self.long_url = long_url or self.DEFAULT_LONG_URL
         self.cache = cache or Default_cache()
+        self.ratelimit_clientlimit = None
+        self.ratelimit_clientremaining = None
+        self.ratelimit_userlimit = None
+        self.ratelimit_userremaining = None
+        self.ratelimit_userreset = None
 
     def _send_request(self, *args, **kwargs):
         """Handles sending requests to Imgur and updates ratelimit info."""
-        return request.send_request(*args, authentication=headers, **kwargs)
+        result = request.send_request(*args, authentication=headers, **kwargs)
+        content, ratelimit_info = result
+        self.ratelimit_clientlimit = ratelimit_info['x-ratelimit-clientlimit']
+        self.ratelimit_clientremaining = ratelimit_info['x-ratelimit-'
+                                                        'clientremaining']
+        self.ratelimit_userlimit = ratelimit_info['x-ratelimit-userlimit']
+        self.ratelimit_userremaining = ratelimit_info['x-ratelimit-'
+                                                      'userremaining']
+        self.ratelimit_userreset = ratelimit_info['x-ratelimit-userreset']
+        # Note: When the cache is implemented, it's important that the
+        # ratelimit info doesn't get updated with the ratelimit info in the
+        # cache since that's likely incorrect.
+        return content
 
     def is_imgur_url(self, url):
         """Is the given url a valid imgur url?"""
