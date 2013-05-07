@@ -65,6 +65,8 @@ def send_request(url, params=None, method='GET', authentication=None):
         resp = requests.delete(url, verify=False, headers=headers)
     if not resp.ok:
         resp.raise_for_status()
+    # Some times we get a 200 return, but no content. Either an exception
+    # should be raised or ideally, the request attempted again up to 3 times.
     content = json.loads(resp.content)['data']
     ratelimit_info = {key: value for (key, value) in resp.headers.items() if
                       key.startswith('x-ratelimit')}
