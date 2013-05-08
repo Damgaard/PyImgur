@@ -68,6 +68,6 @@ def send_request(url, params=None, method='GET', authentication=None):
     # Some times we get a 200 return, but no content. Either an exception
     # should be raised or ideally, the request attempted again up to 3 times.
     content = json.loads(resp.content)['data']
-    ratelimit_info = {key: value for (key, value) in resp.headers.items() if
-                      key.startswith('x-ratelimit')}
+    ratelimit_info = {key: int(value) for (key, value) in resp.headers.items()
+                      if key.startswith('x-ratelimit')}
     return content, ratelimit_info
