@@ -16,7 +16,6 @@
 from base64 import b64encode
 import re
 
-from cache import Default_cache
 import request
 
 from authentication import headers
@@ -71,9 +70,8 @@ class Imgur:
     # Put these urls into a configuration object that retrieves the values from
     # settings file.
 
-    def __init__(self, long_url=None, short_url=None, cache=None):
+    def __init__(self, long_url=None, short_url=None):
         self.long_url = long_url or self.DEFAULT_LONG_URL
-        self.cache = cache or Default_cache()
         self.ratelimit_clientlimit = None
         self.ratelimit_clientremaining = None
         self.ratelimit_userlimit = None
