@@ -21,8 +21,12 @@ import request
 from authentication import headers
 
 
-# Needs to be moved into another file or to be standard behaviour in a class
-# this function inherits from.
+def get_album_or_image(json, imgur):
+    """Return a gallery image/album depending on what the json represent."""
+    if json['is_album']:
+        return Gallery_album(json, imgur)
+    return Gallery_image(json, imgur)
+
 
 class Basic_object(object):
     """Contains the basic functionality shared by a lot of PyImgurs classes."""
@@ -32,171 +36,6 @@ class Basic_object(object):
     def populate(self, json_dict):
         for key, value in json_dict.iteritems():
             setattr(self, key, value)
-
-
-class Gallery_item(object):
-    """Functionality shared by Gallery_image and Gallery_album."""
-    def comment(self, comment):
-        pass
-
-    def downvote(self):
-        pass
-
-    def get_comment_count(self):
-        # So far I've decided not to implement this and get_comment_ids. Their
-        # functionality seems convered by get_comments on the assumption that
-        # there is no limit to the number of comments returned.
-        raise NotImplementedError("Use len(get_comments) instead")
-
-    def get_comment_ids(self):
-        raise NotImplementedError("Use get_comments instead to return the "
-                                  "Comment objects and retrieve the ids from "
-                                  "that call")
-
-    def get_comments(self):
-        url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
-        resp = self.imgur._send_request(url)
-        return [Comment(com, self.imgur) for com in resp]
-
-    def get_votes(self):
-        pass
-
-    def upvote(self):
-        pass
-
-
-class Imgur:
-    DEFAULT_LONG_URL = "imgur.com"
-    # Put these urls into a configuration object that retrieves the values from
-    # settings file.
-
-    def __init__(self, long_url=None, short_url=None):
-        self.long_url = long_url or self.DEFAULT_LONG_URL
-        self.ratelimit_clientlimit = None
-        self.ratelimit_clientremaining = None
-        self.ratelimit_userlimit = None
-        self.ratelimit_userremaining = None
-        self.ratelimit_userreset = None
-
-    def _send_request(self, *args, **kwargs):
-        """Handles sending requests to Imgur and updates ratelimit info."""
-        result = request.send_request(*args, authentication=headers, **kwargs)
-        content, ratelimit_info = result
-        # Disable ratelimit info as it seems it stopped being included in the
-        # returned information from 9-05-2013
-        # self.ratelimit_clientlimit = ratelimit_info['x-ratelimit-clientlimit']
-        # self.ratelimit_clientremaining = ratelimit_info['x-ratelimit-'
-        #                                                 'clientremaining']
-        # self.ratelimit_userlimit = ratelimit_info['x-ratelimit-userlimit']
-        # self.ratelimit_userremaining = ratelimit_info['x-ratelimit-'
-        #                                               'userremaining']
-        # self.ratelimit_userreset = ratelimit_info['x-ratelimit-userreset']
-        # Note: When the cache is implemented, it's important that the
-        # ratelimit info doesn't get updated with the ratelimit info in the
-        # cache since that's likely incorrect.
-        return content
-
-    def is_imgur_url(self, url):
-        """Is the given url a valid imgur url?"""
-        return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
-
-    def create_account(self, username):
-        """Create this user on Imgur."""
-        pass
-
-    def create_album(self, title=None, description=None, ids=None, cover=None):
-        url = "https://api.imgur.com/3/album/"
-        payload = {'ids': ids, 'title': title,
-                   'description': description, 'cover': cover}
-        new_album = self._send_request(url, params=payload, method='POST')
-        album = self.get_album(new_album['id'])
-        album.deletehash = new_album['deletehash']
-        return album
-
-    def get_at_url(self, url):
-        """Return whatever is at the imgur url as an object."""
-        pass
-
-    def get_account(self, username):
-        """Return information about this account."""
-        url = "https://api.imgur.com/3/account/%s" % username
-        json = self._send_request(url)
-        return Account(json, self)
-
-    def get_album(self, id):
-        """Return information about this album."""
-        json = self._send_request("https://api.imgur.com/3/album/%s" % id)
-        return Album(json, self)
-
-    def get_comment(self, id):
-        """Return information about this comment."""
-        json = self._send_request("https://api.imgur.com/3/comment/%s" % id)
-        return Comment(json, self)
-
-    def get_gallery(self, section='hot', sort='viral', page=0, window='day',
-                    showViral=True):
-        """Return the albums and and images in the gallery."""
-        # TODO: Add pagination
-        url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
-               (section, sort, window, page, showViral))
-               # TODO add a coversion of showViral from Python talk to Imgur
-               # talk. Maybe it can be sent as a parameter? That's possible
-               # with GETs right? Even though they get sent over the url
-        resp = self._send_request(url)
-        return [get_album_or_image(thing, self) for thing in resp]
-
-    def get_image(self, id):
-        """Return a Image object representing the image with id."""
-        resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
-        return Image(resp, self)
-
-    def get_subreddit_gallery(self, subreddit, sort='time', page=0,
-                              window='top'):
-        """View gallery images for a subreddit."""
-        url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%d" %
-               (subreddit, sort, window, page))
-        resp = self._send_request(url)
-        return [get_album_or_image(thing, self) for thing in resp]
-
-    def get_subreddit_image(self):
-        """View a single image in the subreddit."""
-        # I think this duplicates get_gallery_image. So there should be no
-        # reason to implement it.
-        pass
-
-    def search_gallery(self, q):
-        """Search the gallery with a given query string."""
-        url = "https://api.imgur.com/3/gallery/search?q=%s" % q
-        resp = self._send_request(url)
-        return [get_album_or_image(thing, self) for thing in resp]
-
-    def upload_image(self, path, title=None, description=None, album_id=None):
-        """Upload the image at path and return it."""
-        with open(path, 'rb') as image_file:
-            binary_data = image_file.read()
-            image = b64encode(binary_data)
-
-        payload = {'album_id': album_id, 'image': image,
-                   'title': title, 'description': description}
-
-        img = self._send_request("https://api.imgur.com/3/image",
-                                 params=payload, method='POST')
-        # The information returned when we upload the image is only a subset
-        # of the information about an image. When it was uploaded (datetime)
-        # for instance isn't returned. We have to re-request the image to get
-        # everything.
-        # Sole exception is deletehash. But this might only be present for
-        # anonymous images?
-        return_image = self.get_image(img['id'])
-        return_image.deletehash = img['deletehash']
-        return return_image
-
-
-def get_album_or_image(json, imgur):
-    """Return a gallery image/album depending on what the json represent."""
-    if json['is_album']:
-        return Gallery_album(json, imgur)
-    return Gallery_image(json, imgur)
 
 
 class Account(Basic_object):
@@ -381,11 +220,6 @@ class Album(Basic_object):
         return is_updated
 
 
-class Gallery_album(Album, Gallery_item):
-    def __init__(self, *args, **kwargs):
-        super(Gallery_album, self).__init__(*args, **kwargs)
-
-
 class Comment(Basic_object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
@@ -426,6 +260,37 @@ class Comment(Basic_object):
         pass
 
 
+class Gallery_item(object):
+    """Functionality shared by Gallery_image and Gallery_album."""
+    def comment(self, comment):
+        pass
+
+    def downvote(self):
+        pass
+
+    def get_comment_count(self):
+        # So far I've decided not to implement this and get_comment_ids. Their
+        # functionality seems convered by get_comments on the assumption that
+        # there is no limit to the number of comments returned.
+        raise NotImplementedError("Use len(get_comments) instead")
+
+    def get_comment_ids(self):
+        raise NotImplementedError("Use get_comments instead to return the "
+                                  "Comment objects and retrieve the ids from "
+                                  "that call")
+
+    def get_comments(self):
+        url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
+        resp = self.imgur._send_request(url)
+        return [Comment(com, self.imgur) for com in resp]
+
+    def get_votes(self):
+        pass
+
+    def upvote(self):
+        pass
+
+
 class Image(Basic_object):
     def __init__(self, json_dict, imgur):
         self.deletehash = None
@@ -463,9 +328,131 @@ class Image(Basic_object):
         return is_updated
 
 
-class Gallery_image(Image, Gallery_item):
-    def __init__(self, json, imgur):
-        super(Gallery_image, self).__init__(json, imgur)
+class Imgur:
+    DEFAULT_LONG_URL = "imgur.com"
+    # Put these urls into a configuration object that retrieves the values from
+    # settings file.
+
+    def __init__(self, long_url=None, short_url=None):
+        self.long_url = long_url or self.DEFAULT_LONG_URL
+        self.ratelimit_clientlimit = None
+        self.ratelimit_clientremaining = None
+        self.ratelimit_userlimit = None
+        self.ratelimit_userremaining = None
+        self.ratelimit_userreset = None
+
+    def _send_request(self, *args, **kwargs):
+        """Handles sending requests to Imgur and updates ratelimit info."""
+        result = request.send_request(*args, authentication=headers, **kwargs)
+        content, ratelimit_info = result
+        # Disable ratelimit info as it seems it stopped being included in the
+        # returned information from 9-05-2013
+        # self.ratelimit_clientlimit = ratelimit_info['x-ratelimit-clientlimit']
+        # self.ratelimit_clientremaining = ratelimit_info['x-ratelimit-'
+        #                                                 'clientremaining']
+        # self.ratelimit_userlimit = ratelimit_info['x-ratelimit-userlimit']
+        # self.ratelimit_userremaining = ratelimit_info['x-ratelimit-'
+        #                                               'userremaining']
+        # self.ratelimit_userreset = ratelimit_info['x-ratelimit-userreset']
+        # Note: When the cache is implemented, it's important that the
+        # ratelimit info doesn't get updated with the ratelimit info in the
+        # cache since that's likely incorrect.
+        return content
+
+    def is_imgur_url(self, url):
+        """Is the given url a valid imgur url?"""
+        return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
+
+    def create_account(self, username):
+        """Create this user on Imgur."""
+        pass
+
+    def create_album(self, title=None, description=None, ids=None, cover=None):
+        url = "https://api.imgur.com/3/album/"
+        payload = {'ids': ids, 'title': title,
+                   'description': description, 'cover': cover}
+        new_album = self._send_request(url, params=payload, method='POST')
+        album = self.get_album(new_album['id'])
+        album.deletehash = new_album['deletehash']
+        return album
+
+    def get_at_url(self, url):
+        """Return whatever is at the imgur url as an object."""
+        pass
+
+    def get_account(self, username):
+        """Return information about this account."""
+        url = "https://api.imgur.com/3/account/%s" % username
+        json = self._send_request(url)
+        return Account(json, self)
+
+    def get_album(self, id):
+        """Return information about this album."""
+        json = self._send_request("https://api.imgur.com/3/album/%s" % id)
+        return Album(json, self)
+
+    def get_comment(self, id):
+        """Return information about this comment."""
+        json = self._send_request("https://api.imgur.com/3/comment/%s" % id)
+        return Comment(json, self)
+
+    def get_gallery(self, section='hot', sort='viral', page=0, window='day',
+                    showViral=True):
+        """Return the albums and and images in the gallery."""
+        # TODO: Add pagination
+        url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
+               (section, sort, window, page, showViral))
+               # TODO add a coversion of showViral from Python talk to Imgur
+               # talk. Maybe it can be sent as a parameter? That's possible
+               # with GETs right? Even though they get sent over the url
+        resp = self._send_request(url)
+        return [get_album_or_image(thing, self) for thing in resp]
+
+    def get_image(self, id):
+        """Return a Image object representing the image with id."""
+        resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
+        return Image(resp, self)
+
+    def get_subreddit_gallery(self, subreddit, sort='time', page=0,
+                              window='top'):
+        """View gallery images for a subreddit."""
+        url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%d" %
+               (subreddit, sort, window, page))
+        resp = self._send_request(url)
+        return [get_album_or_image(thing, self) for thing in resp]
+
+    def get_subreddit_image(self):
+        """View a single image in the subreddit."""
+        # I think this duplicates get_gallery_image. So there should be no
+        # reason to implement it.
+        pass
+
+    def search_gallery(self, q):
+        """Search the gallery with a given query string."""
+        url = "https://api.imgur.com/3/gallery/search?q=%s" % q
+        resp = self._send_request(url)
+        return [get_album_or_image(thing, self) for thing in resp]
+
+    def upload_image(self, path, title=None, description=None, album_id=None):
+        """Upload the image at path and return it."""
+        with open(path, 'rb') as image_file:
+            binary_data = image_file.read()
+            image = b64encode(binary_data)
+
+        payload = {'album_id': album_id, 'image': image,
+                   'title': title, 'description': description}
+
+        img = self._send_request("https://api.imgur.com/3/image",
+                                 params=payload, method='POST')
+        # The information returned when we upload the image is only a subset
+        # of the information about an image. When it was uploaded (datetime)
+        # for instance isn't returned. We have to re-request the image to get
+        # everything.
+        # Sole exception is deletehash. But this might only be present for
+        # anonymous images?
+        return_image = self.get_image(img['id'])
+        return_image.deletehash = img['deletehash']
+        return return_image
 
 
 class Message(object):
@@ -476,3 +463,16 @@ class Message(object):
 class Notification(object):
     # Requires login to test
     pass
+
+
+# Gallery_album and Gallery_image are placed at the end as they need to inherit
+# from Gallery_item, Album and Image. It's thus impossible to place them
+# alphabetically without errors.
+class Gallery_album(Album, Gallery_item):
+    def __init__(self, *args, **kwargs):
+        super(Gallery_album, self).__init__(*args, **kwargs)
+
+
+class Gallery_image(Image, Gallery_item):
+    def __init__(self, json, imgur):
+        super(Gallery_image, self).__init__(json, imgur)
