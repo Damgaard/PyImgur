@@ -30,9 +30,18 @@ def get_album_or_image(json, imgur):
 
 class Basic_object(object):
     """Contains the basic functionality shared by a lot of PyImgurs classes."""
-    def __init__(self, json_dict, imgur):
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._has_fetched = has_fetched
         self.imgur = imgur
         self._populate(json_dict)
+
+    def __getattr__(self, attribute):
+        if not self._has_fetched:
+            self.refresh()
+            self._has_fetched = True
+            return getattr(self, attribute)
+        raise AttributeError("%s instance has no attribute '%s'" %
+                             (type(self).__name__, attribute))
 
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.id)
@@ -40,11 +49,28 @@ class Basic_object(object):
     def _populate(self, json_dict):
         for key, value in json_dict.iteritems():
             setattr(self, key, value)
+        # Update certain attributes for certain objects, to be link to lazily
+        # created objects rather than a string of ID or similar.
+        if isinstance(self, Album) and hasattr(self, "account_url"):
+            self.account_url = Account({'url': self.account_url}, self.imgur,
+                                       has_fetched=False)
+        elif isinstance(self, Comment) and hasattr(self, "author"):
+            self.author = Account({'url': self.author}, self.imgur,
+                                  has_fetched=False)
+            # TODO: consider changing image_id to be a lazy Image object
+            # instead.  The reason to consider is that this would mean renaming
+            # image_id to image.
+
+    def refresh(self):
+        resp = self.imgur._send_request(self._INFO_URL)
+        self._populate(resp)
 
 
 class Account(Basic_object):
-    def __init__(self, json_dict, imgur):
-        super(Account, self).__init__(json_dict, imgur)
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
+                          json_dict['url'])
+        super(Account, self).__init__(json_dict, imgur, has_fetched)
 
     # Overrides __repr__ method in Basic_object
     def __repr__(self):
@@ -140,9 +166,6 @@ class Account(Basic_object):
         """Return all reply notifications for the user. Login required."""
         pass
 
-    # TODO: This returns a subset of the available informations in
-    # Gallery_image and Gallery_album. A second call would be neccesary to get
-    # them all.
     def get_submissions(self):
         # TODO: Add pagination
         url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
@@ -165,10 +188,11 @@ class Account(Basic_object):
 
 
 class Album(Basic_object):
-    def __init__(self, json_dict, imgur):
-        super(Album, self).__init__(json_dict, imgur)
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._INFO_URL = ("https://api.imgur.com/3/album/%s" % json_dict['id'])
         self.deletehash = None
         self.images = []
+        super(Album, self).__init__(json_dict, imgur, has_fetched)
 
     def add_images(self, ids):
         """Add images to the album."""
@@ -224,8 +248,10 @@ class Album(Basic_object):
 
 class Comment(Basic_object):
     def __init__(self, json_dict, imgur):
-        super(Comment, self).__init__(json_dict, imgur)
         self.deletehash = None
+        self._INFO_URL = ("https://api.imgur.com/3/comment/%s" %
+                          json_dict['id'])
+        super(Comment, self).__init__(json_dict, imgur)
         # Possible via webend, not exposed via json
         # self.permalink == ?!??!
 
@@ -271,7 +297,7 @@ class Gallery_item(object):
 
     def get_comment_count(self):
         # So far I've decided not to implement this and get_comment_ids. Their
-        # functionality seems convered by get_comments on the assumption that
+        # functionality seems covered by get_comments on the assumption that
         # there is no limit to the number of comments returned.
         raise NotImplementedError("Use len(get_comments) instead")
 
@@ -293,9 +319,10 @@ class Gallery_item(object):
 
 
 class Image(Basic_object):
-    def __init__(self, json_dict, imgur):
-        super(Image, self).__init__(json_dict, imgur)
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._INFO_URL = ("https://api.imgur.com/3/image/%s" % json_dict['id'])
         self.deletehash = None
+        super(Image, self).__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
         """Delete the image."""
@@ -371,10 +398,8 @@ class Imgur:
         url = "https://api.imgur.com/3/album/"
         payload = {'ids': ids, 'title': title,
                    'description': description, 'cover': cover}
-        new_album = self._send_request(url, params=payload, method='POST')
-        album = self.get_album(new_album['id'])
-        album.deletehash = new_album['deletehash']
-        return album
+        resp = self._send_request(url, params=payload, method='POST')
+        return Album(resp, self, has_fetched=False)
 
     def get_at_url(self, url):
         """Return whatever is at the imgur url as an object."""
@@ -402,9 +427,6 @@ class Imgur:
         # TODO: Add pagination
         url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
                (section, sort, window, page, showViral))
-               # TODO add a coversion of showViral from Python talk to Imgur
-               # talk. Maybe it can be sent as a parameter? That's possible
-               # with GETs right? Even though they get sent over the url
         resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
@@ -442,39 +464,37 @@ class Imgur:
         payload = {'album_id': album_id, 'image': image,
                    'title': title, 'description': description}
 
-        img = self._send_request("https://api.imgur.com/3/image",
-                                 params=payload, method='POST')
-        # The information returned when we upload the image is only a subset
-        # of the information about an image. When it was uploaded (datetime)
-        # for instance isn't returned. We have to re-request the image to get
-        # everything.
-        # Sole exception is deletehash. But this might only be present for
-        # anonymous images?
-        return_image = self.get_image(img['id'])
-        return_image.deletehash = img['deletehash']
-        return return_image
+        resp = self._send_request("https://api.imgur.com/3/image",
+                                  params=payload, method='POST')
+        return Image(resp, self, False)
 
 
 class Message(object):
     # Requires login to test
     def __init__(self, json_dict, imgur):
-        super(Message, self).__init__(json_dict, imgur)
+        # Is never gotten lazily, so _has_fetched is always True
+        super(Message, self).__init__(json_dict, imgur, True)
 
 
 class Notification(object):
     # Requires login to test
     def __init__(self, json_dict, imgur):
-        super(Notification, self).__init__(json_dict, imgur)
+        # Is never gotten lazily, so _has_fetched is always True
+        super(Notification, self).__init__(json_dict, imgur, True)
 
 
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
 # from Gallery_item, Album and Image. It's thus impossible to place them
 # alphabetically without errors.
 class Gallery_album(Album, Gallery_item):
-    def __init__(self, *args, **kwargs):
-        super(Gallery_album, self).__init__(*args, **kwargs)
+    def __init__(self, json_dict, imgur):
+        self._INFO_URL = ("https://api.imgur.com/3/gallery/album/%s" %
+                          json_dict['id'])
+        super(Gallery_album, self).__init__(json_dict, imgur)
 
 
 class Gallery_image(Image, Gallery_item):
-    def __init__(self, json, imgur):
-        super(Gallery_image, self).__init__(json, imgur)
+    def __init__(self, json_dict, imgur):
+        self._INFO_URL = ("http://api.imgur.com/3/gallery/image/%s" %
+                          json_dict['id'])
+        super(Gallery_image, self).__init__(json_dict, imgur)
