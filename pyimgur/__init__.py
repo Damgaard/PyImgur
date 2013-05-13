@@ -356,12 +356,7 @@ class Image(Basic_object):
 
 
 class Imgur:
-    DEFAULT_LONG_URL = "imgur.com"
-    # Put these urls into a configuration object that retrieves the values from
-    # settings file.
-
-    def __init__(self, long_url=None, short_url=None):
-        self.long_url = long_url or self.DEFAULT_LONG_URL
+    def __init__(self):
         self.ratelimit_clientlimit = None
         self.ratelimit_clientremaining = None
         self.ratelimit_userlimit = None
