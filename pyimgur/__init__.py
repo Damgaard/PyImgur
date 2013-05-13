@@ -32,12 +32,12 @@ class Basic_object(object):
     """Contains the basic functionality shared by a lot of PyImgurs classes."""
     def __init__(self, json_dict, imgur):
         self.imgur = imgur
-        self.populate(json_dict)
+        self._populate(json_dict)
 
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.id)
 
-    def populate(self, json_dict):
+    def _populate(self, json_dict):
         for key, value in json_dict.iteritems():
             setattr(self, key, value)
 
