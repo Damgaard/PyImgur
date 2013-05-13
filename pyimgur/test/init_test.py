@@ -43,8 +43,7 @@ class Empty(pyimgur.Basic_object):
 
 def test_populate():
     info = {'score': 1, 'hello': 'world'}
-    inst = Empty()
-    inst.populate(info)
+    inst = Empty(info, None)
     assert 'score' in vars(inst)
     assert 'hello' in vars(inst)
     assert inst.score == 1

@@ -30,6 +30,10 @@ def get_album_or_image(json, imgur):
 
 class Basic_object(object):
     """Contains the basic functionality shared by a lot of PyImgurs classes."""
+    def __init__(self, json_dict, imgur):
+        self.imgur = imgur
+        self.populate(json_dict)
+
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.id)
 
@@ -40,8 +44,7 @@ class Basic_object(object):
 
 class Account(Basic_object):
     def __init__(self, json_dict, imgur):
-        self.imgur = imgur
-        self.populate(json_dict)
+        super(Account, self).__init__(json_dict, imgur)
 
     # Overrides __repr__ method in Basic_object
     def __repr__(self):
@@ -163,10 +166,9 @@ class Account(Basic_object):
 
 class Album(Basic_object):
     def __init__(self, json_dict, imgur):
+        super(Album, self).__init__(json_dict, imgur)
         self.deletehash = None
         self.images = []
-        self.imgur = imgur
-        self.populate(json_dict)
 
     def add_images(self, ids):
         """Add images to the album."""
@@ -222,9 +224,8 @@ class Album(Basic_object):
 
 class Comment(Basic_object):
     def __init__(self, json_dict, imgur):
+        super(Comment, self).__init__(json_dict, imgur)
         self.deletehash = None
-        self.imgur = imgur
-        self.populate(json_dict)
         # Possible via webend, not exposed via json
         # self.permalink == ?!??!
 
@@ -293,9 +294,8 @@ class Gallery_item(object):
 
 class Image(Basic_object):
     def __init__(self, json_dict, imgur):
+        super(Image, self).__init__(json_dict, imgur)
         self.deletehash = None
-        self.imgur = imgur
-        self.populate(json_dict)
 
     def delete(self):
         """Delete the image."""
@@ -457,12 +457,14 @@ class Imgur:
 
 class Message(object):
     # Requires login to test
-    pass
+    def __init__(self, json_dict, imgur):
+        super(Message, self).__init__(json_dict, imgur)
 
 
 class Notification(object):
     # Requires login to test
-    pass
+    def __init__(self, json_dict, imgur):
+        super(Notification, self).__init__(json_dict, imgur)
 
 
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
