@@ -22,10 +22,11 @@ import pytest
 
 sys.path.insert(0, ".")
 
+from authentication import client_id
 import pyimgur
 
 # Make im protected, so it's not run on initialization
-im = pyimgur.Imgur()
+im = pyimgur.Imgur(client_id)
 
 
 # TODO: Currently some tests do more than one thing. This is to limit the

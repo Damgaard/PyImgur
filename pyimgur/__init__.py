@@ -19,8 +19,6 @@ import re
 
 import request
 
-from authentication import headers
-
 
 def get_album_or_image(json, imgur):
     """Return a gallery image/album depending on what the json represent."""
@@ -342,8 +340,31 @@ class Imgur:
     interact with imgur. You shouldn't directly initialize any other classes,
     but instead use the methods in this class to get them.
     """
-    def __init__(self):
+    def __init__(self, client_id, client_secret=None, access_token=None,
+                 refresh_token=None):
+        """
+        Initialize the Imgur object.
+
+        Before using PyImgur, or the imgur api in general, you need to register
+        your application with Imgur. This can be done at
+        https://api.imgur.com/oauth2/addclient
+
+        :param client_id: Your applications client_id.
+        :param client_secret: Your applications client_secret. This is only
+        needed when a user needs to authorize the app.
+        :param access_token: is your secret key used to access the user's data.
+        It can be thought of the user's password and username combined into
+        one, and is used to access the user's account. It expires after 1 hour.
+        :param refresh_token: is used to request new access_tokens. Since
+        access_tokens expire after 1 hour, we need a way to request new ones
+        without going through the entire authorization step again. It does not
+        expire.
+        """
         self.is_authenticated = False
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.access_token = access_token
+        self.refresh_token = refresh_token
         self.ratelimit_clientlimit = None
         self.ratelimit_clientremaining = None
         self.ratelimit_userlimit = None
@@ -352,7 +373,12 @@ class Imgur:
 
     def _send_request(self, *args, **kwargs):
         """Handles sending requests to Imgur and updates ratelimit info."""
-        result = request.send_request(*args, authentication=headers, **kwargs)
+        if self.access_token is None:
+            # Not authenticated as a user. Use anonymous access.
+            auth = {'Authorization': 'Client-ID %s' % self.client_id}
+        else:
+            auth = {'Authorization': 'Bearer %s' % self.access_token}
+        result = request.send_request(*args, authentication=auth, **kwargs)
         content, ratelimit_info = result
         # Disable ratelimit info as it seems it stopped being included in the
         # returned information from 9-05-2013
@@ -371,6 +397,14 @@ class Imgur:
     def is_imgur_url(self, url):
         """Is the given url a valid imgur url?"""
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
+
+    def change_authentication(self, client_id=None, client_secret=None,
+                              access_token=None, refresh_token=None):
+        """Change the current authentication."""
+        self.client_id = client_id or self.client_id
+        self.client_secret = client_secret or self.client_secret
+        self.access_token = access_token or self.access_token
+        self.refresh_token = refresh_token or self.refresh_token
 
     @require_auth
     def create_account(self, username):

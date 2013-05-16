@@ -17,10 +17,11 @@ import sys
 
 sys.path.insert(0, ".")
 
+from authentication import client_id
 import pyimgur
 
 # Make im protected, so it's not run on initialization
-im = pyimgur.Imgur()
+im = pyimgur.Imgur(client_id)
 
 
 def test_get_comment():
