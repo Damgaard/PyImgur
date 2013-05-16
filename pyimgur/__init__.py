@@ -1,15 +1,15 @@
 # This file is part of PyImgur.
-
+#
 # PyImgur is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # PyImgur is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -31,7 +31,7 @@ def get_album_or_image(json, imgur):
 
 @decorator
 def require_auth(func, obj, *args, **kwargs):
-    """This method requires that we've succesfully authenticated as a user."""
+    """This method requires that we've successfully authenticated as a user."""
     imgur = obj if isinstance(obj, Imgur) else obj.imgur
     if not imgur.is_authenticated:
         raise Exception("Login required to use this method.")
@@ -61,11 +61,11 @@ class Basic_object(object):
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
         if isinstance(self, Album) and hasattr(self, "account_url"):
-            self.account_url = Account({'url': self.account_url}, self.imgur,
-                                       has_fetched=False)
+            self.account_url = User({'url': self.account_url}, self.imgur,
+                                    has_fetched=False)
         elif isinstance(self, Comment) and hasattr(self, "author"):
-            self.author = Account({'url': self.author}, self.imgur,
-                                  has_fetched=False)
+            self.author = User({'url': self.author}, self.imgur,
+                               has_fetched=False)
             # TODO: consider changing image_id to be a lazy Image object
             # instead.  The reason to consider is that this would mean renaming
             # image_id to image.
@@ -73,135 +73,6 @@ class Basic_object(object):
     def refresh(self):
         resp = self.imgur._send_request(self._INFO_URL)
         self._populate(resp)
-
-
-class Account(Basic_object):
-    def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
-                          json_dict['url'])
-        super(Account, self).__init__(json_dict, imgur, has_fetched)
-
-    # Overrides __repr__ method in Basic_object
-    def __repr__(self):
-        return "<%s %s>" % (type(self).__name__, self.url)
-
-    @require_auth
-    def change_settings(self, bio=None, public_images=None,
-                        messaging_enabled=None, album_privacy=None,
-                        accepted_gallery_terms=None):
-        pass
-
-    @require_auth
-    def delete(self):
-        """Delete this user."""
-        pass
-
-    def get_album_count(self):
-        # See get_comment_count for comment on non-implementation
-        raise NotImplementedError("Use len(get_albums) instead.")
-
-    def get_album_ids(self):
-        # See get_comment_ids for comment on non-implementation
-        raise NotImplementedError("Use get_albums instead to return the "
-                                  "Album objects and retrieve the ids from "
-                                  "that call")
-
-    def get_albums(self, page=0):
-        """
-        Return the accounts albums.
-
-        Secret and hidden albums are only returned if this is the logged-in
-        user.
-        """
-        url = "https://api.imgur.com/3/account/%s/albums/%d" % (self.url, page)
-        resp = self.imgur._send_request(url)
-        return [Album(alb, self.imgur) for alb in resp]
-
-    def get_comments(self):
-        """Return the comments made by the user."""
-        url = "https://api.imgur.com/3/account/%s/comments" % self.url
-        resp = self.imgur._send_request(url)
-        return [Comment(com, self.imgur) for com in resp]
-
-    def get_comment_count(self):
-        # See the other get_comment_count for non-implementing reasoning
-        raise NotImplementedError("Use len(get_comments) instead")
-
-    def get_comment_ids(self):
-        # See the other get_comment_ids for non-implementing reasoning
-        raise NotImplementedError("Use get_comments instead to return the "
-                                  "Comment objects and retrieve the ids from "
-                                  "that call")
-
-    @require_auth
-    def get_favorites(self):
-        """Return the users favorited images."""
-        pass
-
-    def get_gallery_favorites(self):
-        url = "https://api.imgur.com/3/account/%s/gallery_favorites" % self.url
-        resp = self.imgur._send_request(url)
-        return [Image(img, self.imgur) for img in resp]
-
-    def get_gallery_profile(self):
-        url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.url
-        return self.imgur._send_request(url)
-
-    @require_auth
-    def has_verified_email(self):
-        pass
-
-    def get_images(self, page=0):
-        """Return all of the images associated with the account."""
-        url = "https://api.imgur.com/3/account/%s/images/%d" % (self.url, page)
-        resp = self.imgur._send_request(url)
-        return [Image(img, self.imgur) for img in resp]
-
-    def get_image_count(self):
-        # See the other get_comment_count for non-implementing reasoning
-        raise NotImplementedError("Use len(get_images) instead")
-
-    def get_images_ids(self):
-        # See the other get_comment_ids for non-implementing reasoning
-        raise NotImplementedError("Use get_images instead to return the "
-                                  "Image objects and retrieve the ids from "
-                                  "that call")
-
-    @require_auth
-    def get_messages(new=True):
-        """Return all messages sent to this user."""
-        pass
-
-    @require_auth
-    def get_notifications(new=True):
-        """Return all the notifications for this account."""
-        pass
-
-    @require_auth
-    def get_replies():
-        """Return all reply notifications for the user. Login required."""
-        pass
-
-    def get_submissions(self):
-        # TODO: Add pagination
-        url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
-                                                                     0)
-        resp = self.imgur._send_request(url)
-        return [get_album_or_image(thing, self.imgur) for thing in resp]
-
-    def get_statistics(self):
-        """Return the statistics about the account."""
-        # require being logged in
-        url = "https://api.imgur.com/3/account/%s/stats" % self.url
-        return self.imgur._send_request(url)
-
-    def send_message(body, subject=None, parent_id=None):
-        """Send a message to this user from the logged in user."""
-        pass
-
-    @require_auth
-    def send_verification_email(self):
-        pass
 
 
 class Album(Basic_object):
@@ -434,12 +305,6 @@ class Imgur:
         """Return whatever is at the imgur url as an object."""
         pass
 
-    def get_account(self, username):
-        """Return information about this account."""
-        url = "https://api.imgur.com/3/account/%s" % username
-        json = self._send_request(url)
-        return Account(json, self)
-
     def get_album(self, id):
         """Return information about this album."""
         json = self._send_request("https://api.imgur.com/3/album/%s" % id)
@@ -478,6 +343,12 @@ class Imgur:
         # reason to implement it.
         pass
 
+    def get_user(self, username):
+        """Return information about this user."""
+        url = "https://api.imgur.com/3/account/%s" % username
+        json = self._send_request(url)
+        return User(json, self)
+
     def search_gallery(self, q):
         """Search the gallery with a given query string."""
         url = "https://api.imgur.com/3/gallery/search?q=%s" % q
@@ -510,6 +381,135 @@ class Notification(object):
     def __init__(self, json_dict, imgur):
         # Is never gotten lazily, so _has_fetched is always True
         super(Notification, self).__init__(json_dict, imgur, True)
+
+
+class User(Basic_object):
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
+                          json_dict['url'])
+        super(User, self).__init__(json_dict, imgur, has_fetched)
+
+    # Overrides __repr__ method in Basic_object
+    def __repr__(self):
+        return "<%s %s>" % (type(self).__name__, self.url)
+
+    @require_auth
+    def change_settings(self, bio=None, public_images=None,
+                        messaging_enabled=None, album_privacy=None,
+                        accepted_gallery_terms=None):
+        pass
+
+    @require_auth
+    def delete(self):
+        """Delete this user."""
+        pass
+
+    def get_album_count(self):
+        # See get_comment_count for comment on non-implementation
+        raise NotImplementedError("Use len(get_albums) instead.")
+
+    def get_album_ids(self):
+        # See get_comment_ids for comment on non-implementation
+        raise NotImplementedError("Use get_albums instead to return the "
+                                  "Album objects and retrieve the ids from "
+                                  "that call")
+
+    def get_albums(self, page=0):
+        """
+        Return the users albums.
+
+        Secret and hidden albums are only returned if this is the logged-in
+        user.
+        """
+        url = "https://api.imgur.com/3/account/%s/albums/%d" % (self.url, page)
+        resp = self.imgur._send_request(url)
+        return [Album(alb, self.imgur) for alb in resp]
+
+    def get_comments(self):
+        """Return the comments made by the user."""
+        url = "https://api.imgur.com/3/account/%s/comments" % self.url
+        resp = self.imgur._send_request(url)
+        return [Comment(com, self.imgur) for com in resp]
+
+    def get_comment_count(self):
+        # See the other get_comment_count for non-implementing reasoning
+        raise NotImplementedError("Use len(get_comments) instead")
+
+    def get_comment_ids(self):
+        # See the other get_comment_ids for non-implementing reasoning
+        raise NotImplementedError("Use get_comments instead to return the "
+                                  "Comment objects and retrieve the ids from "
+                                  "that call")
+
+    @require_auth
+    def get_favorites(self):
+        """Return the users favorited images."""
+        pass
+
+    def get_gallery_favorites(self):
+        url = "https://api.imgur.com/3/account/%s/gallery_favorites" % self.url
+        resp = self.imgur._send_request(url)
+        return [Image(img, self.imgur) for img in resp]
+
+    def get_gallery_profile(self):
+        url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.url
+        return self.imgur._send_request(url)
+
+    @require_auth
+    def has_verified_email(self):
+        pass
+
+    def get_images(self, page=0):
+        """Return all of the images associated with the user."""
+        url = "https://api.imgur.com/3/account/%s/images/%d" % (self.url, page)
+        resp = self.imgur._send_request(url)
+        return [Image(img, self.imgur) for img in resp]
+
+    def get_image_count(self):
+        # See the other get_comment_count for non-implementing reasoning
+        raise NotImplementedError("Use len(get_images) instead")
+
+    def get_images_ids(self):
+        # See the other get_comment_ids for non-implementing reasoning
+        raise NotImplementedError("Use get_images instead to return the "
+                                  "Image objects and retrieve the ids from "
+                                  "that call")
+
+    @require_auth
+    def get_messages(new=True):
+        """Return all messages sent to this user."""
+        pass
+
+    @require_auth
+    def get_notifications(new=True):
+        """Return all the notifications for this user."""
+        pass
+
+    @require_auth
+    def get_replies():
+        """Return all reply notifications for the user. Login required."""
+        pass
+
+    def get_submissions(self):
+        # TODO: Add pagination
+        url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
+                                                                     0)
+        resp = self.imgur._send_request(url)
+        return [get_album_or_image(thing, self.imgur) for thing in resp]
+
+    def get_statistics(self):
+        """Return the statistics about the user."""
+        # require being logged in
+        url = "https://api.imgur.com/3/account/%s/stats" % self.url
+        return self.imgur._send_request(url)
+
+    def send_message(body, subject=None, parent_id=None):
+        """Send a message to this user from the logged in user."""
+        pass
+
+    @require_auth
+    def send_verification_email(self):
+        pass
 
 
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
