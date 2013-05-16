@@ -76,6 +76,13 @@ class Basic_object(object):
             # image_id to image.
 
     def refresh(self):
+        """
+        Refresh this object with the newest values.
+
+        For instance, a User reputation may have changed in the time since the
+        creating the object. Calling this function would update the reputation
+        to the newest correct value.
+        """
         resp = self.imgur._send_request(self._INFO_URL)
         self._populate(resp)
 
