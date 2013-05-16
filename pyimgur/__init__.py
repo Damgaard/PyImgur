@@ -58,22 +58,63 @@ class Basic_object(object):
     def _populate(self, json_dict):
         for key, value in json_dict.iteritems():
             setattr(self, key, value)
+        # TODO: ups will need to be likes, because that's what the webinterface
+        # is. But we also have "voted" which is the current users vote on it.
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
-        if isinstance(self, Album) and hasattr(self, "account_url"):
-            self.author = User({'url': self.account_url}, self.imgur,
-                               has_fetched=False)
-            del self.account_url
+        if isinstance(self, Album):
+            if hasattr(self, "account_url"):
+                self.author = User({'url': self.account_url}, self.imgur,
+                                   has_fetched=False)
+                del self.account_url
+            if hasattr(self, "cover"):
+                self.cover = Image({'id': self.cover}, self.imgur,
+                                   has_fetched=False)
+            if hasattr(self, "images"):
+                self.images = [Image(img, self.imgur, has_fetched=False) for
+                               img in self.images]
         elif isinstance(self, Comment):
             if hasattr(self, "author"):
                 self.author = User({'url': self.author}, self.imgur,
                                    has_fetched=False)
+            # Problem with this naming is that children / parent are normal
+            # terminology for tree structures such as this. But elsewhere the
+            # children are referred to as replies, for instance a comment can
+            # be replies to not procreated with. I've decided to use replies
+            # and parent_comment as a compromise, where both attributes should
+            # be individually obvious but their connection may not.
+            if hasattr(self, "children"):
+                self.replies = [Comment(com, self.imgur, has_fetched=False) for
+                                com in self.children]
+                del self.children
+            if hasattr(self, "image_id"):
+                self.image = Image({'id': self.image_id}, self.imgur,
+                                   has_fetched=False)
+                del self.image_id
+            if hasattr(self, "parent_id"):
+                self.parent_comment = Comment({'id': self.parent_id},
+                                              self.imgur, has_fetched=False)
+                del self.parent_id
+        elif isinstance(self, Gallery_image):
+            if hasattr(self, "account_url"):
+                self.author = User({'url': self.account_url}, self.imgur,
+                                   has_fetched=False)
+                del self.account_url
         elif isinstance(self, User) and hasattr(self, 'url'):
             self.name = self.url
             del self.url
             # TODO: consider changing image_id to be a lazy Image object
             # instead.  The reason to consider is that this would mean renaming
             # image_id to image.
+            # NOTE: In the API a Images popularity is noted as it's score, but
+            # referred on the webend as points. A Comment has the points
+            # attribute which is simply likes - dislikes. One might think this
+            # is the same thing for images, but comparing the two numbers show
+            # that they are different. Usually with a small margin, but
+            # sometimes a very substantial margin. I'm not sure of how score is
+            # calculated and it's relationship to likes and dislikes.
+            # NOTE: Image has the attribute "nsfw" which doesn't exist in
+            # documentation.
 
     def refresh(self):
         """
@@ -152,11 +193,11 @@ class Album(Basic_object):
 
 
 class Comment(Basic_object):
-    def __init__(self, json_dict, imgur):
+    def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
         self._INFO_URL = ("https://api.imgur.com/3/comment/%s" %
                           json_dict['id'])
-        super(Comment, self).__init__(json_dict, imgur)
+        super(Comment, self).__init__(json_dict, imgur, has_fetched)
         # Possible via webend, not exposed via json
         # self.permalink == ?!??!
 
