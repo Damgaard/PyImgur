@@ -61,11 +61,13 @@ class Basic_object(object):
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
         if isinstance(self, Album) and hasattr(self, "account_url"):
-            self.account_url = User({'url': self.account_url}, self.imgur,
-                                    has_fetched=False)
-        elif isinstance(self, Comment) and hasattr(self, "author"):
-            self.author = User({'url': self.author}, self.imgur,
+            self.author = User({'url': self.account_url}, self.imgur,
                                has_fetched=False)
+            del self.account_url
+        elif isinstance(self, Comment):
+            if hasattr(self, "author"):
+                self.author = User({'url': self.author}, self.imgur,
+                                   has_fetched=False)
         elif isinstance(self, User) and hasattr(self, 'url'):
             self.name = self.url
             del self.url
