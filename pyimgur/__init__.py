@@ -123,12 +123,17 @@ class Basic_object(object):
         For instance, a User reputation may have changed in the time since the
         creating the object. Calling this function would update the reputation
         to the newest correct value.
+
+        If the variables weren't loaded, due to lazy loading, then this call
+        will force a call to imgur and update the object with all the
+        attributes.
         """
         resp = self.imgur._send_request(self._INFO_URL)
         self._populate(resp)
 
 
 class Album(Basic_object):
+    """An album is a collection of images."""
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/album/%s" % json_dict['id'])
         self.deletehash = None
@@ -141,6 +146,7 @@ class Album(Basic_object):
         pass
 
     def delete(self):
+        """Delete this album."""
         url = "https://api.imgur.com/3/album/%s" % self.deletehash
         return self.imgur._send_request(url, method="DELETE")
 
@@ -151,7 +157,10 @@ class Album(Basic_object):
 
     # TODO: Doing it like this seem to obfuscate the API. Since we change
     # the state of the album without the user taking a direct action.
+    # But we kinda have to as images are returned when the album is directly
+    # requested.
     def get_images(self):
+        """Return a list of the images in this album."""
         url = "https://api.imgur.com/3/album/%s/images" % self.id
         images = self.imgur._send_request(url)
         self.images = [Image(img, self.imgur) for img in images]
@@ -193,6 +202,11 @@ class Album(Basic_object):
 
 
 class Comment(Basic_object):
+    """
+    A Comment a user has made.
+
+    Users can commit on Gallery album, Gallery image or other Comment.
+    """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
         self._INFO_URL = ("https://api.imgur.com/3/comment/%s" %
@@ -241,10 +255,16 @@ class Gallery_item(object):
     """Functionality shared by Gallery_image and Gallery_album."""
     @require_auth
     def comment(self, comment):
+        """
+        Make a top-level comment to this.
+
+        :param text: The comment text.
+        """
         pass
 
     @require_auth
     def downvote(self):
+        """Dislike this."""
         pass
 
     def get_comment_count(self):
@@ -259,6 +279,7 @@ class Gallery_item(object):
                                   "that call")
 
     def get_comments(self):
+        """Get a list of the top-level comments."""
         url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
@@ -268,10 +289,12 @@ class Gallery_item(object):
 
     @require_auth
     def upvote(self):
+        """Like this."""
         pass
 
 
 class Image(Basic_object):
+    """A image uploaded to imgur."""
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/image/%s" % json_dict['id'])
         self.deletehash = None
@@ -312,6 +335,13 @@ class Image(Basic_object):
 
 
 class Imgur:
+    """
+    The base class containing general functionality for Imgur.
+
+    You should create an Imgur object at the start of your code and use it to
+    interact with imgur. You shouldn't directly initialize any other classes,
+    but instead use the methods in this class to get them.
+    """
     def __init__(self):
         self.is_authenticated = False
         self.ratelimit_clientlimit = None
@@ -348,6 +378,17 @@ class Imgur:
         pass
 
     def create_album(self, title=None, description=None, ids=None, cover=None):
+        """
+        Create a new Album.
+
+        :param title: The title of the album.
+        :param description: The albums describtion.
+        :param ids: A list of image ids that will be added to the image after
+        it's been created.
+        :param cover: The id of the image you want as the albums cover image.
+        :returns: The newly created album.
+        """
+
         url = "https://api.imgur.com/3/album/"
         payload = {'ids': ids, 'title': title,
                    'description': description, 'cover': cover}
@@ -369,11 +410,20 @@ class Imgur:
         return Comment(json, self)
 
     def get_gallery(self, section='hot', sort='viral', page=0, window='day',
-                    showViral=True):
-        """Return the albums and and images in the gallery."""
+                    show_viral=True):
+        """
+        Return the albums and and images in the gallery.
+
+        :param section: hot | top | user - defaults to hot
+        :param sort: viral | time - defaults to viral
+        :param window: Change the date range of the request if the section is
+        "top", day | week | month | year | all, defaults to day
+        :param show_viral: true | false - Show or hide viral images from the
+        'user' section. Defaults to true
+        """
         # TODO: Add pagination
         url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
-               (section, sort, window, page, showViral))
+               (section, sort, window, page, show_viral))
         resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
@@ -423,6 +473,7 @@ class Imgur:
 
 
 class Message(object):
+    """This corresponds to the messages users can send each other."""
     # Requires login to test
     def __init__(self, json_dict, imgur):
         # Is never gotten lazily, so _has_fetched is always True
@@ -430,6 +481,12 @@ class Message(object):
 
 
 class Notification(object):
+    """
+    This corresponds to the notifications a user may receive.
+
+    A notification can come for several reasons. For instance, one may be
+    received if someone replies to one of your comments.
+    """
     # Requires login to test
     def __init__(self, json_dict, imgur):
         # Is never gotten lazily, so _has_fetched is always True
@@ -437,6 +494,7 @@ class Notification(object):
 
 
 class User(Basic_object):
+    """A User on Imgur."""
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
                           json_dict['url'])
@@ -458,10 +516,12 @@ class User(Basic_object):
         pass
 
     def get_album_count(self):
+        """Get the Number of albums this user has."""
         # See get_comment_count for comment on non-implementation
         raise NotImplementedError("Use len(get_albums) instead.")
 
     def get_album_ids(self):
+        """Get a list of the users albums ids."""
         # See get_comment_ids for comment on non-implementation
         raise NotImplementedError("Use get_albums instead to return the "
                                   "Album objects and retrieve the ids from "
@@ -486,10 +546,12 @@ class User(Basic_object):
         return [Comment(com, self.imgur) for com in resp]
 
     def get_comment_count(self):
+        """Get the number of comments this user has made."""
         # See the other get_comment_count for non-implementing reasoning
         raise NotImplementedError("Use len(get_comments) instead")
 
     def get_comment_ids(self):
+        """Get a list of the users comments ids."""
         # See the other get_comment_ids for non-implementing reasoning
         raise NotImplementedError("Use get_comments instead to return the "
                                   "Comment objects and retrieve the ids from "
@@ -501,17 +563,26 @@ class User(Basic_object):
         pass
 
     def get_gallery_favorites(self):
+        """Get a list of the images in the gallery this user has favorited."""
         url = ("https://api.imgur.com/3/account/%s/gallery_favorites" %
                self.name)
         resp = self.imgur._send_request(url)
         return [Image(img, self.imgur) for img in resp]
 
     def get_gallery_profile(self):
+        """Return the users gallery profule."""
         url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.name
         return self.imgur._send_request(url)
 
     @require_auth
     def has_verified_email(self):
+        """
+        Has the user verified that the email he has given is legit?
+
+        A user with verified e-mail may post to the gallery. Confirmation
+        happens by sending an email to the user and the owner of the email
+        user verifying that he is the same as the imgur user.
+        """
         pass
 
     def get_images(self, page=0):
@@ -522,10 +593,12 @@ class User(Basic_object):
         return [Image(img, self.imgur) for img in resp]
 
     def get_image_count(self):
+        """Get the number of images this user has on imgur."""
         # See the other get_comment_count for non-implementing reasoning
         raise NotImplementedError("Use len(get_images) instead")
 
     def get_images_ids(self):
+        """Get a list of image ids this user has on imgur."""
         # See the other get_comment_ids for non-implementing reasoning
         raise NotImplementedError("Use get_images instead to return the "
                                   "Image objects and retrieve the ids from "
@@ -547,15 +620,16 @@ class User(Basic_object):
         pass
 
     def get_submissions(self):
+        """Return the images a user has submitted to the gallery."""
         # TODO: Add pagination
         url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.name,
                                                                      0)
         resp = self.imgur._send_request(url)
         return [get_album_or_image(thing, self.imgur) for thing in resp]
 
+    @require_auth
     def get_statistics(self):
         """Return the statistics about the user."""
-        # require being logged in
         url = "https://api.imgur.com/3/account/%s/stats" % self.name
         return self.imgur._send_request(url)
 
@@ -565,6 +639,7 @@ class User(Basic_object):
 
     @require_auth
     def send_verification_email(self):
+        """Send verification email to this users email address."""
         pass
 
 
@@ -572,6 +647,7 @@ class User(Basic_object):
 # from Gallery_item, Album and Image. It's thus impossible to place them
 # alphabetically without errors.
 class Gallery_album(Album, Gallery_item):
+    """Gallery Albums are albums submitted to the gallery."""
     def __init__(self, json_dict, imgur):
         self._INFO_URL = ("https://api.imgur.com/3/gallery/album/%s" %
                           json_dict['id'])
@@ -579,6 +655,7 @@ class Gallery_album(Album, Gallery_item):
 
 
 class Gallery_image(Image, Gallery_item):
+    """Gallery images are images submitted to the gallery."""
     def __init__(self, json_dict, imgur):
         self._INFO_URL = ("http://api.imgur.com/3/gallery/image/%s" %
                           json_dict['id'])
