@@ -66,6 +66,9 @@ class Basic_object(object):
         elif isinstance(self, Comment) and hasattr(self, "author"):
             self.author = User({'url': self.author}, self.imgur,
                                has_fetched=False)
+        elif isinstance(self, User) and hasattr(self, 'url'):
+            self.name = self.url
+            del self.url
             # TODO: consider changing image_id to be a lazy Image object
             # instead.  The reason to consider is that this would mean renaming
             # image_id to image.
@@ -391,7 +394,7 @@ class User(Basic_object):
 
     # Overrides __repr__ method in Basic_object
     def __repr__(self):
-        return "<%s %s>" % (type(self).__name__, self.url)
+        return "<%s %s>" % (type(self).__name__, self.name)
 
     @require_auth
     def change_settings(self, bio=None, public_images=None,
@@ -421,13 +424,14 @@ class User(Basic_object):
         Secret and hidden albums are only returned if this is the logged-in
         user.
         """
-        url = "https://api.imgur.com/3/account/%s/albums/%d" % (self.url, page)
+        url = "https://api.imgur.com/3/account/%s/albums/%d" % (self.name,
+                                                                page)
         resp = self.imgur._send_request(url)
         return [Album(alb, self.imgur) for alb in resp]
 
     def get_comments(self):
         """Return the comments made by the user."""
-        url = "https://api.imgur.com/3/account/%s/comments" % self.url
+        url = "https://api.imgur.com/3/account/%s/comments" % self.name
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
 
@@ -447,12 +451,13 @@ class User(Basic_object):
         pass
 
     def get_gallery_favorites(self):
-        url = "https://api.imgur.com/3/account/%s/gallery_favorites" % self.url
+        url = ("https://api.imgur.com/3/account/%s/gallery_favorites" %
+               self.name)
         resp = self.imgur._send_request(url)
         return [Image(img, self.imgur) for img in resp]
 
     def get_gallery_profile(self):
-        url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.url
+        url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.name
         return self.imgur._send_request(url)
 
     @require_auth
@@ -461,7 +466,8 @@ class User(Basic_object):
 
     def get_images(self, page=0):
         """Return all of the images associated with the user."""
-        url = "https://api.imgur.com/3/account/%s/images/%d" % (self.url, page)
+        url = "https://api.imgur.com/3/account/%s/images/%d" % (self.name,
+                                                                page)
         resp = self.imgur._send_request(url)
         return [Image(img, self.imgur) for img in resp]
 
@@ -492,7 +498,7 @@ class User(Basic_object):
 
     def get_submissions(self):
         # TODO: Add pagination
-        url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.url,
+        url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.name,
                                                                      0)
         resp = self.imgur._send_request(url)
         return [get_album_or_image(thing, self.imgur) for thing in resp]
@@ -500,7 +506,7 @@ class User(Basic_object):
     def get_statistics(self):
         """Return the statistics about the user."""
         # require being logged in
-        url = "https://api.imgur.com/3/account/%s/stats" % self.url
+        url = "https://api.imgur.com/3/account/%s/stats" % self.name
         return self.imgur._send_request(url)
 
     def send_message(body, subject=None, parent_id=None):
