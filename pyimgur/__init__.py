@@ -394,10 +394,6 @@ class Imgur:
         # cache since that's likely incorrect.
         return content
 
-    def is_imgur_url(self, url):
-        """Is the given url a valid imgur url?"""
-        return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
-
     def change_authentication(self, client_id=None, client_secret=None,
                               access_token=None, refresh_token=None):
         """Change the current authentication."""
@@ -485,6 +481,10 @@ class Imgur:
         url = "https://api.imgur.com/3/account/%s" % username
         json = self._send_request(url)
         return User(json, self)
+
+    def is_imgur_url(self, url):
+        """Is the given url a valid imgur url?"""
+        return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
 
     def search_gallery(self, q):
         """Search the gallery with a given query string."""
