@@ -15,6 +15,9 @@
 
 """Handles sending and parsing the requests to an Imgur API endpoint."""
 
+# Note: The name should probably be changed to avoid confusion with the module
+# requestS
+
 import json
 import requests
 

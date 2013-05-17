@@ -1,15 +1,15 @@
 # This file is part of PyImgur.
-#
+
 # PyImgur is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-#
+
 # PyImgur is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
+
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -18,6 +18,9 @@ from decorator import decorator
 import re
 
 import request
+
+# Note: Maybe base_object.imgur should instead be base_object._imgur ?
+# eg. private since it not for public consumption
 
 
 def get_album_or_image(json, imgur):
@@ -101,9 +104,6 @@ class Basic_object(object):
         elif isinstance(self, User) and hasattr(self, 'url'):
             self.name = self.url
             del self.url
-            # TODO: consider changing image_id to be a lazy Image object
-            # instead.  The reason to consider is that this would mean renaming
-            # image_id to image.
             # NOTE: In the API a Images popularity is noted as it's score, but
             # referred on the webend as points. A Comment has the points
             # attribute which is simply likes - dislikes. One might think this
@@ -140,7 +140,11 @@ class Album(Basic_object):
 
     @require_auth
     def add_images(self, ids):
-        """Add images to the album."""
+        """
+        Add images to the album.
+
+        :param ids: A list of the image id we want to add to the album.
+        """
         pass
 
     def delete(self):
@@ -166,22 +170,47 @@ class Album(Basic_object):
 
     @require_auth
     def remove_images(self, ids):
-        """Remove images from the album."""
+        """
+        Remove images from the album.
+
+        :param ids: A list of the image id we want to remove from the album.
+        """
         pass
 
     @require_auth
     def set_images(self, ids):
-        """Set the images in this album."""
+        """
+        Set the images in this album.
+
+        :param ids: The list of images the album will now consists of.
+        """
         pass
 
     @require_auth
     def submit_to_gallery():
-        """Add this to the gallery."""
+        """
+        Add this to the gallery.
+
+        Requires that we have verified our email address and accepted the
+        Gallery terms of services.
+        """
         pass
 
     def update(self, title=None, description=None, ids=None, cover=None,
                layout=None, privacy=None):
-        """Update the albums information."""
+        """
+        Update the albums information.
+
+        Arguments with the value None will retain their old values.
+
+        :param title: The title of the album.
+        :param description: A description of the album.
+        :param privacy: The albums privacy level, can be public, hidden or
+        secret.
+        :param cover: The id of the cover image.
+        :param layout: The way the album is displayed, can be blog, grid,
+        horizontal or vertical.
+        """
         url = "https://api.imgur.com/3/album/%s" % self.deletehash
         payload = {'title': title, 'description': description,
                    'ids': ids, 'cover': cover,
@@ -242,6 +271,7 @@ class Comment(Basic_object):
     @require_auth
     def report(self):
         """Reply comment for being inappropriate."""
+        pass
 
     @require_auth
     def upvote(self):
@@ -467,6 +497,7 @@ class Imgur:
         """View gallery images for a subreddit."""
         url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%d" %
                (subreddit, sort, window, page))
+        # TODO: Add pagination
         resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
@@ -477,7 +508,11 @@ class Imgur:
         pass
 
     def get_user(self, username):
-        """Return information about this user."""
+        """
+        Return information about this user.
+
+        :param username: The name of the user we want more information about.
+        """
         url = "https://api.imgur.com/3/account/%s" % username
         json = self._send_request(url)
         return User(json, self)
@@ -487,13 +522,14 @@ class Imgur:
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
 
     def search_gallery(self, q):
-        """Search the gallery with a given query string."""
+        """Search the gallery with the given query string."""
         url = "https://api.imgur.com/3/gallery/search?q=%s" % q
         resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(self, path, title=None, description=None, album_id=None):
-        """Upload the image at path and return it."""
+        """
+        Upload the image at path and return it."""
         with open(path, 'rb') as image_file:
             binary_data = image_file.read()
             image = b64encode(binary_data)
@@ -542,6 +578,23 @@ class User(Basic_object):
     def change_settings(self, bio=None, public_images=None,
                         messaging_enabled=None, album_privacy=None,
                         accepted_gallery_terms=None):
+        """
+        Update the settings for the user.
+
+        If the argument is None, then current value is retained.
+
+        :param bio:The biography of the user, is displayed in the gallery
+        profile page.
+        :param public_images: Set the users images to private or public by
+        default
+        :param messaging_enabled: Set to True to enable messaging.
+        :param album_privacy: The default privacy level of albums created by
+        the user.
+        :param accepted_gallery_terms: The user has agreed to the Imgur Gallery
+        terms. This is necessary before the user can submit to the gallery.
+        """
+
+        # NOTE: album_privacy should maybe be renamed to default_privacy
         pass
 
     @require_auth
@@ -570,6 +623,7 @@ class User(Basic_object):
         """
         url = "https://api.imgur.com/3/account/%s/albums/%d" % (self.name,
                                                                 page)
+        # Add pagination
         resp = self.imgur._send_request(url)
         return [Album(alb, self.imgur) for alb in resp]
 
@@ -624,6 +678,7 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/images/%d" % (self.name,
                                                                 page)
         resp = self.imgur._send_request(url)
+        # Add pagination
         return [Image(img, self.imgur) for img in resp]
 
     def get_image_count(self):
@@ -640,7 +695,12 @@ class User(Basic_object):
 
     @require_auth
     def get_messages(new=True):
-        """Return all messages sent to this user."""
+        """
+        Return all messages sent to this user.
+
+        :param new: False for all notifications, True for only non-viewed
+        notification.
+        """
         pass
 
     @require_auth
@@ -650,7 +710,7 @@ class User(Basic_object):
 
     @require_auth
     def get_replies():
-        """Return all reply notifications for the user. Login required."""
+        """Return all reply notifications for the user."""
         pass
 
     def get_submissions(self):
