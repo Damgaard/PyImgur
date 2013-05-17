@@ -406,11 +406,6 @@ class Imgur:
         self.access_token = access_token or self.access_token
         self.refresh_token = refresh_token or self.refresh_token
 
-    @require_auth
-    def create_account(self, username):
-        """Create this user on Imgur."""
-        pass
-
     def create_album(self, title=None, description=None, ids=None, cover=None):
         """
         Create a new Album.
@@ -428,6 +423,11 @@ class Imgur:
                    'description': description, 'cover': cover}
         resp = self._send_request(url, params=payload, method='POST')
         return Album(resp, self, has_fetched=False)
+
+    @require_auth
+    def create_user(self, username):
+        """Create this user on Imgur."""
+        pass
 
     def get_at_url(self, url):
         """Return whatever is at the imgur url as an object."""
