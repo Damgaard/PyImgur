@@ -135,7 +135,6 @@ class Album(Basic_object):
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/album/%s" % json_dict['id'])
         self.deletehash = None
-        self.images = []
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
     @require_auth
@@ -156,17 +155,6 @@ class Album(Basic_object):
     def favorite(self):
         """Favorite the album."""
         pass
-
-    # TODO: Doing it like this seem to obfuscate the API. Since we change
-    # the state of the album without the user taking a direct action.
-    # But we kinda have to as images are returned when the album is directly
-    # requested.
-    def get_images(self):
-        """Return a list of the images in this album."""
-        url = "https://api.imgur.com/3/album/%s/images" % self.id
-        images = self.imgur._send_request(url)
-        self.images = [Image(img, self.imgur) for img in images]
-        return self.images
 
     @require_auth
     def remove_images(self, ids):
