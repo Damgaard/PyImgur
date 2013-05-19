@@ -14,11 +14,7 @@
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import requests
 import sys
-import time
-
-import pytest
 
 sys.path.insert(0, ".")
 
@@ -92,13 +88,6 @@ def test_update_image():
     image.delete()
 
 
-def test_to_imgur_list():
-    assert None == pyimgur.request.to_imgur_list(None)
-    assert "QK1fZ9L" == pyimgur.request.to_imgur_list(["QK1fZ9L"])
-    assert "QK1fZ9L,NsuNI" == pyimgur.request.to_imgur_list(["QK1fZ9L",
-                                                             "NsuNI"])
-
-
 def test_create_album():
     album = im.create_album()
     assert isinstance(album, pyimgur.Album)
@@ -111,25 +100,3 @@ def test_update_album():
     album.update("Different title")
     assert album.title == "Different title"
     album.delete()
-
-
-def test_get_comments_count_error():
-    gallery = im.get_gallery()
-    gallery_item = gallery[0]
-    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
-        gallery_item.get_comment_count()
-
-
-def test_get_comments_ids_error():
-    gallery = im.get_gallery()
-    gallery_item = gallery[0]
-    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
-        gallery_item.get_comment_ids()
-
-
-def test_get_comments():
-    gallery = im.get_gallery()
-    gallery_item = gallery[0]
-    comments = gallery_item.get_comments()
-    assert isinstance(comments, list)
-    assert isinstance(comments[0], pyimgur.Comment)

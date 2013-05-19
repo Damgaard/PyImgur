@@ -17,6 +17,8 @@ import sys
 
 sys.path.insert(0, ".")
 
+import pytest
+
 from authentication import client_id
 import pyimgur
 
@@ -34,4 +36,26 @@ def test_get_comment_replies():
     child_comments = comment.get_replies()
     assert len(child_comments)
     assert isinstance(child_comments[0], pyimgur.Comment)
-    assert child_comments[0].image_id == comment.image_id
+    assert child_comments[0].image.id == comment.image.id
+
+
+def test_get_comments_count_error():
+    gallery = im.get_gallery()
+    gallery_item = gallery[0]
+    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
+        gallery_item.get_comment_count()
+
+
+def test_get_comments_ids_error():
+    gallery = im.get_gallery()
+    gallery_item = gallery[0]
+    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
+        gallery_item.get_comment_ids()
+
+
+def test_get_comments():
+    gallery = im.get_gallery()
+    gallery_item = gallery[0]
+    comments = gallery_item.get_comments()
+    assert isinstance(comments, list)
+    assert isinstance(comments[0], pyimgur.Comment)
