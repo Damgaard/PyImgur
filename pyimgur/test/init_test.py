@@ -13,8 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import os
 import sys
+
+import pytest
 
 sys.path.insert(0, ".")
 
@@ -100,3 +102,45 @@ def test_update_album():
     album.update("Different title")
     assert album.title == "Different title"
     album.delete()
+
+
+def test_image_download():
+    i = im.get_image('Hlddt')
+    new_file = i.download()
+    assert new_file == 'Hlddt.jpg'
+    os.remove(new_file)
+
+
+def test_image_download_own_name():
+    i = im.get_image('Hlddt')
+    new_file = i.download(name="hello")
+    assert new_file == 'hello.jpg'
+    os.remove(new_file)
+
+
+def test_image_download_no_overwrite():
+    i = im.get_image('Hlddt')
+    new_file = i.download()
+    with pytest.raises(Exception):  # pylint: disable-msg=E1101
+        i.download()
+    os.remove(new_file)
+
+
+def test_image_download_small_square():
+    i = im.get_image('Hlddt')
+    new_file = i.download(size='small square')
+    assert new_file == 'Hlddts.jpg'
+    os.remove(new_file)
+
+
+def test_image_download_bad_size():
+    i = im.get_image('Hlddt')
+    with pytest.raises(LookupError):  # pylint: disable-msg=E1101
+        i.download(size='Invalid sized triangle')
+
+
+def test_image_download_to_parent_folder():
+    i = im.get_image('Hlddt')
+    new_file = i.download(path="..")
+    assert new_file == "..\Hlddt.jpg"
+    os.remove(new_file)

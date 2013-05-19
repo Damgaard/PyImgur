@@ -15,7 +15,10 @@
 
 from base64 import b64encode
 from decorator import decorator
+import os.path
 import re
+
+import requests
 
 import request
 
@@ -334,6 +337,46 @@ class Image(Basic_object):
         """Delete the image."""
         return self.imgur._send_request("https://api.imgur.com/3/image/%s" %
                                         self.deletehash, method='DELETE')
+
+    def download(self, path='', name=None, overwrite=False, size=None):
+        """
+        Download the image.
+
+        :param path: The image will be downloaded to the folder specified at
+        path, if path is None (default)then the current working directory will
+        be used.
+        :param name: The name the image will be stored as (not including file
+        extensions). If it's None, then the name of the Image will be used as
+        Name. If it doesn't have a title, it's id will be used instead.
+        :param overwrite: If True already existing file with the same name as
+        what we want to store the file as will be overwritten.
+        will be overwritten when we download a new image with the same name.
+        :param size: Instead of downloading the image in it's original size, we
+        may choose to instead download a thumbnail of it. Options are
+        'small_square', 'big_square', 'small_thumbnail', 'medium_thumbnail',
+        'large_thumbnail' or 'huge_thumbnail'.
+
+        :returns: Name of the new file.
+        """
+        valid_sizes = {'small_square': 's', 'big_square': 'b',
+                       'small_thumbnail': 't', 'medium_thumbnail': 'm',
+                       'large_thumbnail': 'l', 'huge_thumbnail': 'h'}
+        if size is not None:
+            size = size.lower().replace(' ', '_')
+            if size not in valid_sizes:
+                raise LookupError('Invalid size. Valid options are: %s' % ", "
+                                  .join(valid_sizes.keys()))
+        suffix = valid_sizes.get(size, '')
+        base, sep, ext = self.link.rpartition('.')
+        resp = requests.get(base + suffix + sep + ext)
+        filename = (name or self.title or self.id) + suffix + sep + ext
+        local_path = os.path.join(path, filename)
+        if os.path.exists(local_path) and not overwrite:
+            raise Exception("Trying to save as %s, but file already exists." %
+                            local_path)
+        with open(local_path, 'wb') as out_file:
+            out_file.write(resp.content)
+        return local_path
 
     @require_auth
     def favorite(self):
