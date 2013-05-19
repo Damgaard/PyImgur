@@ -84,6 +84,11 @@ class Basic_object(object):
             # be replies to not procreated with. I've decided to use replies
             # and parent_comment as a compromise, where both attributes should
             # be individually obvious but their connection may not.
+            if "author_id" in vars(self):
+                # author_id is not used for anything, and can also be gotten
+                # with comment.author.id which fits with how the id of anything
+                # else is gotten. So having it here only complicates the API.
+                del self.author_id
             if "children" in vars(self):
                 self.replies = [Comment(com, self.imgur) for com in
                                 self.children]
