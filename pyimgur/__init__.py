@@ -101,6 +101,10 @@ class Basic_object(object):
                 self.author = User({'url': self.account_url}, self.imgur,
                                    has_fetched=False)
                 del self.account_url
+        elif isinstance(self, Image):
+            if hasattr(self, "animated"):
+                self.is_animated = self.animated
+                del self.animated
         elif isinstance(self, User) and hasattr(self, 'url'):
             self.name = self.url
             del self.url
