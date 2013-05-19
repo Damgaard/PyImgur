@@ -112,6 +112,14 @@ class Basic_object(object):
             if "animated" in vars(self):
                 self.is_animated = self.animated
                 del self.animated
+            if "link" in vars(self):
+                base, sep, ext = self.link.rpartition('.')
+                self.link_small_square = base + "s" + sep + ext
+                self.link_big_square = base + "b" + sep + ext
+                self.link_small_thumbnail = base + "t" + sep + ext
+                self.link_medium_thumbnail = base + "m" + sep + ext
+                self.link_large_thumbnail = base + "l" + sep + ext
+                self.link_huge_thumbnail = base + "h" + sep + ext
         elif isinstance(self, User) and 'url' in vars(self):
             self.name = self.url
             del self.url
