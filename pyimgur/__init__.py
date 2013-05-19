@@ -89,6 +89,8 @@ class Basic_object(object):
                                 self.children]
                 del self.children
             if "image_id" in vars(self):
+                self.permalink = ("http://imgur.com/gallery/%s/comment/%d" %
+                                 (self.image_id, self.id))
                 self.image = Image({'id': self.image_id}, self.imgur,
                                    has_fetched=False)
                 del self.image_id
@@ -231,8 +233,6 @@ class Comment(Basic_object):
         self._INFO_URL = ("https://api.imgur.com/3/comment/%s" %
                           json_dict['id'])
         super(Comment, self).__init__(json_dict, imgur, has_fetched)
-        # Possible via webend, not exposed via json
-        # self.permalink == ?!??!
 
     @require_auth
     def delete(self):
