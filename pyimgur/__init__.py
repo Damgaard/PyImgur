@@ -309,9 +309,6 @@ class Gallery_item(object):
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
 
-    def get_votes(self):
-        pass
-
     @require_auth
     def upvote(self):
         """Like this."""
