@@ -64,18 +64,18 @@ class Basic_object(object):
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
         if isinstance(self, Album):
-            if hasattr(self, "account_url"):
+            if "account_url" in vars(self):
                 self.author = User({'url': self.account_url}, self.imgur,
                                    has_fetched=False)
                 del self.account_url
-            if hasattr(self, "cover"):
+            if "cover" in vars(self):
                 self.cover = Image({'id': self.cover}, self.imgur,
                                    has_fetched=False)
-            if hasattr(self, "images"):
+            if "images" in vars(self):
                 self.images = [Image(img, self.imgur, has_fetched=False) for
                                img in self.images]
         elif isinstance(self, Comment):
-            if hasattr(self, "author"):
+            if "author" in vars(self):
                 self.author = User({'url': self.author}, self.imgur,
                                    has_fetched=False)
             # Problem with this naming is that children / parent are normal
@@ -84,28 +84,28 @@ class Basic_object(object):
             # be replies to not procreated with. I've decided to use replies
             # and parent_comment as a compromise, where both attributes should
             # be individually obvious but their connection may not.
-            if hasattr(self, "children"):
-                self.replies = [Comment(com, self.imgur, has_fetched=False) for
-                                com in self.children]
+            if "children" in vars(self):
+                self.replies = [Comment(com, self.imgur) for com in
+                                self.children]
                 del self.children
-            if hasattr(self, "image_id"):
+            if "image_id" in vars(self):
                 self.image = Image({'id': self.image_id}, self.imgur,
                                    has_fetched=False)
                 del self.image_id
-            if hasattr(self, "parent_id"):
+            if "parent_id" in vars(self):
                 self.parent_comment = Comment({'id': self.parent_id},
                                               self.imgur, has_fetched=False)
                 del self.parent_id
         elif isinstance(self, Gallery_image):
-            if hasattr(self, "account_url"):
+            if "account_url" in vars(self):
                 self.author = User({'url': self.account_url}, self.imgur,
                                    has_fetched=False)
                 del self.account_url
         elif isinstance(self, Image):
-            if hasattr(self, "animated"):
+            if "animated" in vars(self):
                 self.is_animated = self.animated
                 del self.animated
-        elif isinstance(self, User) and hasattr(self, 'url'):
+        elif isinstance(self, User) and 'url' in vars(self):
             self.name = self.url
             del self.url
             # NOTE: In the API a Images popularity is noted as it's score, but
