@@ -26,7 +26,7 @@ import request
 # eg. private since it not for public consumption
 
 
-def get_album_or_image(json, imgur):
+def _get_album_or_image(json, imgur):
     """Return a gallery image/album depending on what the json represent."""
     if json['is_album']:
         return Gallery_album(json, imgur)
@@ -34,7 +34,7 @@ def get_album_or_image(json, imgur):
 
 
 @decorator
-def require_auth(func, obj, *args, **kwargs):
+def _require_auth(func, obj, *args, **kwargs):
     """This method requires that we've successfully authenticated as a user."""
     imgur = obj if isinstance(obj, Imgur) else obj.imgur
     if not imgur.is_authenticated:
@@ -159,7 +159,7 @@ class Album(Basic_object):
         self.deletehash = None
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
-    @require_auth
+    @_require_auth
     def add_images(self, ids):
         """
         Add images to the album.
@@ -173,12 +173,12 @@ class Album(Basic_object):
         url = "https://api.imgur.com/3/album/%s" % self.deletehash
         return self.imgur._send_request(url, method="DELETE")
 
-    @require_auth
+    @_require_auth
     def favorite(self):
         """Favorite the album."""
         pass
 
-    @require_auth
+    @_require_auth
     def remove_images(self, ids):
         """
         Remove images from the album.
@@ -187,7 +187,7 @@ class Album(Basic_object):
         """
         pass
 
-    @require_auth
+    @_require_auth
     def set_images(self, ids):
         """
         Set the images in this album.
@@ -196,7 +196,7 @@ class Album(Basic_object):
         """
         pass
 
-    @require_auth
+    @_require_auth
     def submit_to_gallery():
         """
         Add this to the gallery.
@@ -250,12 +250,12 @@ class Comment(Basic_object):
                           json_dict['id'])
         super(Comment, self).__init__(json_dict, imgur, has_fetched)
 
-    @require_auth
+    @_require_auth
     def delete(self):
         """Delete the comment."""
         pass
 
-    @require_auth
+    @_require_auth
     def downvote(self):
         """Downvote this comment."""
         pass
@@ -276,12 +276,12 @@ class Comment(Basic_object):
         """Create a reply for the given comment."""
         pass
 
-    @require_auth
+    @_require_auth
     def report(self):
         """Reply comment for being inappropriate."""
         pass
 
-    @require_auth
+    @_require_auth
     def upvote(self):
         """Upvote this comment."""
         pass
@@ -289,7 +289,7 @@ class Comment(Basic_object):
 
 class Gallery_item(object):
     """Functionality shared by Gallery_image and Gallery_album."""
-    @require_auth
+    @_require_auth
     def comment(self, comment):
         """
         Make a top-level comment to this.
@@ -298,7 +298,7 @@ class Gallery_item(object):
         """
         pass
 
-    @require_auth
+    @_require_auth
     def downvote(self):
         """Dislike this."""
         pass
@@ -320,7 +320,7 @@ class Gallery_item(object):
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
 
-    @require_auth
+    @_require_auth
     def upvote(self):
         """Like this."""
         pass
@@ -378,19 +378,19 @@ class Image(Basic_object):
             out_file.write(resp.content)
         return local_path
 
-    @require_auth
+    @_require_auth
     def favorite(self):
         """Favorite the image."""
         pass
 
-    @require_auth
+    @_require_auth
     def remove_from_gallery():
         """Remove this image from the gallery."""
         # TODO. Text implies this is image only and won't work with albums.
         # Confirm
         pass
 
-    @require_auth
+    @_require_auth
     def submit_to_gallery():
         """Add this to the gallery."""
         pass
@@ -495,7 +495,7 @@ class Imgur:
         resp = self._send_request(url, params=payload, method='POST')
         return Album(resp, self, has_fetched=False)
 
-    @require_auth
+    @_require_auth
     def create_user(self, username):
         """Create this user on Imgur."""
         pass
@@ -530,7 +530,7 @@ class Imgur:
         url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
                (section, sort, window, page, show_viral))
         resp = self._send_request(url)
-        return [get_album_or_image(thing, self) for thing in resp]
+        return [_get_album_or_image(thing, self) for thing in resp]
 
     def get_gallery_album(self, id):
         """
@@ -568,7 +568,7 @@ class Imgur:
                (subreddit, sort, window, page))
         # TODO: Add pagination
         resp = self._send_request(url)
-        return [get_album_or_image(thing, self) for thing in resp]
+        return [_get_album_or_image(thing, self) for thing in resp]
 
     def get_subreddit_image(self):
         """View a single image in the subreddit."""
@@ -594,7 +594,7 @@ class Imgur:
         """Search the gallery with the given query string."""
         url = "https://api.imgur.com/3/gallery/search?q=%s" % q
         resp = self._send_request(url)
-        return [get_album_or_image(thing, self) for thing in resp]
+        return [_get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(self, path, title=None, description=None, album_id=None):
         """
@@ -643,7 +643,7 @@ class User(Basic_object):
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.name)
 
-    @require_auth
+    @_require_auth
     def change_settings(self, bio=None, public_images=None,
                         messaging_enabled=None, album_privacy=None,
                         accepted_gallery_terms=None):
@@ -666,7 +666,7 @@ class User(Basic_object):
         # NOTE: album_privacy should maybe be renamed to default_privacy
         pass
 
-    @require_auth
+    @_require_auth
     def delete(self):
         """Delete this user."""
         pass
@@ -714,7 +714,7 @@ class User(Basic_object):
                                   "Comment objects and retrieve the ids from "
                                   "that call")
 
-    @require_auth
+    @_require_auth
     def get_favorites(self):
         """Return the users favorited images."""
         pass
@@ -731,7 +731,7 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.name
         return self.imgur._send_request(url)
 
-    @require_auth
+    @_require_auth
     def has_verified_email(self):
         """
         Has the user verified that the email he has given is legit?
@@ -762,7 +762,7 @@ class User(Basic_object):
                                   "Image objects and retrieve the ids from "
                                   "that call")
 
-    @require_auth
+    @_require_auth
     def get_messages(new=True):
         """
         Return all messages sent to this user.
@@ -772,12 +772,12 @@ class User(Basic_object):
         """
         pass
 
-    @require_auth
+    @_require_auth
     def get_notifications(new=True):
         """Return all the notifications for this user."""
         pass
 
-    @require_auth
+    @_require_auth
     def get_replies():
         """Return all reply notifications for the user."""
         pass
@@ -788,9 +788,9 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.name,
                                                                      0)
         resp = self.imgur._send_request(url)
-        return [get_album_or_image(thing, self.imgur) for thing in resp]
+        return [_get_album_or_image(thing, self.imgur) for thing in resp]
 
-    @require_auth
+    @_require_auth
     def get_statistics(self):
         """Return the statistics about the user."""
         url = "https://api.imgur.com/3/account/%s/stats" % self.name
@@ -800,7 +800,7 @@ class User(Basic_object):
         """Send a message to this user from the logged in user."""
         pass
 
-    @require_auth
+    @_require_auth
     def send_verification_email(self):
         """Send verification email to this users email address."""
         pass
