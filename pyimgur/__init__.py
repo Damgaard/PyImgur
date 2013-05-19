@@ -479,6 +479,30 @@ class Imgur:
         resp = self._send_request(url)
         return [get_album_or_image(thing, self) for thing in resp]
 
+    def get_gallery_album(self, id):
+        """
+        Return the gallery album matching the id.
+
+        Note that an albums id is different from it's id as a gallery album.
+        This makes it possible to remove an album from the gallery and setting
+        it as secret, without compromising it's secrecy.
+        """
+        url = "https://api.imgur.com/3/gallery/album/%s" % id
+        resp = self._send_request(url)
+        return Gallery_album(resp, self)
+
+    def get_gallery_image(self, id):
+        """
+        Return the gallery image matching the id.
+
+        Note that an images id is different from it's id as a gallery image.
+        This makes it possible to remove an imaeg from the gallery and setting
+        it as secret, without compromising it's secrecy.
+        """
+        url = "https://api.imgur.com/3/gallery/image/%s" % id
+        resp = self._send_request(url)
+        return Gallery_image(resp, self)
+
     def get_image(self, id):
         """Return a Image object representing the image with id."""
         resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
