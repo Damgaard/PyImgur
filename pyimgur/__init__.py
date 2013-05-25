@@ -216,10 +216,10 @@ class Album(Basic_object):
         :param title: The title of the album.
         :param description: A description of the album.
         :param privacy: The albums privacy level, can be public, hidden or
-        secret.
+            secret.
         :param cover: The id of the cover image.
         :param layout: The way the album is displayed, can be blog, grid,
-        horizontal or vertical.
+            horizontal or vertical.
         """
         url = "https://api.imgur.com/3/album/%s" % self.deletehash
         payload = {'title': title, 'description': description,
@@ -343,18 +343,18 @@ class Image(Basic_object):
         Download the image.
 
         :param path: The image will be downloaded to the folder specified at
-        path, if path is None (default)then the current working directory will
-        be used.
+            path, if path is None (default) then the current working directory
+            will be used.
         :param name: The name the image will be stored as (not including file
-        extensions). If it's None, then the name of the Image will be used as
-        Name. If it doesn't have a title, it's id will be used instead.
+            extensions). If it's None, then the name of the Image will be used
+            as Name. If it doesn't have a title, it's id will be used instead.
         :param overwrite: If True already existing file with the same name as
-        what we want to store the file as will be overwritten.
-        will be overwritten when we download a new image with the same name.
+            what we want to store the file as will be overwritten.  will be
+            overwritten when we download a new image with the same name.
         :param size: Instead of downloading the image in it's original size, we
-        may choose to instead download a thumbnail of it. Options are
-        'small_square', 'big_square', 'small_thumbnail', 'medium_thumbnail',
-        'large_thumbnail' or 'huge_thumbnail'.
+            may choose to instead download a thumbnail of it. Options are
+            'small_square', 'big_square', 'small_thumbnail',
+            'medium_thumbnail', 'large_thumbnail' or 'huge_thumbnail'.
 
         :returns: Name of the new file.
         """
@@ -426,14 +426,15 @@ class Imgur:
 
         :param client_id: Your applications client_id.
         :param client_secret: Your applications client_secret. This is only
-        needed when a user needs to authorize the app.
+            needed when a user needs to authorize the app.
         :param access_token: is your secret key used to access the user's data.
-        It can be thought of the user's password and username combined into
-        one, and is used to access the user's account. It expires after 1 hour.
+            It can be thought of the user's password and username combined into
+            one, and is used to access the user's account. It expires after 1
+            hour.
         :param refresh_token: is used to request new access_tokens. Since
-        access_tokens expire after 1 hour, we need a way to request new ones
-        without going through the entire authorization step again. It does not
-        expire.
+            access_tokens expire after 1 hour, we need a way to request new
+            ones without going through the entire authorization step again. It
+            does not expire.
         """
         self.is_authenticated = False
         self.client_id = client_id
@@ -484,11 +485,10 @@ class Imgur:
         :param title: The title of the album.
         :param description: The albums describtion.
         :param ids: A list of image ids that will be added to the image after
-        it's been created.
+            it's been created.
         :param cover: The id of the image you want as the albums cover image.
         :returns: The newly created album.
         """
-
         url = "https://api.imgur.com/3/album/"
         payload = {'ids': ids, 'title': title,
                    'description': description, 'cover': cover}
@@ -500,9 +500,9 @@ class Imgur:
         """Create this user on Imgur."""
         pass
 
-    def get_at_url(self, url):
-        """Return whatever is at the imgur url as an object."""
-        pass
+#    def get_at_url(self, url):
+#        """Return whatever is at the imgur url as an object."""
+#        pass
 
     def get_album(self, id):
         """Return information about this album."""
@@ -511,7 +511,8 @@ class Imgur:
 
     def get_comment(self, id):
         """Return information about this comment."""
-        json = self._send_request("https://api.imgur.com/3/comment/%s" % id)
+        url = "https://api.imgur.com/3/comment/%s" % id
+        json = self._send_request(url)
         return Comment(json, self)
 
     def get_gallery(self, section='hot', sort='viral', page=0, window='day',
@@ -522,9 +523,9 @@ class Imgur:
         :param section: hot | top | user - defaults to hot
         :param sort: viral | time - defaults to viral
         :param window: Change the date range of the request if the section is
-        "top", day | week | month | year | all, defaults to day
+            "top", day | week | month | year | all, defaults to day
         :param show_viral: true | false - Show or hide viral images from the
-        'user' section. Defaults to true
+            'user' section. Defaults to true
         """
         # TODO: Add pagination
         url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
@@ -597,8 +598,7 @@ class Imgur:
         return [_get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(self, path, title=None, description=None, album_id=None):
-        """
-        Upload the image at path and return it."""
+        """Upload the image at path and return it."""
         with open(path, 'rb') as image_file:
             binary_data = image_file.read()
             image = b64encode(binary_data)
@@ -652,15 +652,15 @@ class User(Basic_object):
 
         If the argument is None, then current value is retained.
 
-        :param bio:The biography of the user, is displayed in the gallery
-        profile page.
+        :param bio: The biography of the user, is displayed in the gallery
+            profile page.
         :param public_images: Set the users images to private or public by
-        default
+            default
         :param messaging_enabled: Set to True to enable messaging.
         :param album_privacy: The default privacy level of albums created by
-        the user.
+            the user.
         :param accepted_gallery_terms: The user has agreed to the Imgur Gallery
-        terms. This is necessary before the user can submit to the gallery.
+            terms. This is necessary before the user can submit to the gallery.
         """
 
         # NOTE: album_privacy should maybe be renamed to default_privacy
@@ -768,7 +768,7 @@ class User(Basic_object):
         Return all messages sent to this user.
 
         :param new: False for all notifications, True for only non-viewed
-        notification.
+            notification.
         """
         pass
 
