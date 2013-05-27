@@ -512,16 +512,38 @@ class Imgur:
         self.ratelimit_userlimit = None
         self.ratelimit_userremaining = None
         self.ratelimit_userreset = None
+        self.DEFAULT_LIMIT = 100
 
-    def _send_request(self, *args, **kwargs):
+    def _send_request(self, url, *args, **kwargs):
         """Handles sending requests to Imgur and updates ratelimit info."""
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
             auth = {'Authorization': 'Client-ID %s' % self.client_id}
         else:
             auth = {'Authorization': 'Bearer %s' % self.access_token}
-        result = request.send_request(*args, authentication=auth, **kwargs)
-        content, ratelimit_info = result
+        content = []
+        is_paginated = False
+        if 'limit' in kwargs:
+            is_paginated = True
+            limit = kwargs['limit'] or self.DEFAULT_LIMIT
+            del kwargs['limit']
+            page = 0
+            base_url = url
+            url %= page
+        kwargs['authentication'] = auth
+        while True:
+            result = request.send_request(url, *args, **kwargs)
+            new_content, ratelimit_info = result
+            if is_paginated and new_content and limit > len(new_content):
+                content += new_content
+                page += 1
+                url = base_url % page
+            else:
+                if is_paginated:
+                    content = (content + new_content)[:limit]
+                else:
+                    content = new_content
+                break
         # Disable ratelimit info as it seems it stopped being included in the
         # returned information from 9-05-2013
         # self.ratelimit_clientlimit = ratelimit_info['x-ratelimit-clientlimit']
@@ -581,8 +603,8 @@ class Imgur:
         json = self._send_request(url)
         return Comment(json, self)
 
-    def get_gallery(self, section='hot', sort='viral', page=0, window='day',
-                    show_viral=True):
+    def get_gallery(self, section='hot', sort='viral', window='day',
+                    show_viral=True, limit=None):
         """
         Return the albums and and images in the gallery.
 
@@ -593,10 +615,9 @@ class Imgur:
         :param show_viral: true | false - Show or hide viral images from the
             'user' section. Defaults to true
         """
-        # TODO: Add pagination
-        url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%d?showViral=%s" %
-               (section, sort, window, page, show_viral))
-        resp = self._send_request(url)
+        url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%s?showViral=%s" %
+               (section, sort, window, '%d', show_viral))
+        resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
     def get_gallery_album(self, id):
@@ -628,13 +649,12 @@ class Imgur:
         resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
         return Image(resp, self)
 
-    def get_subreddit_gallery(self, subreddit, sort='time', page=0,
-                              window='top'):
+    def get_subreddit_gallery(self, subreddit, sort='time', window='top',
+                              limit=None):
         """View gallery images for a subreddit."""
-        url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%d" %
-               (subreddit, sort, window, page))
-        # TODO: Add pagination
-        resp = self._send_request(url)
+        url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%s" %
+               (subreddit, sort, window, '%d'))
+        resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
     def get_subreddit_image(self):
@@ -757,17 +777,16 @@ class User(Basic_object):
                                   "Album objects and retrieve the ids from "
                                   "that call")
 
-    def get_albums(self, page=0):
+    def get_albums(self, limit=None):
         """
         Return the users albums.
 
         Secret and hidden albums are only returned if this is the logged-in
         user.
         """
-        url = "https://api.imgur.com/3/account/%s/albums/%d" % (self.name,
-                                                                page)
-        # Add pagination
-        resp = self.imgur._send_request(url)
+        url = "https://api.imgur.com/3/account/%s/albums/%s" % (self.name,
+                                                                '%d')
+        resp = self.imgur._send_request(url, limit=limit)
         return [Album(alb, self.imgur) for alb in resp]
 
     def get_comments(self):
@@ -816,12 +835,11 @@ class User(Basic_object):
         """
         pass
 
-    def get_images(self, page=0):
+    def get_images(self, limit=None):
         """Return all of the images associated with the user."""
-        url = "https://api.imgur.com/3/account/%s/images/%d" % (self.name,
-                                                                page)
-        resp = self.imgur._send_request(url)
-        # Add pagination
+        url = "https://api.imgur.com/3/account/%s/images/%s" % (self.name,
+                                                                '%d')
+        resp = self.imgur._send_request(url, limit=limit)
         return [Image(img, self.imgur) for img in resp]
 
     def get_image_count(self):
@@ -856,12 +874,11 @@ class User(Basic_object):
         """Return all reply notifications for the user."""
         pass
 
-    def get_submissions(self):
+    def get_submissions(self, limit=None):
         """Return the images a user has submitted to the gallery."""
-        # TODO: Add pagination
-        url = "https://api.imgur.com/3/account/%s/submissions/%d" % (self.name,
-                                                                     0)
-        resp = self.imgur._send_request(url)
+        url = "https://api.imgur.com/3/account/%s/submissions/%s" % (self.name,
+                                                                     '%d')
+        resp = self.imgur._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self.imgur) for thing in resp]
 
     @_require_auth
