@@ -66,6 +66,13 @@ class Basic_object(object):
         # is. But we also have "voted" which is the current users vote on it.
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
+        if isinstance(self, Album) or isinstance(self, Image):
+            if "favorite" in vars(self):
+                self.has_favorited = self.favorite
+                del self.favorite
+            if "nsfw" in vars(self):
+                self.is_nsfw = self.nsfw
+                del self.nsfw
         if isinstance(self, Album):
             if "account_url" in vars(self):
                 self.author = User({'url': self.account_url}, self.imgur,
@@ -161,13 +168,13 @@ class Album(Basic_object):
     :ivar datetime: Time inserted into the gallery, epoch time
     :ivar deletehash: For anonymous uploads, this is used to delete the album.
     :ivar description: A short description of the album.
-    :ivar favorite: Has the logged in user favorited this album?
+    :ivar has_favorited: Has the logged in user favorited this album?
     :ivar id: The ID for the album.
     :ivar images: A list of the images in this album.
     :ivar images_count: The total number of images in the album.
+    :ivar is_nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar layout: The view layout of the album.
     :ivar link: The URL link to the album
-    :ivar nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar public: The privacy level of the album, you can only view public if
                   not logged in as album owner
     :ivar section: No info in Imgur documentation.
@@ -369,10 +376,11 @@ class Image(Basic_object):
     :ivar datetime: Time inserted into the gallery, epoch time
     :ivar deletehash: For anonymous uploads, this is used to delete the image.
     :ivar description: A short description of the image.
-    :ivar favorite: Has the logged in user favorited this album?
+    :ivar has_favorited: Has the logged in user favorited this album?
     :ivar height: The height of the image in pixels
     :ivar id: The ID for the image.
     :ivar is_animated: is the image animated?
+    :ivar is_nsfw: Is the image Not Safe For Work (contains gore/porn)?
     :ivar link: The URL link to the image
     :ivar link_big_square: The URL to a big square thumbnail of the image.
     :ivar link_huge_thumbnail: The URL to a huge thumbnail of the image.
@@ -380,7 +388,6 @@ class Image(Basic_object):
     :ivar link_large_thumbnail: The URL to a large thumbnail of the image.
     :ivar link_medium_thumbnail: The URL to a medium thumbnail of the image.
     :ivar link_small_square: The URL to a small square thumbnail of the image.
-    :ivar nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar section: ???
     :ivar size: The size of the image in bytes
     :ivar title: The Albums title
