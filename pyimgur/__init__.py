@@ -153,7 +153,27 @@ class Basic_object(object):
 
 
 class Album(Basic_object):
-    """An album is a collection of images."""
+    """
+    An album is a collection of images.
+
+    :ivar author: The user that authored the album. None if anonymous.
+    :ivar cover: The albums cover image.
+    :ivar datetime: Time inserted into the gallery, epoch time
+    :ivar deletehash: For anonymous uploads, this is used to delete the album.
+    :ivar description: A short description of the album.
+    :ivar favorite: Has the logged in user favorited this album?
+    :ivar id: The ID for the album.
+    :ivar images: A list of the images in this album.
+    :ivar images_count: The total number of images in the album.
+    :ivar layout: The view layout of the album.
+    :ivar link: The URL link to the album
+    :ivar nsfw: Is the album Not Safe For Work (contains gore/porn)?
+    :ivar public: The privacy level of the album, you can only view public if
+                  not logged in as album owner
+    :ivar section: No info in Imgur documentation.
+    :ivar title: The Albums title
+    :ivar views: Total number of views the album has received.
+    """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/album/%s" % json_dict['id'])
         self.deletehash = None
@@ -243,6 +263,21 @@ class Comment(Basic_object):
     A Comment a user has made.
 
     Users can commit on Gallery album, Gallery image or other Comment.
+
+    :ivar album_cover: The ID of the album cover image, this is what should be displayed for album comment
+    :ivar author: The user that created the comment.
+    :ivar comment: The comment text.
+    :ivar datetime: Time inserted into the gallery, epoch time
+    :ivar deletehash: For anonymous uploads, this is used to delete the image.
+    :ivar downs: The total number of dislikes (downvotes) the comment has received.
+    :ivar image: The image the comment belongs to.
+    :ivar on_album: Is the image part of a album.
+    :ivar parent_comment: The comment this one has replied to.
+    :ivar permalink: A permanent link to the comment.
+    :ivar points: ups - downs
+    :ivar replies: A list of comment replies to this comment.
+    :ivar ups: The total number of likes (upvotes) the comment has received.
+    :ivar vote: The currently logged in users vote on the comment
     """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
@@ -327,7 +362,31 @@ class Gallery_item(object):
 
 
 class Image(Basic_object):
-    """A image uploaded to imgur."""
+    """
+    A image uploaded to imgur.
+
+    :ivar bandwidth: Bandwidth consumed by the image in bytes
+    :ivar datetime: Time inserted into the gallery, epoch time
+    :ivar deletehash: For anonymous uploads, this is used to delete the image.
+    :ivar description: A short description of the image.
+    :ivar favorite: Has the logged in user favorited this album?
+    :ivar height: The height of the image in pixels
+    :ivar id: The ID for the image.
+    :ivar is_animated: is the image animated?
+    :ivar link: The URL link to the image
+    :ivar link_big_square: The URL to a big square thumbnail of the image.
+    :ivar link_huge_thumbnail: The URL to a huge thumbnail of the image.
+    :ivar link_large_square: The URL to a large square thumbnail of the image.
+    :ivar link_large_thumbnail: The URL to a large thumbnail of the image.
+    :ivar link_medium_thumbnail: The URL to a medium thumbnail of the image.
+    :ivar link_small_square: The URL to a small square thumbnail of the image.
+    :ivar nsfw: Is the album Not Safe For Work (contains gore/porn)?
+    :ivar section: ???
+    :ivar size: The size of the image in bytes
+    :ivar title: The Albums title
+    :ivar views: Total number of views the album has received.
+    :ivar width: The width of the image in bytes
+    """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/image/%s" % json_dict['id'])
         self.deletehash = None
@@ -633,7 +692,15 @@ class Notification(object):
 
 
 class User(Basic_object):
-    """A User on Imgur."""
+    """
+    A User on Imgur.
+
+    :ivar bio: A basic description the user has filled out.
+    :ivar created: The epoch time of user account creation
+    :ivar id: The user id.
+    :ivar name: The user name
+    :ivar reputation: The reputation for the user, in it's numerical format.
+    """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
                           json_dict['url'])
