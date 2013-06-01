@@ -13,6 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+PyImgur - The Simple Way of Using Imgur
+
+PyImgur is a python wrapper of the popular image hosting and sharing website
+imgur.com. It makes the process of writing applications that uses Imgur faster,
+easier and less frustrating by automatically handle a lot of stuff for you. For
+instance you'll only need to use your client_id when you instantiate the Imgur
+object and when changing authentication. For the REST API this value needs to
+be sent with every request, but PyImgur handles this automatically for you.
+
+Before using PyImgur, or the Imgur REST API in general, you'll first need to
+register your application here: https://api.imgur.com/oauth2/addclient
+
+For more information on usage visit https://github.com/Damgaard/PyImgur
+"""
+
+
 from base64 import b64encode
 from decorator import decorator
 import os.path
