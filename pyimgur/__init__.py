@@ -303,6 +303,8 @@ class Comment(Basic_object):
     :ivar ups: The total number of likes (upvotes) the comment has received.
     :ivar vote: The currently logged in users vote on the comment
     """
+    # NOTE: I think parent_comment in a comment is 0 when it is a root level
+    # comment and so has no parents. It should probably be None instead.
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
         self._INFO_URL = ("https://api.imgur.com/3/comment/%s" %
