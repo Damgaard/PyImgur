@@ -1,70 +1,119 @@
+.. begin_intro
+
 PyImgur
 =======
 
 The simple way of using Imgur.
 
-With PyImgur you won't have to deal with REST, but can instead use python-
-idiomatic code. This will make your code easier to read, easier to understand
-and faster to write.
-
-A quick example
----------------
-
-Lets start by doing an anonymous image upload, getting some information about
-the uploaded image and then deleting it from Imgur::
-
-    import imgur
-
-    im = imgur.Imgur() # sigh... might as well just be a imgur.init()
-    uploaded_image = im.upload_image(PATH_TO_LOCAL_FILE,
-                                     title="Uploaded with PyImgur")
-    print(uploaded_image.title)
-    print(uploaded_image.date)
-    print(uploaded_image.url)
-    uploaded_image.delete()
-
-For comparison, see ``how to implement this without PyImgur``.
-
-What Can I do with PyImgur
---------------------------
-
 You can upload images, download images, read comments, update your albums,
 message people and more. In fact, you can do almost everything via PyImgur that
-you can do via the webend. Only faster and automatically.
+you can via the webend.
 
-Using PyImgur - The Grand view
-------------------------------
+.. end_intro
 
-PyImgur is built on object oriented principles, with the information available
-on Imgur accessible through classes representing them. The Imgur class that we
-initialized at the beginning of the previous example contains the general
-methods that have to do with Imgur itself such as the ``get_stats`` method that
-return general statistical information. Things returned from Imgur are also
-represented using classes such as Image. ``uploaded_image`` in the previous
-example was an instance of Image.
-
-Authentication
---------------
-
-Just like when we access Imgur via the website, certain actions require us
-to authenticate before they can be used. For instance we can't create an album
-before we're authenticated as a user. This authentication happens via OAuth2,
-where the user go to a page on Imgur and clicks a button that gives us us
-access to their account. We gain a user secret and user key, which we use to
-show Imgur that the user has allowed us to access Imgur via their account.
-Important to note is that we don't get the users password and they can revoke
-our access at any time.
+.. begin_installation
 
 Installation
 ------------
 
-Use ``pip`` to download the latest version of PyImgur from PyPi.
+The recommended way to install is via `pip <http://pypi.python.org/pypi/pip>`_
 
-    $ pip install pyimgur
+.. code-block:: bash
+
+   $ pip install pyimgur
+
+.. end_installation
+
+.. begin_getting_started
+
+Getting Started
+---------------
+
+Before we can start using PyImgur, we need to register our application with
+Imgur. This way, Imgur can see what each application is doing on their site.
+Go to https://api.imgur.com/oauth2/addclient to register your client. Note that
+you can't use an application registration for the old v2 version of the imgur
+API, which was depreciated December 2012.
+
+When we registered our application we got a ``client_id`` and a
+``client_secret``. The ``client_secret`` is used for authenticating as a user,
+if we just need access to public or anonymous resources, then we can leave it
+out. For our first example we're going to get some information about an image
+already uploaded to image::
+
+    import PyImgur
+    CLIENT_ID = "Your_applications_client_id"
+    im = pyimgur.Imgur(CLIENT_ID)
+    image = im.get_image('S1jmapR')
+    print(image.title) # Cat Ying & Yang
+    print(image.link) # http://imgur.com/S1jmapR.jpg
+
+The ``Imgur`` object keeps the authentication information, changes
+authentication and is the most common way to get objects from Imgur.
+
+Uploading an Image
+------------------
+
+Let's use another example to show how to upload an image::
+
+    import PyImgur
+
+    CLIENT_ID = "Your_applications_client_id"
+    PATH = "A Filepath to an image on your computer"
+
+    im = pyimgur.Imgur(CLIENT_ID)
+    uploaded_image = im.upload_image(PATH, title="Uploaded with PyImgur")
+    print(uploaded_image.title)
+    print(uploaded_image.date)
+    print(uploaded_image.url)
+    print(uploaded_image.link)
+    uploaded_image.delete()
+
+
+Some methods here one or more arguments with the default value ``None``. For
+methods modifying existing objects, this mean to keep the already existing
+value. For methods not modifying existing objects, this mean to use the Imgur
+default.
+
+Lazy objects
+------------
+
+To reduce the load on Imgur, PyImgur only requests the data it needs. This
+means each object has the attribute ``has_fetched`` which if ``True``` has
+fetched all the data it can, if False it can fetch more
+information.
+
+Whenever we request an attribute that hasn't been loaded the newest information
+will be requested from imgur and all the object attributes will be updated to
+the newest values. We can also use the method ``refresh()`` to force a call to
+Imgur, that will update the object with the latest values::
+
+    import PyImgur
+    CLIENT_ID = "Your_applications_client_id"
+    im = pyimgur.Imgur(CLIENT_ID)
+    image = im.get_image('S1jmapR')
+    author = image.author
+    print(author.has_fetched) # False ie. it's a lazily loaded object
+    print(author.bio) # This is one cool dude.
+    print(author.has_fetched) # True ie. all values have now been retrieved.
+
+Introspection
+-------------
+
+Remember that as usual you can use the ``dir``, ``vars`` and ``help`` builtin
+functions to introspect objects to learn more about them and how they work.
 
 Support
 -------
 
-If you have any questions or problems using PyImgur. Feel free to either shoot
-me an e-mail or file an issue on the `project page at github <https://
-github.com/Damgaard/PyImgur>`_.
+If you find an bug, have any questions about how to use PyImgur or have
+suggestions for improvements then feel free to file an issue on the `Github
+project page <https://github.com/Damgaard/PyImgur>`_.
+
+License
+-------
+
+All of the code contained here is licensed by
+`the GNU GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>`_.
+
+.. end_getting_started

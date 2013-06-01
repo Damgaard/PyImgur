@@ -1,14 +1,18 @@
 .. _main_page:
 
 .. include:: ../README.rst
-   :start-after: begin_description
-   :end-before: end_description
+   :start-after: begin_intro
+   :end-before: end_intro
 
-Contents:
----------
+Other Content:
+--------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   getting_started
    reference
+
+
+.. include:: ../README.rst
+   :start-after: begin_installation
+   :end-before: end_getting_started
