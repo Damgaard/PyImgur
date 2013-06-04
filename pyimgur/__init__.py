@@ -127,8 +127,12 @@ class Basic_object(object):
                                    has_fetched=False)
                 del self.image_id
             if "parent_id" in vars(self):
-                self.parent_comment = Comment({'id': self.parent_id},
-                                              self.imgur, has_fetched=False)
+                if self.parent_id == 0:  # Top level comment
+                    self.parent_comment = None
+                else:
+                    self.parent_comment = Comment({'id': self.parent_id},
+                                                  self.imgur,
+                                                  has_fetched=False)
                 del self.parent_id
         elif isinstance(self, Gallery_image):
             if "account_url" in vars(self):
@@ -296,15 +300,15 @@ class Comment(Basic_object):
     :ivar downs: The total number of dislikes (downvotes) the comment has received.
     :ivar image: The image the comment belongs to.
     :ivar on_album: Is the image part of a album.
-    :ivar parent_comment: The comment this one has replied to.
+    :ivar parent_comment: The comment this one has replied to, if it is a
+        top-level comment i.e. it's a comment directly to the album / image
+        then it will be None.
     :ivar permalink: A permanent link to the comment.
     :ivar points: ups - downs
     :ivar replies: A list of comment replies to this comment.
     :ivar ups: The total number of likes (upvotes) the comment has received.
     :ivar vote: The currently logged in users vote on the comment
     """
-    # NOTE: I think parent_comment in a comment is 0 when it is a root level
-    # comment and so has no parents. It should probably be None instead.
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
         self._INFO_URL = ("https://api.imgur.com/3/comment/%s" %
