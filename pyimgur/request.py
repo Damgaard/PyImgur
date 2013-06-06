@@ -13,17 +13,18 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Handles sending and parsing the requests to an Imgur API endpoint."""
+"""Handles sending and parsing requests to/from Imgur REST API."""
 
 # Note: The name should probably be changed to avoid confusion with the module
 # requestS
 
 import json
+
 import requests
 
 
 def to_imgur_list(regular_list):
-    """Turn a python list into the format imgur expects."""
+    """Turn a python list into the format Imgur expects."""
     if regular_list is None:
         return None
     return ",".join(str(id) for id in regular_list)
@@ -55,7 +56,7 @@ def send_request(url, params=None, method='GET', authentication=None):
     # update an existing object. This we do with lazy evaluation. Here we
     # wouldn't know that, although obviously we could have a "raw" parameter
     # that just returned the json. Dunno. Having parsing of the returned output
-    # be done here could make the code simpler at the highet level. Just
+    # be done here could make the code simpler at the highest level. Just
     # request an url with some parameters and voila you get the object back you
     # wanted.
     if method == 'GET':

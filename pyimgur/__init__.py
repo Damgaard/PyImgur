@@ -18,23 +18,23 @@ PyImgur - The Simple Way of Using Imgur
 
 PyImgur is a python wrapper of the popular image hosting and sharing website
 imgur.com. It makes the process of writing applications that uses Imgur faster,
-easier and less frustrating by automatically handle a lot of stuff for you. For
-instance you'll only need to use your client_id when you instantiate the Imgur
-object and when changing authentication. For the REST API this value needs to
-be sent with every request, but PyImgur handles this automatically for you.
+easier and less frustrating by automatically handling a lot of stuff for you.
+For instance you'll only need to use your client_id when you instantiate the
+Imgur object and when changing authentication. For the REST API this value
+needs to be sent with every request, but PyImgur handles this automatically.
 
-Before using PyImgur, or the Imgur REST API in general, you'll first need to
-register your application here: https://api.imgur.com/oauth2/addclient
+Before using PyImgur, or the Imgur REST API in general, you'll need to register
+your application here: https://api.imgur.com/oauth2/addclient
 
 For more information on usage visit https://github.com/Damgaard/PyImgur
 """
 
 
 from base64 import b64encode
-from decorator import decorator
 import os.path
 import re
 
+from decorator import decorator
 import requests
 
 import request
@@ -59,7 +59,7 @@ def _require_auth(func, obj, *args, **kwargs):
 
 
 class Basic_object(object):
-    """Contains the basic functionality shared by a lot of PyImgurs classes."""
+    """Contains basic functionality shared by a lot of PyImgur's classes."""
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._has_fetched = has_fetched
         self.imgur = imgur
@@ -166,15 +166,10 @@ class Basic_object(object):
 
     def refresh(self):
         """
-        Refresh this object with the newest values.
+        Refresh this objects attributes to the newest values.
 
-        For instance, a User reputation may have changed in the time since the
-        creating the object. Calling this function would update the reputation
-        to the newest correct value.
-
-        If the variables weren't loaded, due to lazy loading, then this call
-        will force a call to imgur and update the object with all the
-        attributes.
+        Attributes that weren't added to the object before, due to lazy
+        loading, will be added by calling refresh.
         """
         resp = self.imgur._send_request(self._INFO_URL)
         self._populate(resp)
@@ -186,7 +181,7 @@ class Album(Basic_object):
 
     :ivar author: The user that authored the album. None if anonymous.
     :ivar cover: The albums cover image.
-    :ivar datetime: Time inserted into the gallery, epoch time
+    :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the album.
     :ivar description: A short description of the album.
     :ivar has_favorited: Has the logged in user favorited this album?
@@ -195,11 +190,11 @@ class Album(Basic_object):
     :ivar images_count: The total number of images in the album.
     :ivar is_nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar layout: The view layout of the album.
-    :ivar link: The URL link to the album
-    :ivar public: The privacy level of the album, you can only view public if
-                  not logged in as album owner
-    :ivar section: No info in Imgur documentation.
-    :ivar title: The Albums title
+    :ivar link: The URL link to the album.
+    :ivar public: The privacy level of the album, you can only view public
+        albums if not logged in as the album owner.
+    :ivar section: ??? - No info in Imgur documentation.
+    :ivar title: The album's title
     :ivar views: Total number of views the album has received.
     """
     def __init__(self, json_dict, imgur, has_fetched=True):
@@ -257,7 +252,7 @@ class Album(Basic_object):
     def update(self, title=None, description=None, ids=None, cover=None,
                layout=None, privacy=None):
         """
-        Update the albums information.
+        Update the album's information.
 
         Arguments with the value None will retain their old values.
 
@@ -273,7 +268,8 @@ class Album(Basic_object):
         payload = {'title': title, 'description': description,
                    'ids': ids, 'cover': cover,
                    'layout': layout, 'privacy': privacy}
-        is_updated = self.imgur._send_request(url, params=payload, method='POST')
+        is_updated = self.imgur._send_request(url, params=payload,
+                                              method='POST')
         if is_updated:
             self.title = title or self.title
             self.description = description or self.description
@@ -288,26 +284,28 @@ class Album(Basic_object):
 
 class Comment(Basic_object):
     """
-    A Comment a user has made.
+    A comment a user has made.
 
-    Users can commit on Gallery album, Gallery image or other Comment.
+    Users can comment on Gallery album, Gallery image or other Comments.
 
-    :ivar album_cover: The ID of the album cover image, this is what should be displayed for album comment
+    :ivar album_cover: The ID of the album cover image, this is what should be
+        displayed for album comment.
     :ivar author: The user that created the comment.
     :ivar comment: The comment text.
-    :ivar datetime: Time inserted into the gallery, epoch time
+    :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the image.
-    :ivar downs: The total number of dislikes (downvotes) the comment has received.
+    :ivar downs: The total number of dislikes (downvotes) the comment has
+        received.
     :ivar image: The image the comment belongs to.
-    :ivar on_album: Is the image part of a album.
+    :ivar on_album: Is the image part of an album.
     :ivar parent_comment: The comment this one has replied to, if it is a
         top-level comment i.e. it's a comment directly to the album / image
         then it will be None.
     :ivar permalink: A permanent link to the comment.
-    :ivar points: ups - downs
+    :ivar points: ups - downs.
     :ivar replies: A list of comment replies to this comment.
     :ivar ups: The total number of likes (upvotes) the comment has received.
-    :ivar vote: The currently logged in users vote on the comment
+    :ivar vote: The currently logged in users vote on the comment.
     """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
@@ -326,7 +324,7 @@ class Comment(Basic_object):
         pass
 
     def get_replies(self):
-        """Create a reply for the given comment."""
+        """Get the replies to this comment."""
         url = "https://api.imgur.com/3/comment/%s/replies" % self.id
         json = self.imgur._send_request(url)
         child_comments = json['children']
@@ -337,8 +335,9 @@ class Comment(Basic_object):
     # It's clearly possible to reply to a comment.
     # http://imgur.com/gallery/LA2RQqp/comment/49538390
     # If it is image_only, then this should probably be moved to Image
-    def reply(self, image_id, text):
-        """Create a reply for the given comment."""
+    # Chances are you can comment on Comment, Album and Images.
+    def reply(self, id, text):
+        """Create a reply."""
         pass
 
     @_require_auth
@@ -393,29 +392,29 @@ class Gallery_item(object):
 
 class Image(Basic_object):
     """
-    A image uploaded to imgur.
+    An image uploaded to Imgur.
 
-    :ivar bandwidth: Bandwidth consumed by the image in bytes
-    :ivar datetime: Time inserted into the gallery, epoch time
+    :ivar bandwidth: Bandwidth consumed by the image in bytes.
+    :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the image.
     :ivar description: A short description of the image.
     :ivar has_favorited: Has the logged in user favorited this album?
-    :ivar height: The height of the image in pixels
+    :ivar height: The height of the image in pixels.
     :ivar id: The ID for the image.
     :ivar is_animated: is the image animated?
     :ivar is_nsfw: Is the image Not Safe For Work (contains gore/porn)?
-    :ivar link: The URL link to the image
+    :ivar link: The URL link to the image.
     :ivar link_big_square: The URL to a big square thumbnail of the image.
     :ivar link_huge_thumbnail: The URL to a huge thumbnail of the image.
     :ivar link_large_square: The URL to a large square thumbnail of the image.
     :ivar link_large_thumbnail: The URL to a large thumbnail of the image.
     :ivar link_medium_thumbnail: The URL to a medium thumbnail of the image.
     :ivar link_small_square: The URL to a small square thumbnail of the image.
-    :ivar section: ???
-    :ivar size: The size of the image in bytes
-    :ivar title: The Albums title
+    :ivar section: ??? - No info in Imgur documentation.
+    :ivar size: The size of the image in bytes.
+    :ivar title: The albums title.
     :ivar views: Total number of views the album has received.
-    :ivar width: The width of the image in bytes
+    :ivar width: The width of the image in bytes.
     """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/image/%s" % json_dict['id'])
@@ -435,13 +434,12 @@ class Image(Basic_object):
             path, if path is None (default) then the current working directory
             will be used.
         :param name: The name the image will be stored as (not including file
-            extensions). If it's None, then the name of the Image will be used
-            as Name. If it doesn't have a title, it's id will be used instead.
-        :param overwrite: If True already existing file with the same name as
-            what we want to store the file as will be overwritten.  will be
-            overwritten when we download a new image with the same name.
+            extension). If name is None, then the title of the image will be
+            used. If the image doesn't have a title, it's id will be used.
+        :param overwrite: If True overwrite already existing file with the same
+            name as what we want to save the file as.
         :param size: Instead of downloading the image in it's original size, we
-            may choose to instead download a thumbnail of it. Options are
+            can choose to instead download a thumbnail of it. Options are
             'small_square', 'big_square', 'small_thumbnail',
             'medium_thumbnail', 'large_thumbnail' or 'huge_thumbnail'.
 
@@ -501,7 +499,7 @@ class Imgur:
     The base class containing general functionality for Imgur.
 
     You should create an Imgur object at the start of your code and use it to
-    interact with imgur. You shouldn't directly initialize any other classes,
+    interact with Imgur. You shouldn't directly initialize any other classes,
     but instead use the methods in this class to get them.
     """
     def __init__(self, client_id, client_secret=None, access_token=None,
@@ -509,8 +507,8 @@ class Imgur:
         """
         Initialize the Imgur object.
 
-        Before using PyImgur, or the imgur api in general, you need to register
-        your application with Imgur. This can be done at
+        Before using PyImgur, or the Imgur REST API in general, you need to
+        register your application with Imgur. This can be done at
         https://api.imgur.com/oauth2/addclient
 
         :param client_id: Your applications client_id.
@@ -594,10 +592,11 @@ class Imgur:
         Create a new Album.
 
         :param title: The title of the album.
-        :param description: The albums describtion.
+        :param description: The albums description.
         :param ids: A list of image ids that will be added to the image after
             it's been created.
         :param cover: The id of the image you want as the albums cover image.
+
         :returns: The newly created album.
         """
         url = "https://api.imgur.com/3/album/"
@@ -629,14 +628,15 @@ class Imgur:
     def get_gallery(self, section='hot', sort='viral', window='day',
                     show_viral=True, limit=None):
         """
-        Return the albums and and images in the gallery.
+        Return a list of gallery albums and gallery images.
 
-        :param section: hot | top | user - defaults to hot
-        :param sort: viral | time - defaults to viral
+        :param section: hot | top | user - defaults to hot.
+        :param sort: viral | time - defaults to viral.
         :param window: Change the date range of the request if the section is
-            "top", day | week | month | year | all, defaults to day
+            "top", day | week | month | year | all, defaults to day.
         :param show_viral: true | false - Show or hide viral images from the
-            'user' section. Defaults to true
+            'user' section. Defaults to true.
+        :param limit: The number of items to return.
         """
         url = ("https://api.imgur.com/3/gallery/%s/%s/%s/%s?showViral=%s" %
                (section, sort, window, '%d', show_viral))
@@ -647,9 +647,9 @@ class Imgur:
         """
         Return the gallery album matching the id.
 
-        Note that an albums id is different from it's id as a gallery album.
+        Note that an album's id is different from it's id as a gallery album.
         This makes it possible to remove an album from the gallery and setting
-        it as secret, without compromising it's secrecy.
+        it's privacy setting as secret, without compromising it's secrecy.
         """
         url = "https://api.imgur.com/3/gallery/album/%s" % id
         resp = self._send_request(url)
@@ -659,22 +659,33 @@ class Imgur:
         """
         Return the gallery image matching the id.
 
-        Note that an images id is different from it's id as a gallery image.
-        This makes it possible to remove an imaeg from the gallery and setting
-        it as secret, without compromising it's secrecy.
+        Note that an image's id is different from it's id as a gallery image.
+        This makes it possible to remove an image from the gallery and setting
+        it's privacy setting as secret, without compromising it's secrecy.
         """
         url = "https://api.imgur.com/3/gallery/image/%s" % id
         resp = self._send_request(url)
         return Gallery_image(resp, self)
 
     def get_image(self, id):
-        """Return a Image object representing the image with id."""
+        """Return a Image object representing the image with the given id."""
         resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
         return Image(resp, self)
 
     def get_subreddit_gallery(self, subreddit, sort='time', window='top',
                               limit=None):
-        """View gallery images for a subreddit."""
+        """
+        Return a list of gallery albums/images submitted to a subreddit.
+
+        A subreddit is a subsection of the website www.reddit.com, where users
+        can, among other things, post images.
+
+        :param subreddit: A valid subreddit name.
+        :param sort: time | top - defaults to top.
+        :param window: Change the date range of the request if the section is
+            "top", day | week | month | year | all, defaults to day.
+        :param limit: The number of items to return.
+        """
         url = ("https://api.imgur.com/3/gallery/r/%s/%s}/%s/%s" %
                (subreddit, sort, window, '%d'))
         resp = self._send_request(url, limit=limit)
@@ -688,7 +699,7 @@ class Imgur:
 
     def get_user(self, username):
         """
-        Return information about this user.
+        Return a User object for this username.
 
         :param username: The name of the user we want more information about.
         """
@@ -697,7 +708,7 @@ class Imgur:
         return User(json, self)
 
     def is_imgur_url(self, url):
-        """Is the given url a valid imgur url?"""
+        """Is the given url a valid Imgur url?"""
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
 
     def search_gallery(self, q):
@@ -707,7 +718,19 @@ class Imgur:
         return [_get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(self, path, title=None, description=None, album_id=None):
-        """Upload the image at path and return it."""
+        """
+        Upload the image at path.
+
+        :param path: The path to the image you want to upload.
+        :param title: The title the image will have when uploaded.
+        :param description: The description the image will have when uploaded.
+        :param album_id: The album the image will be added to when uploaded.
+            Leave at None to upload without adding to an Album, adding it later
+            is possible. Authentication as album owner is necessary to upload
+            to an album with this function.
+
+        :returns: An Image object representing the uploaded image.
+        """
         with open(path, 'rb') as image_file:
             binary_data = image_file.read()
             image = b64encode(binary_data)
@@ -745,11 +768,12 @@ class User(Basic_object):
     """
     A User on Imgur.
 
-    :ivar bio: A basic description the user has filled out.
+    :ivar bio: A basic description filled out by the user, is displayed in the
+        gallery profile page.
     :ivar created: The epoch time of user account creation
     :ivar id: The user id.
-    :ivar name: The user name
-    :ivar reputation: The reputation for the user, in it's numerical format.
+    :ivar name: The username
+    :ivar reputation: Total likes - dislikes of users created content.
     """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
@@ -767,17 +791,15 @@ class User(Basic_object):
         """
         Update the settings for the user.
 
-        If the argument is None, then current value is retained.
-
-        :param bio: The biography of the user, is displayed in the gallery
-            profile page.
-        :param public_images: Set the users images to private or public by
-            default
+        :param bio: A basic description filled out by the user, is displayed in
+            the gallery profile page.
+        :param public_images: Set the default privacy setting of the users
+            images, can be private or public. Default public.
         :param messaging_enabled: Set to True to enable messaging.
         :param album_privacy: The default privacy level of albums created by
             the user.
-        :param accepted_gallery_terms: The user has agreed to the Imgur Gallery
-            terms. This is necessary before the user can submit to the gallery.
+        :param accepted_gallery_terms: The user agreement to Imgur Gallery
+            terms. Necessary before the user can submit to the gallery.
         """
 
         # NOTE: album_privacy should maybe be renamed to default_privacy
@@ -789,7 +811,7 @@ class User(Basic_object):
         pass
 
     def get_album_count(self):
-        """Get the Number of albums this user has."""
+        """Get the number of albums this user has."""
         # See get_comment_count for comment on non-implementation
         raise NotImplementedError("Use len(get_albums) instead.")
 
@@ -802,7 +824,7 @@ class User(Basic_object):
 
     def get_albums(self, limit=None):
         """
-        Return the users albums.
+        Return  a list of the user's albums.
 
         Secret and hidden albums are only returned if this is the logged-in
         user.
@@ -824,7 +846,7 @@ class User(Basic_object):
         raise NotImplementedError("Use len(get_comments) instead")
 
     def get_comment_ids(self):
-        """Get a list of the users comments ids."""
+        """Get a list of the user's comments ids."""
         # See the other get_comment_ids for non-implementing reasoning
         raise NotImplementedError("Use get_comments instead to return the "
                                   "Comment objects and retrieve the ids from "
@@ -843,7 +865,7 @@ class User(Basic_object):
         return [Image(img, self.imgur) for img in resp]
 
     def get_gallery_profile(self):
-        """Return the users gallery profule."""
+        """Return the users gallery profile."""
         url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.name
         return self.imgur._send_request(url)
 
@@ -852,9 +874,9 @@ class User(Basic_object):
         """
         Has the user verified that the email he has given is legit?
 
-        A user with verified e-mail may post to the gallery. Confirmation
-        happens by sending an email to the user and the owner of the email
-        user verifying that he is the same as the imgur user.
+        Verified e-mail is required to the gallery. Confirmation happens by
+        sending an email to the user and the owner of the email user verifying
+        that he is the same as the Imgur user.
         """
         pass
 
@@ -880,10 +902,10 @@ class User(Basic_object):
     @_require_auth
     def get_messages(new=True):
         """
-        Return all messages sent to this user.
+        Return all messages sent to this user, formatted as a notification.
 
         :param new: False for all notifications, True for only non-viewed
-            notification.
+            notificatio.
         """
         pass
 
@@ -894,11 +916,11 @@ class User(Basic_object):
 
     @_require_auth
     def get_replies():
-        """Return all reply notifications for the user."""
+        """Return all reply notifications for this user."""
         pass
 
     def get_submissions(self, limit=None):
-        """Return the images a user has submitted to the gallery."""
+        """Return a list of the images a user has submitted to the gallery."""
         url = "https://api.imgur.com/3/account/%s/submissions/%s" % (self.name,
                                                                      '%d')
         resp = self.imgur._send_request(url, limit=limit)
@@ -906,7 +928,7 @@ class User(Basic_object):
 
     @_require_auth
     def get_statistics(self):
-        """Return the statistics about the user."""
+        """Return statistics about this user."""
         url = "https://api.imgur.com/3/account/%s/stats" % self.name
         return self.imgur._send_request(url)
 
