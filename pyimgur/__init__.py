@@ -39,6 +39,12 @@ import requests
 
 import request
 
+
+AUTHORIZE_URL = ("https://api.imgur.com/oauth2/authorize?"
+                 "client_id=%s&response_type=%s&state=%s")
+EXCHANGE_URL = "https://api.imgur.com/oauth2/token"
+REFRESH_URL = "https://api.imgur.com/oauth2/token"
+
 # Note: Maybe base_object.imgur should instead be base_object._imgur ?
 # eg. private since it not for public consumption
 
@@ -582,9 +588,31 @@ class Imgur:
         # cache since that's likely incorrect.
         return content
 
+    def authorization_url(self, response, state=""):
+        """
+        Return the authorization url that's needed to authorize as a user.
+
+        :param response: Can be either code or pin. If it's code the user will
+            be redirected to your redirect url with the code as a get parameter
+            after authorizing your application. If it's pin then after
+            authorizing your application, the user will instead be shown a pin
+            on Imgurs website. Both code and pin are used to get an
+            access_token and refresh token with the exchange_code and
+            exchange_pin functions respectively.
+        :param state: This optional parameter indicates any state which may be
+            useful to your application upon receipt of the response. Imgur
+            round-trips this parameter, so your application receives the same
+            value it sent. Possible uses include redirecting the user to the
+            correct resource in your site, nonces, and
+            cross-site-request-forgery mitigations.
+        """
+        return AUTHORIZE_URL % (self.client_id, response, state)
+
     def change_authentication(self, client_id=None, client_secret=None,
                               access_token=None, refresh_token=None):
         """Change the current authentication."""
+        # TODO: Add error checking so you cannot change client_id and retain
+        # access_token. Because that doesn't make sense.
         self.client_id = client_id or self.client_id
         self.client_secret = client_secret or self.client_secret
         self.access_token = access_token or self.access_token
@@ -616,6 +644,30 @@ class Imgur:
 #    def get_at_url(self, url):
 #        """Return whatever is at the imgur url as an object."""
 #        pass
+
+    def exchange_code(self, code):
+        """Exchange one-use code for an access_token and request_token."""
+        params = {'client_id': self.client_id,
+                  'client_secret': self.client_secret,
+                  'grant_type': 'authorization_code',
+                  'pin': code}
+        result = self._send_request(EXCHANGE_URL, params=params, method='POST',
+                                    data_field=None)
+        self.access_token = result['access_token']
+        self.refresh_token = result['refresh_token']
+        return self.access_token, self.refresh_token
+
+    def exchange_pin(self, pin):
+        """Exchange one-use pin for an access_token and request_token."""
+        params = {'client_id': self.client_id,
+                  'client_secret': self.client_secret,
+                  'grant_type': 'pin',
+                  'pin': pin}
+        result = self._send_request(EXCHANGE_URL, params=params, method='POST',
+                                    data_field=None)
+        self.access_token = result['access_token']
+        self.refresh_token = result['refresh_token']
+        return self.access_token, self.refresh_token
 
     def get_album(self, id):
         """Return information about this album."""
@@ -713,6 +765,22 @@ class Imgur:
     def is_imgur_url(self, url):
         """Is the given url a valid Imgur url?"""
         return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
+
+    def refresh_access_token(self):
+        """
+        Refresh the access_token.
+
+        The self.access_token attribute will be updated with the value of the
+        new access_token which will also be returned.
+        """
+        params = {'client_id': self.client_id,
+                  'client_secret': self.client_secret,
+                  'grant_type': 'refresh_token',
+                  'refresh_token': self.refresh_token}
+        result = self._send_request(REFRESH_URL, params=params, method='POST',
+                                    data_field=None)
+        self.access_token = result['access_token']
+        return self.access_token
 
     def search_gallery(self, q):
         """Search the gallery with the given query string."""

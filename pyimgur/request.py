@@ -44,7 +44,7 @@ def to_imgur_format(params):
     return parsed
 
 
-def send_request(url, params=None, method='GET', authentication=None):
+def send_request(url, params=None, method='GET', data_field='data', authentication=None):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
@@ -71,7 +71,9 @@ def send_request(url, params=None, method='GET', authentication=None):
         resp.raise_for_status()
     # Some times we get a 200 return, but no content. Either an exception
     # should be raised or ideally, the request attempted again up to 3 times.
-    content = json.loads(resp.content)['data']
+    content = json.loads(resp.content)
+    if data_field is not None:
+        content = content[data_field]
     ratelimit_info = {key: int(value) for (key, value) in resp.headers.items()
                       if key.startswith('x-ratelimit')}
     return content, ratelimit_info
