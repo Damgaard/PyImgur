@@ -120,6 +120,9 @@ class Basic_object(object):
                 self.replies = [Comment(com, self.imgur) for com in
                                 self.children]
                 del self.children
+            if "comment" in vars(self):
+                self.text = self.comment
+                del self.comment
             if "image_id" in vars(self):
                 self.permalink = ("http://imgur.com/gallery/%s/comment/%d" %
                                  (self.image_id, self.id))
@@ -291,7 +294,6 @@ class Comment(Basic_object):
     :ivar album_cover: The ID of the album cover image, this is what should be
         displayed for album comment.
     :ivar author: The user that created the comment.
-    :ivar comment: The comment text.
     :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the image.
     :ivar downs: The total number of dislikes (downvotes) the comment has
@@ -304,6 +306,7 @@ class Comment(Basic_object):
     :ivar permalink: A permanent link to the comment.
     :ivar points: ups - downs.
     :ivar replies: A list of comment replies to this comment.
+    :ivar text: The comments text.
     :ivar ups: The total number of likes (upvotes) the comment has received.
     :ivar vote: The currently logged in users vote on the comment.
     """
