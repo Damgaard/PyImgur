@@ -10,6 +10,7 @@ Other Content:
 .. toctree::
    :maxdepth: 1
 
+   authorization
    reference
 
 
