@@ -82,6 +82,13 @@ class Basic_object(object):
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.id)
 
+    @property
+    def _delete_or_id_hash(self):
+        if self.imgur.access_token and self.deletehash is not None:
+            return self.id
+        else:
+            return self.deletehash
+
     def _populate(self, json_dict):
         for key, value in json_dict.iteritems():
             setattr(self, key, value)
@@ -222,7 +229,7 @@ class Album(Basic_object):
 
     def delete(self):
         """Delete this album."""
-        url = "https://api.imgur.com/3/album/%s" % self.deletehash
+        url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
         return self.imgur._send_request(url, method="DELETE")
 
     @_require_auth
@@ -273,7 +280,7 @@ class Album(Basic_object):
         :param layout: The way the album is displayed, can be blog, grid,
             horizontal or vertical.
         """
-        url = "https://api.imgur.com/3/album/%s" % self.deletehash
+        url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
         payload = {'title': title, 'description': description,
                    'ids': ids, 'cover': cover,
                    'layout': layout, 'privacy': privacy}
@@ -433,7 +440,8 @@ class Image(Basic_object):
     def delete(self):
         """Delete the image."""
         return self.imgur._send_request("https://api.imgur.com/3/image/%s" %
-                                        self.deletehash, method='DELETE')
+                                        self._delete_or_id_hash,
+                                        method='DELETE')
 
     def download(self, path='', name=None, overwrite=False, size=None):
         """
@@ -494,7 +502,7 @@ class Image(Basic_object):
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
         payload = {'title': title, 'description': description}
-        url = "https://api.imgur.com/3/image/%s" % self.deletehash
+        url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
         is_updated = self.imgur._send_request(url, params=payload,
                                               method='POST')
         if is_updated:
