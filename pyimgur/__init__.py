@@ -59,9 +59,11 @@ def _get_album_or_image(json, imgur):
 @decorator
 def _require_auth(func, obj, *args, **kwargs):
     """This method requires that we've successfully authenticated as a user."""
-    imgur = obj if isinstance(obj, Imgur) else obj.imgur
-    if not imgur.is_authenticated:
-        raise Exception("Login required to use this method.")
+    imgur_obj = obj if isinstance(obj, Imgur) else obj.imgur
+    if imgur_obj.access_token is None:
+        raise Exception("Authentication as a user is required to use this "
+                        "method.")
+    return func(obj, *args, **kwargs)
 
 
 class Basic_object(object):
