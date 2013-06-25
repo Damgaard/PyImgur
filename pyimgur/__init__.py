@@ -220,9 +220,14 @@ class Album(Basic_object):
         """
         Add images to the album.
 
-        :param ids: A list of the image id we want to add to the album.
+        :param ids: A list of the image id we want to add to the album. Ids of
+        images that you cannot add (non-existing or not owned by you) will not
+        cause exceptions, but fail silently.
         """
-        pass
+        url = "https://api.imgur.com/3/album/%s/add" % self.id
+        params = {'ids': ids}
+        return self.imgur._send_request(url, needs_auth=True, params=params,
+                                        method="POST")
 
     def delete(self):
         """Delete this album."""
@@ -231,23 +236,38 @@ class Album(Basic_object):
 
     def favorite(self):
         """Favorite the album."""
-        pass
+        # NOTE: Doesn't seem any way to unfavorite an album.
+        # NOTE: Seem to return "" and have no effect on has_favorited status.
+        url = "https://api.imgur.com/3/album/%s/favorite" % self.id
+        return self.imgur._send_request(url, needs_auth=True, method="POST")
 
     def remove_images(self, ids):
         """
         Remove images from the album.
 
         :param ids: A list of the image id we want to remove from the album.
+        Ids of images that you cannot remove (non-existing, not owned by you or
+        not part of album) will not cause exceptions, but fail silently.
         """
-        pass
+        url = ("https://api.imgur.com/3/album/%s/remove_images" %
+               self._delete_or_id_hash)
+        # NOTE: Returns True and everything seem to be as it should in testing.
+        # Seems most likely to be upstream bug.
+        params = {'ids': ids}
+        return self.imgur._send_request(url, params=params, method="DELETE")
 
     def set_images(self, ids):
         """
         Set the images in this album.
 
-        :param ids: The list of images the album will now consists of.
+        :param ids: The list of images the album will now consists of. Ids of
+        images that you cannot set (non-existing or not owned by you) will not
+        cause exceptions, but fail silently.
         """
-        pass
+        url = "https://api.imgur.com/3/album/%s/" % self._delete_or_id_hash
+        params = {'ids': ids}
+        return self.imgur._send_request(url, needs_auth=True, params=params,
+                                        method="POST")
 
     @_require_auth
     def submit_to_gallery():
