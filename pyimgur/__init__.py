@@ -1036,6 +1036,14 @@ class User(Basic_object):
         """Return all reply notifications for this user."""
         pass
 
+    def get_settings(self):
+        """
+        Returns current settings.
+
+        Only accessible if authenticated as the user."""
+        url = "https://api.imgur.com/3/account/%s/settings" % self.name
+        return self.imgur._send_request(url)
+
     def get_submissions(self, limit=None):
         """Return a list of the images a user has submitted to the gallery."""
         url = "https://api.imgur.com/3/account/%s/submissions/%s" % (self.name,
