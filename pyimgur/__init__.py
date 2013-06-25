@@ -397,17 +397,6 @@ class Gallery_item(object):
         """Dislike this."""
         pass
 
-    def get_comment_count(self):
-        # So far I've decided not to implement this and get_comment_ids. Their
-        # functionality seems covered by get_comments on the assumption that
-        # there is no limit to the number of comments returned.
-        raise NotImplementedError("Use len(get_comments) instead")
-
-    def get_comment_ids(self):
-        raise NotImplementedError("Use get_comments instead to return the "
-                                  "Comment objects and retrieve the ids from "
-                                  "that call")
-
     def get_comments(self):
         """Get a list of the top-level comments."""
         url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
@@ -927,18 +916,6 @@ class User(Basic_object):
         """Delete this user."""
         pass
 
-    def get_album_count(self):
-        """Get the number of albums this user has."""
-        # See get_comment_count for comment on non-implementation
-        raise NotImplementedError("Use len(get_albums) instead.")
-
-    def get_album_ids(self):
-        """Get a list of the users albums ids."""
-        # See get_comment_ids for comment on non-implementation
-        raise NotImplementedError("Use get_albums instead to return the "
-                                  "Album objects and retrieve the ids from "
-                                  "that call")
-
     def get_albums(self, limit=None):
         """
         Return  a list of the user's albums.
@@ -956,18 +933,6 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/comments" % self.name
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
-
-    def get_comment_count(self):
-        """Get the number of comments this user has made."""
-        # See the other get_comment_count for non-implementing reasoning
-        raise NotImplementedError("Use len(get_comments) instead")
-
-    def get_comment_ids(self):
-        """Get a list of the user's comments ids."""
-        # See the other get_comment_ids for non-implementing reasoning
-        raise NotImplementedError("Use get_comments instead to return the "
-                                  "Comment objects and retrieve the ids from "
-                                  "that call")
 
     @_require_auth
     def get_favorites(self):
@@ -1003,18 +968,6 @@ class User(Basic_object):
                                                                 '%d')
         resp = self.imgur._send_request(url, limit=limit)
         return [Image(img, self.imgur) for img in resp]
-
-    def get_image_count(self):
-        """Get the number of images this user has on imgur."""
-        # See the other get_comment_count for non-implementing reasoning
-        raise NotImplementedError("Use len(get_images) instead")
-
-    def get_images_ids(self):
-        """Get a list of image ids this user has on imgur."""
-        # See the other get_comment_ids for non-implementing reasoning
-        raise NotImplementedError("Use get_images instead to return the "
-                                  "Image objects and retrieve the ids from "
-                                  "that call")
 
     @_require_auth
     def get_messages(new=True):
