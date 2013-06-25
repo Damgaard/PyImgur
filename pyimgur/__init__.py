@@ -59,10 +59,6 @@ def _get_album_or_image(json, imgur):
 @decorator
 def _require_auth(func, obj, *args, **kwargs):
     """This method requires that we've successfully authenticated as a user."""
-    imgur_obj = obj if isinstance(obj, Imgur) else obj.imgur
-    if imgur_obj.access_token is None:
-        raise Exception("Authentication as a user is required to use this "
-                        "method.")
     return func(obj, *args, **kwargs)
 
 
@@ -86,7 +82,7 @@ class Basic_object(object):
 
     @property
     def _delete_or_id_hash(self):
-        if self.imgur.access_token and self.deletehash is not None:
+        if self.imgur.access_token:
             return self.id
         else:
             return self.deletehash
@@ -220,7 +216,6 @@ class Album(Basic_object):
         self.deletehash = None
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
-    @_require_auth
     def add_images(self, ids):
         """
         Add images to the album.
@@ -234,12 +229,10 @@ class Album(Basic_object):
         url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
         return self.imgur._send_request(url, method="DELETE")
 
-    @_require_auth
     def favorite(self):
         """Favorite the album."""
         pass
 
-    @_require_auth
     def remove_images(self, ids):
         """
         Remove images from the album.
@@ -248,7 +241,6 @@ class Album(Basic_object):
         """
         pass
 
-    @_require_auth
     def set_images(self, ids):
         """
         Set the images in this album.
@@ -554,8 +546,26 @@ class Imgur:
         self.ratelimit_userreset = None
         self.DEFAULT_LIMIT = 100
 
-    def _send_request(self, url, *args, **kwargs):
-        """Handles sending requests to Imgur and updates ratelimit info."""
+    def _send_request(self, url, needs_auth=False, *args, **kwargs):
+        """
+        Handles top level functionality for sending requests to Imgur.
+
+        This mean
+            - Raising client-side error if insufficient authentication.
+            - Adding authentication information to the request.
+            - Split the request into multiple request for pagination.
+            - Retry calls for certain server-side errors.
+            - Refresh access token automatically if expired.
+            - Updating ratelimit info
+
+        :param needs_auth: Is authentication as a user needed for the execution
+            of this method?
+        """
+        # TODO: Add automatic test for timed_out access_tokens and
+        # automatically refresh it before carrying out the request.
+        if self.access_token is None and needs_auth:
+            raise Exception("Authentication as a user is required to use this "
+                            "method.")
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
             auth = {'Authorization': 'Client-ID %s' % self.client_id}
@@ -1013,11 +1023,10 @@ class User(Basic_object):
         resp = self.imgur._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self.imgur) for thing in resp]
 
-    @_require_auth
     def get_statistics(self):
         """Return statistics about this user."""
         url = "https://api.imgur.com/3/account/%s/stats" % self.name
-        return self.imgur._send_request(url)
+        return self.imgur._send_request(url, needs_auth=True)
 
     def send_message(body, subject=None, parent_id=None):
         """Send a message to this user from the logged in user."""
