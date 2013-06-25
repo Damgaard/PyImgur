@@ -566,7 +566,7 @@ class Imgur:
         self.ratelimit_userreset = None
         self.DEFAULT_LIMIT = 100
 
-    def _send_request(self, url, needs_auth=False, *args, **kwargs):
+    def _send_request(self, url, needs_auth=False, **kwargs):
         """
         Handles top level functionality for sending requests to Imgur.
 
@@ -602,7 +602,7 @@ class Imgur:
             url %= page
         kwargs['authentication'] = auth
         while True:
-            result = request.send_request(url, *args, **kwargs)
+            result = request.send_request(url, **kwargs)
             new_content, ratelimit_info = result
             if is_paginated and new_content and limit > len(new_content):
                 content += new_content
