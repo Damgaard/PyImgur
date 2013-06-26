@@ -890,7 +890,6 @@ class User(Basic_object):
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.name)
 
-    @_require_auth
     def change_settings(self, bio=None, public_images=None,
                         messaging_enabled=None, album_privacy=None,
                         accepted_gallery_terms=None):
@@ -900,21 +899,33 @@ class User(Basic_object):
         :param bio: A basic description filled out by the user, is displayed in
             the gallery profile page.
         :param public_images: Set the default privacy setting of the users
-            images, can be private or public. Default public.
+            images. If True images are public, if False private.
         :param messaging_enabled: Set to True to enable messaging.
         :param album_privacy: The default privacy level of albums created by
-            the user.
+            the user. Can be public, hidden or secret.
         :param accepted_gallery_terms: The user agreement to Imgur Gallery
             terms. Necessary before the user can submit to the gallery.
         """
-
         # NOTE: album_privacy should maybe be renamed to default_privacy
-        pass
+        # NOTE: Maybe public_images should be turned into a boolean, since
+        # either the users images are public by default or they are not. i.e. a
+        # binary choice.
+        # NOTE: public_images is a boolean, despite the documentation saying it
+        # is a string.
+        payload = {'bio': bio, 'public_images': public_images,
+                   'messaging_enabled': messaging_enabled,
+                   'album_privacy': album_privacy,
+                   'accepted_gallery_terms': accepted_gallery_terms}
 
-    @_require_auth
+        url = "https://api.imgur.com/3/account/%s/settings" % self.name
+        resp = self.imgur._send_request(url, needs_auth=True, params=payload,
+                                        method='POST')
+        return resp
+
     def delete(self):
-        """Delete this user."""
-        pass
+        """Delete this user. Require being authenticated as the user."""
+        url = "https://api.imgur.com/3/account/%s" % self.name
+        return self.imgur._send_request(url, needs_auth=True, method='DELETE')
 
     def get_albums(self, limit=None):
         """
@@ -934,10 +945,11 @@ class User(Basic_object):
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
 
-    @_require_auth
     def get_favorites(self):
         """Return the users favorited images."""
-        pass
+        url = "https://api.imgur.com/3/account/%s/favorites" % self.name
+        resp = self.imgur._send_request(url, needs_auth=True)
+        return [_get_album_or_image(thing, self) for thing in resp]
 
     def get_gallery_favorites(self):
         """Get a list of the images in the gallery this user has favorited."""
@@ -951,7 +963,6 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.name
         return self.imgur._send_request(url)
 
-    @_require_auth
     def has_verified_email(self):
         """
         Has the user verified that the email he has given is legit?
@@ -960,13 +971,14 @@ class User(Basic_object):
         sending an email to the user and the owner of the email user verifying
         that he is the same as the Imgur user.
         """
-        pass
+        url = "https://api.imgur.com/3/account/%s/verifyemail" % self.name
+        return self.imgur._send_request(url, needs_auth=True)
 
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
         url = "https://api.imgur.com/3/account/%s/images/%s" % (self.name,
                                                                 '%d')
-        resp = self.imgur._send_request(url, limit=limit)
+        resp = self.imgur._send_request(url, needs_auth=True, limit=limit)
         return [Image(img, self.imgur) for img in resp]
 
     @_require_auth
@@ -977,16 +989,22 @@ class User(Basic_object):
         :param new: False for all notifications, True for only non-viewed
             notificatio.
         """
+        # note: not implemented as notifications currently haven't been
+        # implemented
         pass
 
     @_require_auth
     def get_notifications(new=True):
         """Return all the notifications for this user."""
+        # note: not implemented as notifications currently haven't been
+        # implemented
         pass
 
     @_require_auth
     def get_replies():
         """Return all reply notifications for this user."""
+        # note: not implemented as notifications currently haven't been
+        # implemented
         pass
 
     def get_settings(self):
@@ -1013,10 +1031,15 @@ class User(Basic_object):
         """Send a message to this user from the logged in user."""
         pass
 
-    @_require_auth
     def send_verification_email(self):
-        """Send verification email to this users email address."""
-        pass
+        """
+        Send verification email to this users email address.
+
+        Remember that the verification email may end up in the users spam
+        folder.
+        """
+        url = "https://api.imgur.com/3/account/%s/verifyemail" % self.name
+        self.imgur._send_request(url, needs_auth=True, method='POST')
 
 
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
