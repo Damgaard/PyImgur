@@ -775,12 +775,6 @@ class Imgur:
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
-    def get_subreddit_image(self):
-        """View a single image in the subreddit."""
-        # I think this duplicates get_gallery_image. So there should be no
-        # reason to implement it.
-        pass
-
     def get_user(self, username):
         """
         Return a User object for this username.
