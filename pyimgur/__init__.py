@@ -693,10 +693,17 @@ class Imgur:
         resp = self._send_request(url, params=payload, method='POST')
         return Album(resp, self, has_fetched=False)
 
-    @_require_auth
+    '''
+    Not currently implemented for 3 reasons.
+
+    It requires recaptcha info, which makes using it via the API inconvenient.
+    It is hard to test.
+    It creates users on Imgur that doesn't correspond to actual users.
+
     def create_user(self, username):
         """Create this user on Imgur."""
         pass
+    '''
 
 #    def get_at_url(self, url):
 #        """Return whatever is at the imgur url as an object."""
