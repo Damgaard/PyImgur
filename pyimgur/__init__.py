@@ -49,6 +49,12 @@ REFRESH_URL = "https://api.imgur.com/oauth2/token"
 # eg. private since it not for public consumption
 
 
+def _change_object(from_object, to_object):
+    from_object.__class__ = to_object.__class__
+    from_object.__dict__ = to_object.__dict__
+    from_object.__repr__ = to_object.__repr__
+
+
 def _get_album_or_image(json, imgur):
     """Return a gallery image/album depending on what the json represent."""
     if json['is_album']:
