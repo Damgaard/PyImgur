@@ -179,6 +179,20 @@ class Basic_object(object):
                 self.first_message = Message({'id': self.parent_id},
                                              self.imgur, has_fetched=False)
                 del self.parent_id
+        elif isinstance(self, Notification):
+            # Cannot be used for any calls.
+            # Also, since Notifications can only be returned for the
+            # authenticated user, the id can be found with get_user('me').id
+            if "account_id" in vars(self):
+                del self.account_id
+            if "viewed" in vars(self):
+                self.is_viewed = self.viewed
+                del self.viewed
+            if "content" in vars(self):
+                if "subject" in self.content:
+                    self.content = Message(self.content, self.imgur, True)
+                elif "caption" in self.content:
+                    self.content = Comment(self.content, self.imgur, True)
         elif isinstance(self, User) and 'url' in vars(self):
             self.name = self.url
             del self.url
@@ -779,6 +793,16 @@ class Imgur:
         resp = self._send_request("https://api.imgur.com/3/message/%s" % id)
         return Message(resp, self)
 
+    def get_notification(self, id):
+        """
+        Return a Notification object.
+
+        :param id: The id of the notification object to return.
+        """
+        resp = self._send_request("https://api.imgur.com/3/notification/%s" %
+                                  id)
+        return Notification(resp, self)
+
     def get_subreddit_gallery(self, subreddit, sort='time', window='top',
                               limit=None):
         """
@@ -930,10 +954,20 @@ class Notification(Basic_object):
     A notification can come for several reasons. For instance, one may be
     received if someone replies to one of your comments.
     """
-    # Requires login to test
-    def __init__(self, json_dict, imgur):
+    def __init__(self, json_dict, imgur, has_fetched=True):
         # Is never gotten lazily, so _has_fetched is always True
-        super(Notification, self).__init__(json_dict, imgur, True)
+        self._INFO_URL = ("https://api.imgur.com/3/notification/%s" %
+                          json_dict['id'])
+        super(Notification, self).__init__(json_dict, imgur, has_fetched)
+
+    def mark_as_viewed(self):
+        """
+        Mark the notification as viewed.
+
+        Notifications cannot be marked as unviewed.
+        """
+        url = "https://api.imgur.com/3/notification/%s" % self.id
+        return self.imgur._send_request(url, method='POST')
 
 
 class User(Basic_object):
@@ -1061,19 +1095,27 @@ class User(Basic_object):
         return [Notification(msg_dict, self.imgur, has_fetched=True) for
                 msg_dict in result]
 
-    @_require_auth
-    def get_notifications(new=True):
+    def get_notifications(self, new=True):
         """Return all the notifications for this user."""
-        # note: not implemented as notifications currently haven't been
-        # implemented
-        pass
+        url = "https://api.imgur.com/3/account/%s/notifications" % self.name
+        payload = {'new': new}
+        resp = self.imgur._send_request(url, params=payload, needs_auth=True)
+        msgs = [Message(msg_dict, self.imgur, has_fetched=True) for msg_dict in
+                resp['messages']]
+        replies = [Comment(msg_dict, self.imgur, has_fetched=True) for com_dict
+                   in resp['replies']]
+        return {'messages': msgs, 'replies': replies}
 
-    @_require_auth
-    def get_replies():
-        """Return all reply notifications for this user."""
-        # note: not implemented as notifications currently haven't been
-        # implemented
-        pass
+    def get_replies(self, new=True):
+        """
+        Return all reply notifications for this user.
+
+        :param new: False for all notifications, True for only non-viewed
+            notifications.
+        """
+        url = ("https://api.imgur.com/3/account/%s/notifications/replies" %
+               self.name)
+        return self.imgur._send_request(url, needs_auth=True)
 
     def get_settings(self):
         """
