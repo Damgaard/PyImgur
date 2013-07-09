@@ -165,6 +165,20 @@ class Basic_object(object):
                 self.author = User({'url': self.account_url}, self.imgur,
                                    has_fetched=False)
                 del self.account_url
+        elif isinstance(self, Message):
+            # Should be gotten via self.author.id
+            if "account_id" in vars(self):
+                del self.account_id
+            if "from" in vars(self):
+                # Use getattr and delattr here as doing self.from gives a
+                # syntax error because "from" is a protected keyword in Python.
+                self.author = User({'url': getattr(self, "from")}, self.imgur,
+                                   has_fetched=False)
+                delattr(self, "from")
+            if "parent_id" in vars(self):
+                self.first_message = Message({'id': self.parent_id},
+                                             self.imgur, has_fetched=False)
+                del self.parent_id
         elif isinstance(self, User) and 'url' in vars(self):
             self.name = self.url
             del self.url
@@ -756,6 +770,15 @@ class Imgur:
         resp = self._send_request("https://api.imgur.com/3/image/%s" % id)
         return Image(resp, self)
 
+    def get_message(self, id):
+        """
+        Return a Message object for given id.
+
+        :param id: The id of the message object to return.
+        """
+        resp = self._send_request("https://api.imgur.com/3/message/%s" % id)
+        return Message(resp, self)
+
     def get_subreddit_gallery(self, subreddit, sort='time', window='top',
                               limit=None):
         """
@@ -843,15 +866,64 @@ class Imgur:
         return Image(resp, self, False)
 
 
-class Message(object):
+class Message(Basic_object):
     """This corresponds to the messages users can send each other."""
-    # Requires login to test
-    def __init__(self, json_dict, imgur):
-        # Is never gotten lazily, so _has_fetched is always True
-        super(Message, self).__init__(json_dict, imgur, True)
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._INFO_URL = ("https://api.imgur.com/3/message/%s" %
+                          json_dict['id'])
+        super(Message, self).__init__(json_dict, imgur, has_fetched)
+
+    '''
+    Maybe we cannot unblock users? Would be quite problematic if one of the
+    main acounts blocked the other and it couldn't be unblocked.
+
+    Perhaps this method should also be placed under User as its a user we
+    block, not the message itself.
+    def block(self):
+        pass
+    '''
+
+    def delete(self):
+        """Delete the message."""
+        url = "https://api.imgur.com/3/message/%s" % self.id
+        return self.imgur._send_request(url, method='DELETE')
+
+    def get_thread(self):
+        """Return the message thread this Message is in."""
+        url = ("https://api.imgur.com/3/message/%s/thread" %
+               self.first_message.id)
+        resp = self.imgur._send_request(url)
+        return [Message(msg, self.imgur) for msg in resp]
+
+    def reply(self, body):
+        """
+        Reply to this message.
+
+        This is a convenience method calling User.send_message. See it for more
+        information on usage. Note that both recipient and reply_to are given
+        by using this convenience method.
+
+        :param body: The body of the message.
+        """
+        return self.author.send_message(body=body, reply_to=self.id)
+
+    '''
+    Testing this method would give Imgur false positives.
+    Discussions with Imgur will hopefully produce a way of consistently testing
+    this without giving Imgur problems.
+
+    Maybe this method should be placed under User as it is the user that's
+    being reported. On the other hand the reason for the report is sending
+    messages against Imgurs TOS. Comments can also be against the TOS, but
+    there is a separate endpoint for reporting those.
+
+    def report():
+        """Report the author sending a message against the Terms of Service."""
+        pass
+    '''
 
 
-class Notification(object):
+class Notification(Basic_object):
     """
     This corresponds to the notifications a user may receive.
 
@@ -975,17 +1047,19 @@ class User(Basic_object):
         resp = self.imgur._send_request(url, needs_auth=True, limit=limit)
         return [Image(img, self.imgur) for img in resp]
 
-    @_require_auth
-    def get_messages(new=True):
+    def get_messages(self, new=True):
         """
         Return all messages sent to this user, formatted as a notification.
 
         :param new: False for all notifications, True for only non-viewed
-            notificatio.
+            notifications.
         """
-        # note: not implemented as notifications currently haven't been
-        # implemented
-        pass
+        url = ("https://api.imgur.com/3/account/%s/notifications/messages" %
+               self.name)
+        payload = {'new': new}
+        result = self.imgur._send_request(url, params=payload, needs_auth=True)
+        return [Notification(msg_dict, self.imgur, has_fetched=True) for
+                msg_dict in result]
 
     @_require_auth
     def get_notifications(new=True):
@@ -1021,9 +1095,25 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/stats" % self.name
         return self.imgur._send_request(url, needs_auth=True)
 
-    def send_message(body, subject=None, parent_id=None):
-        """Send a message to this user from the logged in user."""
-        pass
+    def send_message(self, body, subject=None, reply_to=None):
+        """
+        Send a message to this user from the logged in user.
+
+        :param body: The body of the message.
+        :param subject: The subject of the message. Note that if the this
+            message is a reply, then the subject of the first message will be
+            used instead.
+        :param reply_to: Messages can either be replies to other messages or
+            start a new message thread. If this is None it will start a new
+            message thread. If it's a Message object or message_id, then the
+            new message will be sent as a reply to the reply_to message.
+        """
+        url = "https://api.imgur.com/3/message"
+        parent_id = reply_to.id if isinstance(reply_to, Message) else reply_to
+        payload = {'recipient': self.name, 'body': body, 'subject': subject,
+                   'parent_id': parent_id}
+        self.imgur._send_request(url, params=payload, needs_auth=True,
+                                 method='POST')
 
     def send_verification_email(self):
         """
