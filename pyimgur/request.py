@@ -38,10 +38,12 @@ def to_imgur_format(params):
         return None
     parsed = {}
     for key, value in params.iteritems():
-        if isinstance(value, list):
-            value = to_imgur_list(value)
-        elif isinstance(value, bool):
+        if isinstance(value, bool):
             value = "true" if value else "false"
+        elif isinstance(value, list):
+            value = to_imgur_list(value)
+        elif isinstance(value, (int, long)):
+            value = str(value)
         parsed[key] = value
     return parsed
 
