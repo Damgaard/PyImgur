@@ -18,6 +18,8 @@
 # Note: The name should probably be changed to avoid confusion with the module
 # requestS
 
+from __future__ import print_function
+
 import json
 
 import requests
@@ -67,13 +69,16 @@ def send_request(url, params=None, method='GET', data_field='data', authenticati
         resp = requests.put(url, params, verify=False, headers=headers)
     elif method == 'DELETE':
         resp = requests.delete(url, verify=False, headers=headers)
-    if not resp.ok:
-        resp.raise_for_status()
     # Some times we get a 200 return, but no content. Either an exception
     # should be raised or ideally, the request attempted again up to 3 times.
     content = json.loads(resp.content)
     if data_field is not None:
         content = content[data_field]
+    if not resp.ok:
+        error_msg = "Imgur ERROR message: %s" % content['error']
+        print(error_msg)
+        print("-" * len(error_msg))
+        resp.raise_for_status()
     ratelimit_info = {key: int(value) for (key, value) in resp.headers.items()
                       if key.startswith('x-ratelimit')}
     return content, ratelimit_info
