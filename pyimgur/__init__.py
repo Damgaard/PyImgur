@@ -418,10 +418,14 @@ class Comment(Basic_object):
         """Create a reply."""
         pass
 
-    @_require_auth
+    '''
+    Testing this method would give Imgur false positives.
+    Discussions with Imgur will hopefully produce a way of consistently testing
+    this without giving Imgur problems.
     def report(self):
         """Reply comment for being inappropriate."""
         pass
+    '''
 
     def upvote(self):
         """Upvote this comment."""
