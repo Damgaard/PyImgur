@@ -48,7 +48,8 @@ def to_imgur_format(params):
     return parsed
 
 
-def send_request(url, params=None, method='GET', data_field='data', authentication=None):
+def send_request(url, params=None, method='GET', data_field='data',
+                 authentication=None):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)

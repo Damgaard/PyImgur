@@ -112,7 +112,7 @@ class Basic_object(object):
                 self.link_medium_thumbnail = base + "m" + sep + ext
                 self.link_large_thumbnail = base + "l" + sep + ext
                 self.link_huge_thumbnail = base + "h" + sep + ext
-        if isinstance(self, Album):
+        elif isinstance(self, Album):
             if "images_count" in vars(self):
                 del self.images_count
             if "account_url" in vars(self):
@@ -218,6 +218,8 @@ class Basic_object(object):
         """
         resp = self.imgur._send_request(self._INFO_URL)
         self._populate(resp)
+        # NOTE: What if the object has been deleted in the meantime? That might
+        # give a pretty cryptic error.
 
 
 class Album(Basic_object):
@@ -349,7 +351,7 @@ class Album(Basic_object):
             self.privacy = privacy or self.privacy
             if cover is not None:
                 self.cover = Image(cover)
-            if ids:
+            if ids is not None:
                 self.images = [Image(img, self.imgur) for img in ids]
         return is_updated
 
@@ -360,8 +362,8 @@ class Comment(Basic_object):
 
     Users can comment on Gallery album, Gallery image or other Comments.
 
-    :ivar album_cover: The ID of the album cover image, this is what should be
-        displayed for album comment.
+    :ivar album_cover: If this Comment is on a Album, this will be the Albums
+        cover Image.
     :ivar author: The user that created the comment.
     :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the image.
@@ -461,8 +463,6 @@ class Gallery_item(object):
 
     def remove_from_gallery(self):
         """Remove this image from the gallery."""
-        # TODO. Text implies this is image only and won't work with albums.
-        # Confirm
         url = "https://api.imgur.com/3/gallery/%s" % self.id
         self.imgur._send_request(url, needs_auth=True, method='DELETE')
         if isinstance(self, Image):
@@ -660,6 +660,7 @@ class Imgur:
         # TODO: Add automatic test for timed_out access_tokens and
         # automatically refresh it before carrying out the request.
         if self.access_token is None and needs_auth:
+            # TODO: Use inspect to insert name of method in error msg.
             raise Exception("Authentication as a user is required to use this "
                             "method.")
         if self.access_token is None:
@@ -1040,12 +1041,12 @@ class User(Basic_object):
     """
     A User on Imgur.
 
-    :ivar bio: A basic description filled out by the user, is displayed in the
+    :ivar bio: A basic description filled out by the user, displayed in the
         gallery profile page.
     :ivar created: The epoch time of user account creation
     :ivar id: The user id.
     :ivar name: The username
-    :ivar reputation: Total likes - dislikes of users created content.
+    :ivar reputation: Total likes - dislikes of the user's created content.
     """
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/account/%s" %
@@ -1073,9 +1074,6 @@ class User(Basic_object):
             terms. Necessary before the user can submit to the gallery.
         """
         # NOTE: album_privacy should maybe be renamed to default_privacy
-        # NOTE: Maybe public_images should be turned into a boolean, since
-        # either the users images are public by default or they are not. i.e. a
-        # binary choice.
         # NOTE: public_images is a boolean, despite the documentation saying it
         # is a string.
         payload = {'bio': bio, 'public_images': public_images,
@@ -1187,7 +1185,8 @@ class User(Basic_object):
         """
         Returns current settings.
 
-        Only accessible if authenticated as the user."""
+        Only accessible if authenticated as the user.
+        """
         url = "https://api.imgur.com/3/account/%s/settings" % self.name
         return self.imgur._send_request(url)
 
