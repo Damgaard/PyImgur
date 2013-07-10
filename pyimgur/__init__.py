@@ -113,6 +113,8 @@ class Basic_object(object):
                 self.link_large_thumbnail = base + "l" + sep + ext
                 self.link_huge_thumbnail = base + "h" + sep + ext
         if isinstance(self, Album):
+            if "images_count" in vars(self):
+                del self.images_count
             if "account_url" in vars(self):
                 self.author = User({'url': self.account_url}, self.imgur,
                                    has_fetched=False)
@@ -229,7 +231,6 @@ class Album(Basic_object):
     :ivar description: A short description of the album.
     :ivar id: The ID for the album.
     :ivar images: A list of the images in this album.
-    :ivar images_count: The total number of images in the album.
     :ivar is_favorited: Has the logged in user favorited this album?
     :ivar is_nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar layout: The view layout of the album.
