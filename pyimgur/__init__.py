@@ -394,10 +394,10 @@ class Comment(Basic_object):
         """Delete the comment."""
         pass
 
-    @_require_auth
     def downvote(self):
         """Downvote this comment."""
-        pass
+        url = "https://api.imgur.com/3/comment/%s/vote/down" % self.id
+        return self.imgur._send_request(url, needs_auth=True, method='POST')
 
     def get_replies(self):
         """Get the replies to this comment."""
@@ -421,10 +421,10 @@ class Comment(Basic_object):
         """Reply comment for being inappropriate."""
         pass
 
-    @_require_auth
     def upvote(self):
         """Upvote this comment."""
-        pass
+        url = "https://api.imgur.com/3/comment/%s/vote/up" % self.id
+        return self.imgur._send_request(url, needs_auth=True, method='POST')
 
 
 class Gallery_item(object):
@@ -438,10 +438,16 @@ class Gallery_item(object):
         """
         pass
 
-    @_require_auth
     def downvote(self):
-        """Dislike this."""
-        pass
+        """
+        Dislike this.
+
+        A downvote will replace a neutral vote or an upvote. Downvoting
+        something the authenticated user has already downvoted will set the
+        vote to neutral.
+        """
+        url = "https://api.imgur.com/3/gallery/%s/vote/down" % self.id
+        return self.imgur._send_request(url, needs_auth=True, method='POST')
 
     def get_comments(self):
         """Get a list of the top-level comments."""
@@ -463,8 +469,15 @@ class Gallery_item(object):
         return self
 
     def upvote(self):
-        """Like this."""
-        pass
+        """
+        Like this.
+
+        An upvote will replace a neutral vote or an downvote. Upvoting
+        something the authenticated user has already upvoted will set the vote
+        to neutral.
+        """
+        url = "https://api.imgur.com/3/gallery/%s/vote/up" % self.id
+        return self.imgur._send_request(url, needs_auth=True, method='POST')
 
 
 class Image(Basic_object):
