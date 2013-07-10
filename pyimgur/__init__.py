@@ -303,15 +303,25 @@ class Album(Basic_object):
         return self.imgur._send_request(url, needs_auth=True, params=params,
                                         method="POST")
 
-    @_require_auth
-    def submit_to_gallery():
+    def submit_to_gallery(self, title, bypass_terms=False):
         """
         Add this to the gallery.
 
-        Requires that we have verified our email address and accepted the
-        Gallery terms of services.
+        Require that the authenticated user has accepted gallery terms and
+        verified their email.
+
+        :param title: The title of the new gallery item.
+        :param bypass_terms: If the user has not accepted Imgur's terms yet,
+            this method will return an error. Set this to True to by-pass the
+            terms.
         """
-        pass
+        url = "https://api.imgur.com/3/gallery/%s" % self.id
+        payload = {'title': title, 'terms': '1' if bypass_terms else '0'}
+        self.imgur._send_request(url, needs_auth=True, params=payload,
+                                 method='POST')
+        item = self.imgur.get_gallery_album(self.id)
+        _change_object(self, item)
+        return self
 
     def update(self, title=None, description=None, ids=None, cover=None,
                layout=None, privacy=None):
@@ -437,7 +447,19 @@ class Gallery_item(object):
         resp = self.imgur._send_request(url)
         return [Comment(com, self.imgur) for com in resp]
 
-    @_require_auth
+    def remove_from_gallery(self):
+        """Remove this image from the gallery."""
+        # TODO. Text implies this is image only and won't work with albums.
+        # Confirm
+        url = "https://api.imgur.com/3/gallery/%s" % self.id
+        self.imgur._send_request(url, needs_auth=True, method='DELETE')
+        if isinstance(self, Image):
+            item = self.imgur.get_image(self.id)
+        else:
+            item = self.imgur.get_album(self.id)
+        _change_object(self, item)
+        return self
+
     def upvote(self):
         """Like this."""
         pass
@@ -524,17 +546,7 @@ class Image(Basic_object):
         """Favorite the image."""
         pass
 
-    @_require_auth
-    def remove_from_gallery():
-        """Remove this image from the gallery."""
-        # TODO. Text implies this is image only and won't work with albums.
-        # Confirm
-        pass
 
-    @_require_auth
-    def submit_to_gallery():
-        """Add this to the gallery."""
-        pass
 
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
@@ -546,6 +558,26 @@ class Image(Basic_object):
             self.title = title or self.title
             self.description = description or self.description
         return is_updated
+
+    def submit_to_gallery(self, title, bypass_terms=False):
+        """
+        Add this to the gallery.
+
+        Require that the authenticated user has accepted gallery terms and
+        verified their email.
+
+        :param title: The title of the new gallery item.
+        :param bypass_terms: If the user has not accepted Imgur's terms yet,
+            this method will return an error. Set this to True to by-pass the
+            terms.
+        """
+        url = "https://api.imgur.com/3/gallery/%s" % self.id
+        payload = {'title': title, 'terms': '1' if bypass_terms else '0'}
+        self.imgur._send_request(url, needs_auth=True, params=payload,
+                                 method='POST')
+        item = self.imgur.get_gallery_image(self.id)
+        _change_object(self, item)
+        return self
 
 
 class Imgur:
