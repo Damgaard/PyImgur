@@ -408,15 +408,13 @@ class Comment(Basic_object):
         child_comments = json['children']
         return [Comment(com, self.imgur) for com in child_comments]
 
-    # Question. Can you only reply to images? If you can comment on other
-    # comments, then how do you do that? Use comment_id instead of image_id?
-    # It's clearly possible to reply to a comment.
-    # http://imgur.com/gallery/LA2RQqp/comment/49538390
-    # If it is image_only, then this should probably be moved to Image
-    # Chances are you can comment on Comment, Album and Images.
-    def reply(self, id, text):
-        """Create a reply."""
-        pass
+    def reply(self, text):
+        """Make a comment reply."""
+        url = "https://api.imgur.com/3/comment/%s" % self.id
+        payload = {'image_id': self.image.id, 'comment': text}
+        resp = self.imgur._send_request(url, params=payload, needs_auth=True,
+                                        method='POST')
+        return Comment(resp, imgur=self.imgur, has_fetched=False)
 
     '''
     Testing this method would give Imgur false positives.
@@ -435,14 +433,17 @@ class Comment(Basic_object):
 
 class Gallery_item(object):
     """Functionality shared by Gallery_image and Gallery_album."""
-    @_require_auth
-    def comment(self, comment):
+    def comment(self, text):
         """
         Make a top-level comment to this.
 
         :param text: The comment text.
         """
-        pass
+        url = "https://api.imgur.com/3/comment"
+        payload = {'image_id': self.id, 'comment': text}
+        resp = self.imgur._send_request(url, params=payload, needs_auth=True,
+                                        method='POST')
+        return Comment(resp, imgur=self.imgur, has_fetched=False)
 
     def downvote(self):
         """
