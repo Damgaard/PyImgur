@@ -269,9 +269,11 @@ class Album(Basic_object):
         return self.imgur._send_request(url, method="DELETE")
 
     def favorite(self):
-        """Favorite the album."""
-        # NOTE: Doesn't seem any way to unfavorite an album.
-        # NOTE: Seem to return "" and have no effect on has_favorited status.
+        """
+        Favorite the album.
+
+        Favoriting an already favorited album will unfavor it.
+        """
         url = "https://api.imgur.com/3/album/%s/favorite" % self.id
         return self.imgur._send_request(url, needs_auth=True, method="POST")
 
@@ -541,12 +543,14 @@ class Image(Basic_object):
             out_file.write(resp.content)
         return local_path
 
-    @_require_auth
     def favorite(self):
-        """Favorite the image."""
-        pass
+        """
+        Favorite the image.
 
-
+        Favoriting an already favorited image will unfavorite it.
+        """
+        url = "https://api.imgur.com/3/image/%s/favorite" % self.id
+        return self.imgur._send_request(url, needs_auth=True, method='POST')
 
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
