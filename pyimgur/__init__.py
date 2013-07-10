@@ -34,7 +34,6 @@ from base64 import b64encode
 import os.path
 import re
 
-from decorator import decorator
 import requests
 
 import request
@@ -60,12 +59,6 @@ def _get_album_or_image(json, imgur):
     if json['is_album']:
         return Gallery_album(json, imgur)
     return Gallery_image(json, imgur)
-
-
-@decorator
-def _require_auth(func, obj, *args, **kwargs):
-    """This method requires that we've successfully authenticated as a user."""
-    return func(obj, *args, **kwargs)
 
 
 class Basic_object(object):
