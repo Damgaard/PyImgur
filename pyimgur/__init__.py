@@ -389,10 +389,12 @@ class Comment(Basic_object):
                           json_dict['id'])
         super(Comment, self).__init__(json_dict, imgur, has_fetched)
 
-    @_require_auth
     def delete(self):
         """Delete the comment."""
-        pass
+        url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
+        return self.imgur._send_request(url, method='DELETE')
+        # NOTE: Gives a 403 permission denied error on comment 77087313 which
+        # made by me.
 
     def downvote(self):
         """Downvote this comment."""
