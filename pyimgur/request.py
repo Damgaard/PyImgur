@@ -25,13 +25,6 @@ import json
 import requests
 
 
-def convert_to_imgur_list(regular_list):
-    """Turn a python list into the list format Imgur expects."""
-    if regular_list is None:
-        return None
-    return ",".join(str(id) for id in regular_list)
-
-
 def convert_general(value):
     """Take a python object and convert it to the format Imgur expects."""
     if isinstance(value, bool):
@@ -44,6 +37,13 @@ def convert_general(value):
     elif 'pyimgur' in str(type(value)):
         return str(getattr(value, 'id', value))
     return value
+
+
+def convert_to_imgur_list(regular_list):
+    """Turn a python list into the list format Imgur expects."""
+    if regular_list is None:
+        return None
+    return ",".join(str(id) for id in regular_list)
 
 
 def to_imgur_format(params):

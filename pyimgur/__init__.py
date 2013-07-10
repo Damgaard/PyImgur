@@ -63,11 +63,6 @@ def _get_album_or_image(json, imgur):
 
 class Basic_object(object):
     """Contains basic functionality shared by a lot of PyImgur's classes."""
-    def __init__(self, json_dict, imgur, has_fetched=True):
-        self._has_fetched = has_fetched
-        self.imgur = imgur
-        self._populate(json_dict)
-
     def __getattr__(self, attribute):
         if not self._has_fetched:
             self.refresh()
@@ -75,6 +70,11 @@ class Basic_object(object):
             return getattr(self, attribute)
         raise AttributeError("%s instance has no attribute '%s'" %
                              (type(self).__name__, attribute))
+
+    def __init__(self, json_dict, imgur, has_fetched=True):
+        self._has_fetched = has_fetched
+        self._imgur = imgur
+        self._populate(json_dict)
 
     def __repr__(self):
         return "<%s %s>" % (type(self).__name__, self.id)
@@ -113,8 +113,6 @@ class Basic_object(object):
                 self.link_large_thumbnail = base + "l" + sep + ext
                 self.link_huge_thumbnail = base + "h" + sep + ext
         elif isinstance(self, Album):
-            if "images_count" in vars(self):
-                del self.images_count
             if "account_url" in vars(self):
                 self.author = User({'url': self.account_url}, self.imgur,
                                    has_fetched=False)
@@ -125,6 +123,8 @@ class Basic_object(object):
             if "images" in vars(self):
                 self.images = [Image(img, self.imgur, has_fetched=False) for
                                img in self.images]
+            if "images_count" in vars(self):
+                del self.images_count
         elif isinstance(self, Comment):
             if "author" in vars(self):
                 self.author = User({'url': self.author}, self.imgur,
@@ -577,17 +577,6 @@ class Image(Basic_object):
         url = "https://api.imgur.com/3/image/%s/favorite" % self.id
         return self.imgur._send_request(url, needs_auth=True, method='POST')
 
-    def update(self, title=None, description=None):
-        """Update the image with a new title and/or description."""
-        payload = {'title': title, 'description': description}
-        url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
-        is_updated = self.imgur._send_request(url, params=payload,
-                                              method='POST')
-        if is_updated:
-            self.title = title or self.title
-            self.description = description or self.description
-        return is_updated
-
     def submit_to_gallery(self, title, bypass_terms=False):
         """
         Add this to the gallery.
@@ -607,6 +596,17 @@ class Image(Basic_object):
         item = self.imgur.get_gallery_image(self.id)
         _change_object(self, item)
         return self
+
+    def update(self, title=None, description=None):
+        """Update the image with a new title and/or description."""
+        payload = {'title': title, 'description': description}
+        url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
+        is_updated = self.imgur._send_request(url, params=payload,
+                                              method='POST')
+        if is_updated:
+            self.title = title or self.title
+            self.description = description or self.description
+        return is_updated
 
 
 class Imgur:
@@ -639,16 +639,16 @@ class Imgur:
             does not expire.
         """
         self.is_authenticated = False
+        self.access_token = access_token
         self.client_id = client_id
         self.client_secret = client_secret
-        self.access_token = access_token
-        self.refresh_token = refresh_token
+        self.DEFAULT_LIMIT = 100
         self.ratelimit_clientlimit = None
         self.ratelimit_clientremaining = None
         self.ratelimit_userlimit = None
         self.ratelimit_userremaining = None
         self.ratelimit_userreset = None
-        self.DEFAULT_LIMIT = 100
+        self.refresh_token = refresh_token
 
     def _send_request(self, url, needs_auth=False, **kwargs):
         """
@@ -1202,17 +1202,17 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/settings" % self.name
         return self.imgur._send_request(url)
 
+    def get_statistics(self):
+        """Return statistics about this user."""
+        url = "https://api.imgur.com/3/account/%s/stats" % self.name
+        return self.imgur._send_request(url, needs_auth=True)
+
     def get_submissions(self, limit=None):
         """Return a list of the images a user has submitted to the gallery."""
         url = "https://api.imgur.com/3/account/%s/submissions/%s" % (self.name,
                                                                      '%d')
         resp = self.imgur._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self.imgur) for thing in resp]
-
-    def get_statistics(self):
-        """Return statistics about this user."""
-        url = "https://api.imgur.com/3/account/%s/stats" % self.name
-        return self.imgur._send_request(url, needs_auth=True)
 
     def send_message(self, body, subject=None, reply_to=None):
         """
