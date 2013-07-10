@@ -346,10 +346,7 @@ class Album(Basic_object):
             horizontal or vertical.
         """
         url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
-        payload = {'title': title, 'description': description,
-                   'ids': images, 'cover': cover,
-                   'layout': layout, 'privacy': privacy}
-        is_updated = self.imgur._send_request(url, params=payload,
+        is_updated = self.imgur._send_request(url, params=locals(),
                                               method='POST')
         if is_updated:
             self.title = title or self.title
@@ -599,9 +596,8 @@ class Image(Basic_object):
 
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
-        payload = {'title': title, 'description': description}
         url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
-        is_updated = self.imgur._send_request(url, params=payload,
+        is_updated = self.imgur._send_request(url, params=locals(),
                                               method='POST')
         if is_updated:
             self.title = title or self.title
@@ -1088,13 +1084,8 @@ class User(Basic_object):
         # NOTE: album_privacy should maybe be renamed to default_privacy
         # NOTE: public_images is a boolean, despite the documentation saying it
         # is a string.
-        payload = {'bio': bio, 'public_images': public_images,
-                   'messaging_enabled': messaging_enabled,
-                   'album_privacy': album_privacy,
-                   'accepted_gallery_terms': accepted_gallery_terms}
-
         url = "https://api.imgur.com/3/account/%s/settings" % self.name
-        resp = self.imgur._send_request(url, needs_auth=True, params=payload,
+        resp = self.imgur._send_request(url, needs_auth=True, params=locals(),
                                         method='POST')
         return resp
 
@@ -1166,16 +1157,14 @@ class User(Basic_object):
         """
         url = ("https://api.imgur.com/3/account/%s/notifications/messages" %
                self.name)
-        payload = {'new': new}
-        result = self.imgur._send_request(url, params=payload, needs_auth=True)
+        result = self.imgur._send_request(url, params=locals(), needs_auth=True)
         return [Notification(msg_dict, self.imgur, has_fetched=True) for
                 msg_dict in result]
 
     def get_notifications(self, new=True):
         """Return all the notifications for this user."""
         url = "https://api.imgur.com/3/account/%s/notifications" % self.name
-        payload = {'new': new}
-        resp = self.imgur._send_request(url, params=payload, needs_auth=True)
+        resp = self.imgur._send_request(url, params=locals(), needs_auth=True)
         msgs = [Message(msg_dict, self.imgur, has_fetched=True) for msg_dict in
                 resp['messages']]
         replies = [Comment(msg_dict, self.imgur, has_fetched=True) for com_dict
