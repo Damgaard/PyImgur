@@ -25,27 +25,32 @@ import json
 import requests
 
 
-def to_imgur_list(regular_list):
-    """Turn a python list into the format Imgur expects."""
+def convert_to_imgur_list(regular_list):
+    """Turn a python list into the list format Imgur expects."""
     if regular_list is None:
         return None
     return ",".join(str(id) for id in regular_list)
 
 
+def convert_general(value):
+    """Take a python object and convert it to the format Imgur expects."""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    elif isinstance(value, list):
+        value = [convert_general(item) for item in value]
+        value = convert_to_imgur_list(value)
+    elif isinstance(value, (int, long)):
+        return str(value)
+    elif 'pyimgur' in str(type(value)):
+        return str(getattr(value, 'id', value))
+    return value
+
+
 def to_imgur_format(params):
-    """Convert normal Python types into the format Imgur expects."""
+    """Convert the parameters to the format Imgur expects."""
     if params is None:
         return None
-    parsed = {}
-    for key, value in params.iteritems():
-        if isinstance(value, bool):
-            value = "true" if value else "false"
-        elif isinstance(value, list):
-            value = to_imgur_list(value)
-        elif isinstance(value, (int, long)):
-            value = str(value)
-        parsed[key] = value
-    return parsed
+    return dict((k, convert_general(val)) for (k, val) in params.iteritems())
 
 
 def send_request(url, params=None, method='GET', data_field='data',

@@ -248,16 +248,17 @@ class Album(Basic_object):
         self.deletehash = None
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
-    def add_images(self, ids):
+    def add_images(self, images):
         """
         Add images to the album.
 
-        :param ids: A list of the image id we want to add to the album. Ids of
-        images that you cannot add (non-existing or not owned by you) will not
-        cause exceptions, but fail silently.
+        :param images: A list of the images we want to add to the album. Can be
+            Image objects, ids or a combination of the two.  Images that you
+            cannot add (non-existing or not owned by you) will not cause
+            exceptions, but fail silently.
         """
         url = "https://api.imgur.com/3/album/%s/add" % self.id
-        params = {'ids': ids}
+        params = {'ids': images}
         return self.imgur._send_request(url, needs_auth=True, params=params,
                                         method="POST")
 
@@ -275,31 +276,33 @@ class Album(Basic_object):
         url = "https://api.imgur.com/3/album/%s/favorite" % self.id
         return self.imgur._send_request(url, needs_auth=True, method="POST")
 
-    def remove_images(self, ids):
+    def remove_images(self, images):
         """
         Remove images from the album.
 
-        :param ids: A list of the image id we want to remove from the album.
-        Ids of images that you cannot remove (non-existing, not owned by you or
-        not part of album) will not cause exceptions, but fail silently.
+        :param images: A list of the images we want to remove from the album.
+            Can be Image objects, ids or a combination of the two. Images that
+            you cannot remove (non-existing, not owned by you or not part of
+            album) will not cause exceptions, but fail silently.
         """
         url = ("https://api.imgur.com/3/album/%s/remove_images" %
                self._delete_or_id_hash)
         # NOTE: Returns True and everything seem to be as it should in testing.
         # Seems most likely to be upstream bug.
-        params = {'ids': ids}
+        params = {'ids': images}
         return self.imgur._send_request(url, params=params, method="DELETE")
 
-    def set_images(self, ids):
+    def set_images(self, images):
         """
         Set the images in this album.
 
-        :param ids: The list of images the album will now consists of. Ids of
-        images that you cannot set (non-existing or not owned by you) will not
-        cause exceptions, but fail silently.
+        :param images: A list of the images we want the album to contain.
+            Can be Image objects, ids or a combination of the two. Images that
+            images that you cannot set (non-existing or not owned by you) will
+            not cause exceptions, but fail silently.
         """
         url = "https://api.imgur.com/3/album/%s/" % self._delete_or_id_hash
-        params = {'ids': ids}
+        params = {'ids': images}
         return self.imgur._send_request(url, needs_auth=True, params=params,
                                         method="POST")
 
@@ -323,7 +326,7 @@ class Album(Basic_object):
         _change_object(self, item)
         return self
 
-    def update(self, title=None, description=None, ids=None, cover=None,
+    def update(self, title=None, description=None, images=None, cover=None,
                layout=None, privacy=None):
         """
         Update the album's information.
@@ -332,6 +335,10 @@ class Album(Basic_object):
 
         :param title: The title of the album.
         :param description: A description of the album.
+        :param images: A list of the images we want the album to contain.
+            Can be Image objects, ids or a combination of the two. Images that
+            images that you cannot set (non-existing or not owned by you) will
+            not cause exceptions, but fail silently.
         :param privacy: The albums privacy level, can be public, hidden or
             secret.
         :param cover: The id of the cover image.
@@ -340,7 +347,7 @@ class Album(Basic_object):
         """
         url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
         payload = {'title': title, 'description': description,
-                   'ids': ids, 'cover': cover,
+                   'ids': images, 'cover': cover,
                    'layout': layout, 'privacy': privacy}
         is_updated = self.imgur._send_request(url, params=payload,
                                               method='POST')
@@ -351,8 +358,9 @@ class Album(Basic_object):
             self.privacy = privacy or self.privacy
             if cover is not None:
                 self.cover = Image(cover)
-            if ids is not None:
-                self.images = [Image(img, self.imgur) for img in ids]
+            if images:
+                self.images = [img if isinstance(img, Image) else
+                               Image(img, self.imgur) for img in images]
         return is_updated
 
 
@@ -735,20 +743,23 @@ class Imgur:
         self.access_token = access_token or self.access_token
         self.refresh_token = refresh_token or self.refresh_token
 
-    def create_album(self, title=None, description=None, ids=None, cover=None):
+    def create_album(self, title=None, description=None, images=None,
+                     cover=None):
         """
         Create a new Album.
 
         :param title: The title of the album.
         :param description: The albums description.
-        :param ids: A list of image ids that will be added to the image after
-            it's been created.
+        :param images: A list of the images that will be added to the album after it's created.
+            Can be Image objects, ids or a combination of the two.  Images that
+            you cannot add (non-existing or not owned by you) will not cause
+            exceptions, but fail silently.
         :param cover: The id of the image you want as the albums cover image.
 
         :returns: The newly created album.
         """
         url = "https://api.imgur.com/3/album/"
-        payload = {'ids': ids, 'title': title,
+        payload = {'ids': images, 'title': title,
                    'description': description, 'cover': cover}
         resp = self._send_request(url, params=payload, method='POST')
         return Album(resp, self, has_fetched=False)
@@ -931,17 +942,18 @@ class Imgur:
         resp = self._send_request(url)
         return [_get_album_or_image(thing, self) for thing in resp]
 
-    def upload_image(self, path, title=None, description=None, album_id=None):
+    def upload_image(self, path, title=None, description=None, album=None):
         """
         Upload the image at path.
 
         :param path: The path to the image you want to upload.
         :param title: The title the image will have when uploaded.
         :param description: The description the image will have when uploaded.
-        :param album_id: The album the image will be added to when uploaded.
-            Leave at None to upload without adding to an Album, adding it later
-            is possible. Authentication as album owner is necessary to upload
-            to an album with this function.
+        :param album: The album the image will be added to when uploaded. Can
+            be either a Album object or it's id.  Leave at None to upload
+            without adding to an Album, adding it later is possible.
+            Authentication as album owner is necessary to upload to an album
+            with this function.
 
         :returns: An Image object representing the uploaded image.
         """
@@ -949,7 +961,7 @@ class Imgur:
             binary_data = image_file.read()
             image = b64encode(binary_data)
 
-        payload = {'album_id': album_id, 'image': image,
+        payload = {'album_id': album, 'image': image,
                    'title': title, 'description': description}
 
         resp = self._send_request("https://api.imgur.com/3/image",
