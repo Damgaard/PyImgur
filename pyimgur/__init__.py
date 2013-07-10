@@ -95,7 +95,7 @@ class Basic_object(object):
         # created objects rather than a string of ID or similar.
         if isinstance(self, Album) or isinstance(self, Image):
             if "favorite" in vars(self):
-                self.has_favorited = self.favorite
+                self.is_favorited = self.favorite
                 del self.favorite
             if "nsfw" in vars(self):
                 self.is_nsfw = self.nsfw
@@ -145,6 +145,9 @@ class Basic_object(object):
             if "comment" in vars(self):
                 self.text = self.comment
                 del self.comment
+            if "deleted" in vars(self):
+                self.is_deleted = self.deleted
+                del self.deleted
             if "image_id" in vars(self):
                 self.permalink = ("http://imgur.com/gallery/%s/comment/%d" %
                                  (self.image_id, self.id))
@@ -153,11 +156,10 @@ class Basic_object(object):
                 del self.image_id
             if "parent_id" in vars(self):
                 if self.parent_id == 0:  # Top level comment
-                    self.parent_comment = None
+                    self.parent = None
                 else:
-                    self.parent_comment = Comment({'id': self.parent_id},
-                                                  self.imgur,
-                                                  has_fetched=False)
+                    self.parent = Comment({'id': self.parent_id}, self.imgur,
+                                          has_fetched=False)
                 del self.parent_id
         elif isinstance(self, Gallery_image):
             if "account_url" in vars(self):
@@ -225,10 +227,10 @@ class Album(Basic_object):
     :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the album.
     :ivar description: A short description of the album.
-    :ivar has_favorited: Has the logged in user favorited this album?
     :ivar id: The ID for the album.
     :ivar images: A list of the images in this album.
     :ivar images_count: The total number of images in the album.
+    :ivar is_favorited: Has the logged in user favorited this album?
     :ivar is_nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar layout: The view layout of the album.
     :ivar link: The URL link to the album.
@@ -365,10 +367,11 @@ class Comment(Basic_object):
     :ivar downs: The total number of dislikes (downvotes) the comment has
         received.
     :ivar image: The image the comment belongs to.
+    :ivar is_deleted: Has the comment been deleted?
     :ivar on_album: Is the image part of an album.
-    :ivar parent_comment: The comment this one has replied to, if it is a
-        top-level comment i.e. it's a comment directly to the album / image
-        then it will be None.
+    :ivar parent: The comment this one has replied to, if it is a top-level
+        comment i.e. it's a comment directly to the album / image then it will
+        be None.
     :ivar permalink: A permanent link to the comment.
     :ivar points: ups - downs.
     :ivar replies: A list of comment replies to this comment.
@@ -488,10 +491,10 @@ class Image(Basic_object):
     :ivar datetime: Time inserted into the gallery, epoch time.
     :ivar deletehash: For anonymous uploads, this is used to delete the image.
     :ivar description: A short description of the image.
-    :ivar has_favorited: Has the logged in user favorited this album?
     :ivar height: The height of the image in pixels.
     :ivar id: The ID for the image.
     :ivar is_animated: is the image animated?
+    :ivar is_favorited: Has the logged in user favorited this album?
     :ivar is_nsfw: Is the image Not Safe For Work (contains gore/porn)?
     :ivar link: The URL link to the image.
     :ivar link_big_square: The URL to a big square thumbnail of the image.
