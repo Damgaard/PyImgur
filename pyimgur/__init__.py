@@ -692,18 +692,11 @@ class Imgur:
                 else:
                     content = new_content
                 break
-        # Disable ratelimit info as it seems it stopped being included in the
-        # returned information from 9-05-2013
-        # self.ratelimit_clientlimit = ratelimit_info['x-ratelimit-clientlimit']
-        # self.ratelimit_clientremaining = ratelimit_info['x-ratelimit-'
-        #                                                 'clientremaining']
-        # self.ratelimit_userlimit = ratelimit_info['x-ratelimit-userlimit']
-        # self.ratelimit_userremaining = ratelimit_info['x-ratelimit-'
-        #                                               'userremaining']
-        # self.ratelimit_userreset = ratelimit_info['x-ratelimit-userreset']
         # Note: When the cache is implemented, it's important that the
         # ratelimit info doesn't get updated with the ratelimit info in the
         # cache since that's likely incorrect.
+        for key, value in ratelimit_info.iteritems():
+            setattr(self, key[2:].replace('-', '_'), value)
         return content
 
     def authorization_url(self, response, state=""):
