@@ -36,7 +36,7 @@ import re
 
 import requests
 
-import request
+from pyimgur import request
 
 
 AUTHORIZE_URL = ("https://api.imgur.com/oauth2/authorize?"
@@ -84,7 +84,7 @@ class Basic_object(object):
             return self.deletehash
 
     def _populate(self, json_dict):
-        for key, value in json_dict.iteritems():
+        for key, value in json_dict.items():
             setattr(self, key, value)
         # TODO: ups will need to be likes, because that's what the webinterface
         # is. But we also have "voted" which is the current users vote on it.
@@ -695,7 +695,7 @@ class Imgur:
         # Note: When the cache is implemented, it's important that the
         # ratelimit info doesn't get updated with the ratelimit info in the
         # cache since that's likely incorrect.
-        for key, value in ratelimit_info.iteritems():
+        for key, value in ratelimit_info.items():
             setattr(self, key[2:].replace('-', '_'), value)
         return content
 

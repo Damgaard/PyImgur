@@ -20,6 +20,8 @@
 
 from __future__ import print_function
 
+from numbers import Integral
+
 import requests
 
 
@@ -30,7 +32,7 @@ def convert_general(value):
     elif isinstance(value, list):
         value = [convert_general(item) for item in value]
         value = convert_to_imgur_list(value)
-    elif isinstance(value, (int, long)):
+    elif isinstance(value, Integral):
         return str(value)
     elif 'pyimgur' in str(type(value)):
         return str(getattr(value, 'id', value))
@@ -48,7 +50,7 @@ def to_imgur_format(params):
     """Convert the parameters to the format Imgur expects."""
     if params is None:
         return None
-    return dict((k, convert_general(val)) for (k, val) in params.iteritems())
+    return dict((k, convert_general(val)) for (k, val) in params.items())
 
 
 def send_request(url, params=None, method='GET', data_field='data',
