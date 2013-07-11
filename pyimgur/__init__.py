@@ -379,7 +379,10 @@ class Comment(Basic_object):
         be None.
     :ivar permalink: A permanent link to the comment.
     :ivar points: ups - downs.
-    :ivar replies: A list of comment replies to this comment.
+    :ivar replies: A list of comment replies to this comment. This variable is
+        only available if the comment was returned via Album.get_comments().
+        Use get_replies instead to get the replies if this variable is not
+        available.
     :ivar text: The comments text.
     :ivar ups: The total number of likes (upvotes) the comment has received.
     :ivar vote: The currently logged in users vote on the comment.
