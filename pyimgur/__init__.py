@@ -44,9 +44,6 @@ AUTHORIZE_URL = ("https://api.imgur.com/oauth2/authorize?"
 EXCHANGE_URL = "https://api.imgur.com/oauth2/token"
 REFRESH_URL = "https://api.imgur.com/oauth2/token"
 
-# Note: Maybe base_object.imgur should instead be base_object._imgur ?
-# eg. private since it not for public consumption
-
 
 def _change_object(from_object, to_object):
     from_object.__class__ = to_object.__class__
@@ -81,7 +78,7 @@ class Basic_object(object):
 
     @property
     def _delete_or_id_hash(self):
-        if self.imgur.access_token:
+        if self._imgur.access_token:
             return self.id
         else:
             return self.deletehash
@@ -114,20 +111,20 @@ class Basic_object(object):
                 self.link_huge_thumbnail = base + "h" + sep + ext
         elif isinstance(self, Album):
             if "account_url" in vars(self):
-                self.author = User({'url': self.account_url}, self.imgur,
+                self.author = User({'url': self.account_url}, self._imgur,
                                    has_fetched=False)
                 del self.account_url
             if "cover" in vars(self):
-                self.cover = Image({'id': self.cover}, self.imgur,
+                self.cover = Image({'id': self.cover}, self._imgur,
                                    has_fetched=False)
             if "images" in vars(self):
-                self.images = [Image(img, self.imgur, has_fetched=False) for
+                self.images = [Image(img, self._imgur, has_fetched=False) for
                                img in self.images]
             if "images_count" in vars(self):
                 del self.images_count
         elif isinstance(self, Comment):
             if "author" in vars(self):
-                self.author = User({'url': self.author}, self.imgur,
+                self.author = User({'url': self.author}, self._imgur,
                                    has_fetched=False)
             # Problem with this naming is that children / parent are normal
             # terminology for tree structures such as this. But elsewhere the
@@ -141,7 +138,7 @@ class Basic_object(object):
                 # else is gotten. So having it here only complicates the API.
                 del self.author_id
             if "children" in vars(self):
-                self.replies = [Comment(com, self.imgur) for com in
+                self.replies = [Comment(com, self._imgur) for com in
                                 self.children]
                 del self.children
             if "comment" in vars(self):
@@ -153,19 +150,19 @@ class Basic_object(object):
             if "image_id" in vars(self):
                 self.permalink = ("http://imgur.com/gallery/%s/comment/%d" %
                                  (self.image_id, self.id))
-                self.image = Image({'id': self.image_id}, self.imgur,
+                self.image = Image({'id': self.image_id}, self._imgur,
                                    has_fetched=False)
                 del self.image_id
             if "parent_id" in vars(self):
                 if self.parent_id == 0:  # Top level comment
                     self.parent = None
                 else:
-                    self.parent = Comment({'id': self.parent_id}, self.imgur,
+                    self.parent = Comment({'id': self.parent_id}, self._imgur,
                                           has_fetched=False)
                 del self.parent_id
         elif isinstance(self, Gallery_image):
             if "account_url" in vars(self):
-                self.author = User({'url': self.account_url}, self.imgur,
+                self.author = User({'url': self.account_url}, self._imgur,
                                    has_fetched=False)
                 del self.account_url
         elif isinstance(self, Message):
@@ -175,12 +172,12 @@ class Basic_object(object):
             if "from" in vars(self):
                 # Use getattr and delattr here as doing self.from gives a
                 # syntax error because "from" is a protected keyword in Python.
-                self.author = User({'url': getattr(self, "from")}, self.imgur,
+                self.author = User({'url': getattr(self, "from")}, self._imgur,
                                    has_fetched=False)
                 delattr(self, "from")
             if "parent_id" in vars(self):
                 self.first_message = Message({'id': self.parent_id},
-                                             self.imgur, has_fetched=False)
+                                             self._imgur, has_fetched=False)
                 del self.parent_id
         elif isinstance(self, Notification):
             # Cannot be used for any calls.
@@ -193,9 +190,9 @@ class Basic_object(object):
                 del self.viewed
             if "content" in vars(self):
                 if "subject" in self.content:
-                    self.content = Message(self.content, self.imgur, True)
+                    self.content = Message(self.content, self._imgur, True)
                 elif "caption" in self.content:
-                    self.content = Comment(self.content, self.imgur, True)
+                    self.content = Comment(self.content, self._imgur, True)
         elif isinstance(self, User) and 'url' in vars(self):
             self.name = self.url
             del self.url
@@ -216,7 +213,7 @@ class Basic_object(object):
         Attributes that weren't added to the object before, due to lazy
         loading, will be added by calling refresh.
         """
-        resp = self.imgur._send_request(self._INFO_URL)
+        resp = self._imgur._send_request(self._INFO_URL)
         self._populate(resp)
         # NOTE: What if the object has been deleted in the meantime? That might
         # give a pretty cryptic error.
@@ -259,13 +256,13 @@ class Album(Basic_object):
         """
         url = "https://api.imgur.com/3/album/%s/add" % self.id
         params = {'ids': images}
-        return self.imgur._send_request(url, needs_auth=True, params=params,
-                                        method="POST")
+        return self._imgur._send_request(url, needs_auth=True, params=params,
+                                         method="POST")
 
     def delete(self):
         """Delete this album."""
         url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
-        return self.imgur._send_request(url, method="DELETE")
+        return self._imgur._send_request(url, method="DELETE")
 
     def favorite(self):
         """
@@ -274,7 +271,7 @@ class Album(Basic_object):
         Favoriting an already favorited album will unfavor it.
         """
         url = "https://api.imgur.com/3/album/%s/favorite" % self.id
-        return self.imgur._send_request(url, needs_auth=True, method="POST")
+        return self._imgur._send_request(url, needs_auth=True, method="POST")
 
     def remove_images(self, images):
         """
@@ -290,7 +287,7 @@ class Album(Basic_object):
         # NOTE: Returns True and everything seem to be as it should in testing.
         # Seems most likely to be upstream bug.
         params = {'ids': images}
-        return self.imgur._send_request(url, params=params, method="DELETE")
+        return self._imgur._send_request(url, params=params, method="DELETE")
 
     def set_images(self, images):
         """
@@ -303,8 +300,8 @@ class Album(Basic_object):
         """
         url = "https://api.imgur.com/3/album/%s/" % self._delete_or_id_hash
         params = {'ids': images}
-        return self.imgur._send_request(url, needs_auth=True, params=params,
-                                        method="POST")
+        return self._imgur._send_request(url, needs_auth=True, params=params,
+                                         method="POST")
 
     def submit_to_gallery(self, title, bypass_terms=False):
         """
@@ -320,9 +317,9 @@ class Album(Basic_object):
         """
         url = "https://api.imgur.com/3/gallery/%s" % self.id
         payload = {'title': title, 'terms': '1' if bypass_terms else '0'}
-        self.imgur._send_request(url, needs_auth=True, params=payload,
-                                 method='POST')
-        item = self.imgur.get_gallery_album(self.id)
+        self._imgur._send_request(url, needs_auth=True, params=payload,
+                                  method='POST')
+        item = self._imgur.get_gallery_album(self.id)
         _change_object(self, item)
         return self
 
@@ -346,8 +343,8 @@ class Album(Basic_object):
             horizontal or vertical.
         """
         url = "https://api.imgur.com/3/album/%s" % self._delete_or_id_hash
-        is_updated = self.imgur._send_request(url, params=locals(),
-                                              method='POST')
+        is_updated = self._imgur._send_request(url, params=locals(),
+                                               method='POST')
         if is_updated:
             self.title = title or self.title
             self.description = description or self.description
@@ -357,7 +354,7 @@ class Album(Basic_object):
                 self.cover = Image(cover)
             if images:
                 self.images = [img if isinstance(img, Image) else
-                               Image(img, self.imgur) for img in images]
+                               Image(img, self._imgur) for img in images]
         return is_updated
 
 
@@ -396,29 +393,29 @@ class Comment(Basic_object):
     def delete(self):
         """Delete the comment."""
         url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
-        return self.imgur._send_request(url, method='DELETE')
+        return self._imgur._send_request(url, method='DELETE')
         # NOTE: Gives a 403 permission denied error on comment 77087313 which
         # made by me.
 
     def downvote(self):
         """Downvote this comment."""
         url = "https://api.imgur.com/3/comment/%s/vote/down" % self.id
-        return self.imgur._send_request(url, needs_auth=True, method='POST')
+        return self._imgur._send_request(url, needs_auth=True, method='POST')
 
     def get_replies(self):
         """Get the replies to this comment."""
         url = "https://api.imgur.com/3/comment/%s/replies" % self.id
-        json = self.imgur._send_request(url)
+        json = self._imgur._send_request(url)
         child_comments = json['children']
-        return [Comment(com, self.imgur) for com in child_comments]
+        return [Comment(com, self._imgur) for com in child_comments]
 
     def reply(self, text):
         """Make a comment reply."""
         url = "https://api.imgur.com/3/comment/%s" % self.id
         payload = {'image_id': self.image.id, 'comment': text}
-        resp = self.imgur._send_request(url, params=payload, needs_auth=True,
-                                        method='POST')
-        return Comment(resp, imgur=self.imgur, has_fetched=False)
+        resp = self._imgur._send_request(url, params=payload, needs_auth=True,
+                                         method='POST')
+        return Comment(resp, imgur=self._imgur, has_fetched=False)
 
     '''
     Testing this method would give Imgur false positives.
@@ -432,7 +429,7 @@ class Comment(Basic_object):
     def upvote(self):
         """Upvote this comment."""
         url = "https://api.imgur.com/3/comment/%s/vote/up" % self.id
-        return self.imgur._send_request(url, needs_auth=True, method='POST')
+        return self._imgur._send_request(url, needs_auth=True, method='POST')
 
 
 class Gallery_item(object):
@@ -445,9 +442,9 @@ class Gallery_item(object):
         """
         url = "https://api.imgur.com/3/comment"
         payload = {'image_id': self.id, 'comment': text}
-        resp = self.imgur._send_request(url, params=payload, needs_auth=True,
-                                        method='POST')
-        return Comment(resp, imgur=self.imgur, has_fetched=False)
+        resp = self._imgur._send_request(url, params=payload, needs_auth=True,
+                                         method='POST')
+        return Comment(resp, imgur=self._imgur, has_fetched=False)
 
     def downvote(self):
         """
@@ -458,22 +455,22 @@ class Gallery_item(object):
         vote to neutral.
         """
         url = "https://api.imgur.com/3/gallery/%s/vote/down" % self.id
-        return self.imgur._send_request(url, needs_auth=True, method='POST')
+        return self._imgur._send_request(url, needs_auth=True, method='POST')
 
     def get_comments(self):
         """Get a list of the top-level comments."""
         url = "https://api.imgur.com/3/gallery/%s/comments" % self.id
-        resp = self.imgur._send_request(url)
-        return [Comment(com, self.imgur) for com in resp]
+        resp = self._imgur._send_request(url)
+        return [Comment(com, self._imgur) for com in resp]
 
     def remove_from_gallery(self):
         """Remove this image from the gallery."""
         url = "https://api.imgur.com/3/gallery/%s" % self.id
-        self.imgur._send_request(url, needs_auth=True, method='DELETE')
+        self._imgur._send_request(url, needs_auth=True, method='DELETE')
         if isinstance(self, Image):
-            item = self.imgur.get_image(self.id)
+            item = self._imgur.get_image(self.id)
         else:
-            item = self.imgur.get_album(self.id)
+            item = self._imgur.get_album(self.id)
         _change_object(self, item)
         return self
 
@@ -486,7 +483,7 @@ class Gallery_item(object):
         to neutral.
         """
         url = "https://api.imgur.com/3/gallery/%s/vote/up" % self.id
-        return self.imgur._send_request(url, needs_auth=True, method='POST')
+        return self._imgur._send_request(url, needs_auth=True, method='POST')
 
 
 class Image(Basic_object):
@@ -522,9 +519,9 @@ class Image(Basic_object):
 
     def delete(self):
         """Delete the image."""
-        return self.imgur._send_request("https://api.imgur.com/3/image/%s" %
-                                        self._delete_or_id_hash,
-                                        method='DELETE')
+        return self._imgur._send_request("https://api.imgur.com/3/image/%s" %
+                                         self._delete_or_id_hash,
+                                         method='DELETE')
 
     def download(self, path='', name=None, overwrite=False, size=None):
         """
@@ -572,7 +569,7 @@ class Image(Basic_object):
         Favoriting an already favorited image will unfavorite it.
         """
         url = "https://api.imgur.com/3/image/%s/favorite" % self.id
-        return self.imgur._send_request(url, needs_auth=True, method='POST')
+        return self._imgur._send_request(url, needs_auth=True, method='POST')
 
     def submit_to_gallery(self, title, bypass_terms=False):
         """
@@ -588,17 +585,17 @@ class Image(Basic_object):
         """
         url = "https://api.imgur.com/3/gallery/%s" % self.id
         payload = {'title': title, 'terms': '1' if bypass_terms else '0'}
-        self.imgur._send_request(url, needs_auth=True, params=payload,
-                                 method='POST')
-        item = self.imgur.get_gallery_image(self.id)
+        self._imgur._send_request(url, needs_auth=True, params=payload,
+                                  method='POST')
+        item = self._imgur.get_gallery_image(self.id)
         _change_object(self, item)
         return self
 
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
         url = "https://api.imgur.com/3/image/%s" % self._delete_or_id_hash
-        is_updated = self.imgur._send_request(url, params=locals(),
-                                              method='POST')
+        is_updated = self._imgur._send_request(url, params=locals(),
+                                               method='POST')
         if is_updated:
             self.title = title or self.title
             self.description = description or self.description
@@ -985,14 +982,14 @@ class Message(Basic_object):
     def delete(self):
         """Delete the message."""
         url = "https://api.imgur.com/3/message/%s" % self.id
-        return self.imgur._send_request(url, method='DELETE')
+        return self._imgur._send_request(url, method='DELETE')
 
     def get_thread(self):
         """Return the message thread this Message is in."""
         url = ("https://api.imgur.com/3/message/%s/thread" %
                self.first_message.id)
-        resp = self.imgur._send_request(url)
-        return [Message(msg, self.imgur) for msg in resp]
+        resp = self._imgur._send_request(url)
+        return [Message(msg, self._imgur) for msg in resp]
 
     def reply(self, body):
         """
@@ -1042,7 +1039,7 @@ class Notification(Basic_object):
         Notifications cannot be marked as unviewed.
         """
         url = "https://api.imgur.com/3/notification/%s" % self.id
-        return self.imgur._send_request(url, method='POST')
+        return self._imgur._send_request(url, method='POST')
 
 
 class User(Basic_object):
@@ -1085,14 +1082,14 @@ class User(Basic_object):
         # NOTE: public_images is a boolean, despite the documentation saying it
         # is a string.
         url = "https://api.imgur.com/3/account/%s/settings" % self.name
-        resp = self.imgur._send_request(url, needs_auth=True, params=locals(),
-                                        method='POST')
+        resp = self._imgur._send_request(url, needs_auth=True, params=locals(),
+                                         method='POST')
         return resp
 
     def delete(self):
         """Delete this user. Require being authenticated as the user."""
         url = "https://api.imgur.com/3/account/%s" % self.name
-        return self.imgur._send_request(url, needs_auth=True, method='DELETE')
+        return self._imgur._send_request(url, needs_auth=True, method='DELETE')
 
     def get_albums(self, limit=None):
         """
@@ -1103,32 +1100,32 @@ class User(Basic_object):
         """
         url = "https://api.imgur.com/3/account/%s/albums/%s" % (self.name,
                                                                 '%d')
-        resp = self.imgur._send_request(url, limit=limit)
-        return [Album(alb, self.imgur) for alb in resp]
+        resp = self._imgur._send_request(url, limit=limit)
+        return [Album(alb, self._imgur) for alb in resp]
 
     def get_comments(self):
         """Return the comments made by the user."""
         url = "https://api.imgur.com/3/account/%s/comments" % self.name
-        resp = self.imgur._send_request(url)
-        return [Comment(com, self.imgur) for com in resp]
+        resp = self._imgur._send_request(url)
+        return [Comment(com, self._imgur) for com in resp]
 
     def get_favorites(self):
         """Return the users favorited images."""
         url = "https://api.imgur.com/3/account/%s/favorites" % self.name
-        resp = self.imgur._send_request(url, needs_auth=True)
+        resp = self._imgur._send_request(url, needs_auth=True)
         return [_get_album_or_image(thing, self) for thing in resp]
 
     def get_gallery_favorites(self):
         """Get a list of the images in the gallery this user has favorited."""
         url = ("https://api.imgur.com/3/account/%s/gallery_favorites" %
                self.name)
-        resp = self.imgur._send_request(url)
-        return [Image(img, self.imgur) for img in resp]
+        resp = self._imgur._send_request(url)
+        return [Image(img, self._imgur) for img in resp]
 
     def get_gallery_profile(self):
         """Return the users gallery profile."""
         url = "https://api.imgur.com/3/account/%s/gallery_profile" % self.name
-        return self.imgur._send_request(url)
+        return self._imgur._send_request(url)
 
     def has_verified_email(self):
         """
@@ -1139,14 +1136,14 @@ class User(Basic_object):
         that he is the same as the Imgur user.
         """
         url = "https://api.imgur.com/3/account/%s/verifyemail" % self.name
-        return self.imgur._send_request(url, needs_auth=True)
+        return self._imgur._send_request(url, needs_auth=True)
 
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
         url = "https://api.imgur.com/3/account/%s/images/%s" % (self.name,
                                                                 '%d')
-        resp = self.imgur._send_request(url, needs_auth=True, limit=limit)
-        return [Image(img, self.imgur) for img in resp]
+        resp = self._imgur._send_request(url, needs_auth=True, limit=limit)
+        return [Image(img, self._imgur) for img in resp]
 
     def get_messages(self, new=True):
         """
@@ -1157,17 +1154,18 @@ class User(Basic_object):
         """
         url = ("https://api.imgur.com/3/account/%s/notifications/messages" %
                self.name)
-        result = self.imgur._send_request(url, params=locals(), needs_auth=True)
-        return [Notification(msg_dict, self.imgur, has_fetched=True) for
+        result = self._imgur._send_request(url, params=locals(),
+                                           needs_auth=True)
+        return [Notification(msg_dict, self._imgur, has_fetched=True) for
                 msg_dict in result]
 
     def get_notifications(self, new=True):
         """Return all the notifications for this user."""
         url = "https://api.imgur.com/3/account/%s/notifications" % self.name
-        resp = self.imgur._send_request(url, params=locals(), needs_auth=True)
-        msgs = [Message(msg_dict, self.imgur, has_fetched=True) for msg_dict in
+        resp = self._imgur._send_request(url, params=locals(), needs_auth=True)
+        msgs = [Message(msg_dict, self._imgur, has_fetched=True) for msg_dict in
                 resp['messages']]
-        replies = [Comment(msg_dict, self.imgur, has_fetched=True) for com_dict
+        replies = [Comment(msg_dict, self._imgur, has_fetched=True) for com_dict
                    in resp['replies']]
         return {'messages': msgs, 'replies': replies}
 
@@ -1180,7 +1178,7 @@ class User(Basic_object):
         """
         url = ("https://api.imgur.com/3/account/%s/notifications/replies" %
                self.name)
-        return self.imgur._send_request(url, needs_auth=True)
+        return self._imgur._send_request(url, needs_auth=True)
 
     def get_settings(self):
         """
@@ -1189,19 +1187,19 @@ class User(Basic_object):
         Only accessible if authenticated as the user.
         """
         url = "https://api.imgur.com/3/account/%s/settings" % self.name
-        return self.imgur._send_request(url)
+        return self._imgur._send_request(url)
 
     def get_statistics(self):
         """Return statistics about this user."""
         url = "https://api.imgur.com/3/account/%s/stats" % self.name
-        return self.imgur._send_request(url, needs_auth=True)
+        return self._imgur._send_request(url, needs_auth=True)
 
     def get_submissions(self, limit=None):
         """Return a list of the images a user has submitted to the gallery."""
         url = "https://api.imgur.com/3/account/%s/submissions/%s" % (self.name,
                                                                      '%d')
-        resp = self.imgur._send_request(url, limit=limit)
-        return [_get_album_or_image(thing, self.imgur) for thing in resp]
+        resp = self._imgur._send_request(url, limit=limit)
+        return [_get_album_or_image(thing, self._imgur) for thing in resp]
 
     def send_message(self, body, subject=None, reply_to=None):
         """
@@ -1220,8 +1218,8 @@ class User(Basic_object):
         parent_id = reply_to.id if isinstance(reply_to, Message) else reply_to
         payload = {'recipient': self.name, 'body': body, 'subject': subject,
                    'parent_id': parent_id}
-        self.imgur._send_request(url, params=payload, needs_auth=True,
-                                 method='POST')
+        self._imgur._send_request(url, params=payload, needs_auth=True,
+                                  method='POST')
 
     def send_verification_email(self):
         """
@@ -1231,7 +1229,7 @@ class User(Basic_object):
         folder.
         """
         url = "https://api.imgur.com/3/account/%s/verifyemail" % self.name
-        self.imgur._send_request(url, needs_auth=True, method='POST')
+        self._imgur._send_request(url, needs_auth=True, method='POST')
 
 
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
