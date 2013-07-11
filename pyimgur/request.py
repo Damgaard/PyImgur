@@ -20,8 +20,6 @@
 
 from __future__ import print_function
 
-import json
-
 import requests
 
 
@@ -79,7 +77,7 @@ def send_request(url, params=None, method='GET', data_field='data',
         resp = requests.delete(url, verify=False, headers=headers)
     # Some times we get a 200 return, but no content. Either an exception
     # should be raised or ideally, the request attempted again up to 3 times.
-    content = json.loads(resp.content)
+    content = resp.json()
     if data_field is not None:
         content = content[data_field]
     if not resp.ok:
