@@ -109,7 +109,7 @@ class Basic_object(object):
                 self.link_medium_thumbnail = base + "m" + sep + ext
                 self.link_large_thumbnail = base + "l" + sep + ext
                 self.link_huge_thumbnail = base + "h" + sep + ext
-        elif isinstance(self, Album):
+        if isinstance(self, Album):
             if "account_url" in vars(self):
                 self.author = User({'url': self.account_url}, self._imgur,
                                    has_fetched=False)
