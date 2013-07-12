@@ -32,7 +32,7 @@ Getting Started
 Before we can start using PyImgur, we need to register our application with
 Imgur. This way, Imgur can see what each application is doing on their site.
 Go to https://api.imgur.com/oauth2/addclient to register your client. Note that
-you can't use an application registration for the old v2 version of the imgur
+you can't use an application registration for the old v2 version of the Imgur
 API, which was depreciated December 2012.
 
 When we registered our application we got a ``client_id`` and a
@@ -41,7 +41,7 @@ if we just need access to public or anonymous resources, then we can leave it
 out. For our first example we're going to get some information about an image
 already uploaded to image::
 
-    import PyImgur
+    import pyimgur
     CLIENT_ID = "Your_applications_client_id"
     im = pyimgur.Imgur(CLIENT_ID)
     image = im.get_image('S1jmapR')
@@ -49,14 +49,14 @@ already uploaded to image::
     print(image.link) # http://imgur.com/S1jmapR.jpg
 
 The ``Imgur`` object keeps the authentication information, changes
-authentication and is the most common way to get objects from Imgur.
+authentication and is the common way to get objects from Imgur.
 
 Uploading an Image
 ------------------
 
 Let's use another example to show how to upload an image::
 
-    import PyImgur
+    import pyimgur
 
     CLIENT_ID = "Your_applications_client_id"
     PATH = "A Filepath to an image on your computer"
@@ -67,7 +67,6 @@ Let's use another example to show how to upload an image::
     print(uploaded_image.date)
     print(uploaded_image.url)
     print(uploaded_image.link)
-    uploaded_image.delete()
 
 
 Some methods here one or more arguments with the default value ``None``. For
@@ -79,22 +78,21 @@ Lazy objects
 ------------
 
 To reduce the load on Imgur, PyImgur only requests the data it needs. This
-means each object has the attribute ``has_fetched`` which if ``True``` has
-fetched all the data it can, if False it can fetch more
-information.
+means each object has the attribute ``_has_fetched`` which if ``True``` has
+fetched all the data it can, if ``False`` it can fetch more information.
 
 Whenever we request an attribute that hasn't been loaded the newest information
-will be requested from imgur and all the object attributes will be updated to
+will be requested from Imgur and all the object attributes will be updated to
 the newest values. We can also use the method ``refresh()`` to force a call to
 Imgur, that will update the object with the latest values::
 
-    import PyImgur
+    import pyimgur
     CLIENT_ID = "Your_applications_client_id"
     im = pyimgur.Imgur(CLIENT_ID)
-    image = im.get_image('S1jmapR')
-    author = image.author
+    gallery_image = im.get_gallery_image('JiAaT')
+    author = gallery_image.author
     print(author.has_fetched) # False ie. it's a lazily loaded object
-    print(author.bio) # This is one cool dude.
+    print(author.reputation)
     print(author.has_fetched) # True ie. all values have now been retrieved.
 
 Introspection
@@ -109,6 +107,12 @@ Support
 If you find an bug, have any questions about how to use PyImgur or have
 suggestions for improvements then feel free to file an issue on the `Github
 project page <https://github.com/Damgaard/PyImgur>`_.
+
+Documentation
+-------------
+
+PyImgur's full documentation is located on `ReadTheDocs
+<https://pyimgur.readthedocs.org>`_.
 
 License
 -------

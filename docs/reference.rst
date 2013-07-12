@@ -1,7 +1,7 @@
 .. _overview:
 
-Reference Page
-==============
+Code Overview
+=============
 
 :mod:`pyimgur` Package
 ----------------------
