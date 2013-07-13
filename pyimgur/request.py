@@ -25,6 +25,10 @@ from numbers import Integral
 import requests
 
 
+MAX_RETRIES = 3
+RETRY_CODES = [500]
+
+
 def convert_general(value):
     """Take a python object and convert it to the format Imgur expects."""
     if isinstance(value, bool):
@@ -69,16 +73,22 @@ def send_request(url, params=None, method='GET', data_field='data',
     # be done here could make the code simpler at the highest level. Just
     # request an url with some parameters and voila you get the object back you
     # wanted.
-    if method == 'GET':
-        resp = requests.get(url, params=params, verify=False, headers=headers)
-    elif method == 'POST':
-        resp = requests.post(url, params, verify=False, headers=headers)
-    elif method == 'PUT':
-        resp = requests.put(url, params, verify=False, headers=headers)
-    elif method == 'DELETE':
-        resp = requests.delete(url, verify=False, headers=headers)
-    # Some times we get a 200 return, but no content. Either an exception
-    # should be raised or ideally, the request attempted again up to 3 times.
+    is_succesful_request = False
+    tries = 0
+    while not is_succesful_request and tries <= MAX_RETRIES:
+        if method == 'GET':
+            resp = requests.get(url, params=params, verify=False,
+                                headers=headers)
+        elif method == 'POST':
+            resp = requests.post(url, params, verify=False, headers=headers)
+        elif method == 'PUT':
+            resp = requests.put(url, params, verify=False, headers=headers)
+        elif method == 'DELETE':
+            resp = requests.delete(url, verify=False, headers=headers)
+        if resp.status_code in RETRY_CODES or resp.content == "":
+            tries += 1
+        else:
+            is_succesful_request = True
     content = resp.json()
     if data_field is not None:
         content = content[data_field]
