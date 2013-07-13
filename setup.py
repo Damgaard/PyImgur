@@ -10,7 +10,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 INIT = open(os.path.join(HERE, PACKAGE_NAME, '__init__.py')).read()
 README = open(os.path.join(HERE, 'README.rst')).read()
 
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 
 setup(
     name=PACKAGE_NAME,
