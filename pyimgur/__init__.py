@@ -1138,7 +1138,7 @@ class User(Basic_object):
         """Return all of the images associated with the user."""
         url = "https://api.imgur.com/3/account/%s/images/%s" % (self.name,
                                                                 '%d')
-        resp = self._imgur._send_request(url, needs_auth=True, limit=limit)
+        resp = self._imgur._send_request(url, limit=limit)
         return [Image(img, self._imgur) for img in resp]
 
     def get_messages(self, new=True):
