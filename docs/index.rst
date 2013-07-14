@@ -11,6 +11,7 @@ Other Content:
    :maxdepth: 1
 
    authorization
+   changelog
    reference
 
 
