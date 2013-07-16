@@ -77,14 +77,13 @@ def send_request(url, params=None, method='GET', data_field='data',
     tries = 0
     while not is_succesful_request and tries <= MAX_RETRIES:
         if method == 'GET':
-            resp = requests.get(url, params=params, verify=False,
-                                headers=headers)
+            resp = requests.get(url, params=params, headers=headers)
         elif method == 'POST':
-            resp = requests.post(url, params, verify=False, headers=headers)
+            resp = requests.post(url, params, headers=headers)
         elif method == 'PUT':
-            resp = requests.put(url, params, verify=False, headers=headers)
+            resp = requests.put(url, params, headers=headers)
         elif method == 'DELETE':
-            resp = requests.delete(url, verify=False, headers=headers)
+            resp = requests.delete(url, headers=headers)
         if resp.status_code in RETRY_CODES or resp.content == "":
             tries += 1
         else:
