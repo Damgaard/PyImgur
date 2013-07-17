@@ -10,6 +10,13 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+PyImgur 0.4.2
+-------------
+
+ * **[FEATURE]** ``upload_image`` can now upload images given with a url as
+   well as being able to upload images given with a path. Either a path or a
+   url to an image must be given when calling ``upload_image``.
+
 PyImgur 0.4.1
 -------------
 
