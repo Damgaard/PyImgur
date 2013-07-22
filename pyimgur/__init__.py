@@ -33,6 +33,7 @@ For more information on usage visit https://github.com/Damgaard/PyImgur
 from base64 import b64encode
 import os.path
 import re
+import sys
 
 import requests
 
@@ -765,10 +766,6 @@ class Imgur:
         pass
     '''
 
-#    def get_at_url(self, url):
-#        """Return whatever is at the imgur url as an object."""
-#        pass
-
     def exchange_code(self, code):
         """Exchange one-use code for an access_token and request_token."""
         params = {'client_id': self.client_id,
@@ -797,6 +794,71 @@ class Imgur:
         """Return information about this album."""
         json = self._send_request("https://api.imgur.com/3/album/%s" % id)
         return Album(json, self)
+
+    def get_at_url(self, url):
+        """
+        Return a object representing the content at url.
+
+        Returns None if no object could be matched with the id.
+
+        Works for Album, Comment, Gallery_album, Gallery_image, Image and User.
+
+        :param url: The url where the content is located at
+        """
+        class NullDevice():
+            def write(self, s):
+                pass
+
+        def get_gallery_item(id):
+            """
+            Special helper method to get gallery items.
+
+            The problem is that it's impossible to distinguish albums and
+            images from each other based on the url. And there isn't a common
+            url endpoints that return either a Gallery_album or a Gallery_image
+            depending on what the id represents. So the only option is to
+            assume it's a Gallery_image and if we get an exception then try
+            Gallery_album.  Gallery_image is attempted first because there is
+            the most of them.
+            """
+            try:
+                # HACK: Problem is that send_request prints the error message
+                # from Imgur when it encounters an error. This is nice because
+                # this error message is more descriptive than just the status
+                # code that Requests give. But since we first assume the id
+                # belong to an image, it means we will get an error whenever
+                # the id belongs to an album. The following code temporarily
+                # disables stdout to avoid give a cryptic and incorrect error.
+
+                # Code for disabling stdout is from
+                # http://coreygoldberg.blogspot.dk/2009/05/
+                # python-redirect-or-turn-off-stdout-and.html
+                original_stdout = sys.stdout  # keep a reference to STDOUT
+                sys.stdout = NullDevice()  # redirect the real STDOUT
+                return self.get_gallery_image(id)
+            # TODO: Add better error codes so I don't have to do a catch-all
+            except Exception:
+                return self.get_gallery_album(id)
+            finally:
+                sys.stdout = original_stdout  # turn STDOUT back on
+        base = "(https?://)(i\\.)?imgur.com/"
+        objects = {'album': {'regex': "a/(?P<id>[\w.]*?)$",
+                             'method': self.get_album},
+                   'comment': {'regex': "gallery/\w*/comment/(?P<id>[\w.]*?)$",
+                               'method': self.get_comment},
+                   'gallery': {'regex': "gallery/(?P<id>[\w.]*?)$",
+                               'method': get_gallery_item},
+                   # Valid image extensions: http://imgur.com/faq#types
+                   # All are between 3 and 4 chars long.
+                   'image': {'regex': "(?P<id>[\w.]*?)(\\.\w{3,4})?$",
+                             'method': self.get_image},
+                   'user': {'regex': "user/(?P<id>[\w.]*?)$",
+                            'method': self.get_user}
+                   }
+        for obj in objects.values():
+            result = re.match(base + obj['regex'], url)
+            if result is not None:
+                return obj['method'](result.group('id'))
 
     def get_comment(self, id):
         """Return information about this comment."""
