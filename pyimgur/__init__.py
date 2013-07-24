@@ -855,10 +855,20 @@ class Imgur:
                    'user': {'regex': "user/(?P<id>[\w.]*?)$",
                             'method': self.get_user}
                    }
-        for obj in objects.values():
-            result = re.match(base + obj['regex'], url)
-            if result is not None:
-                return obj['method'](result.group('id'))
+        for obj_type, values in objects.items():
+            regex_result = re.match(base + values['regex'], url)
+            if regex_result is not None:
+                initial_object = values['method'](regex_result.group('id'))
+                if obj_type == 'image':
+                    try:
+                        original_stdout = sys.stdout
+                        sys.stdout = NullDevice()
+                        return self.get_gallery_image(regex_result.group('id'))
+                    except Exception:
+                        pass
+                    finally:
+                        sys.stdout = original_stdout
+                return initial_object
 
     def get_comment(self, id):
         """Return information about this comment."""
