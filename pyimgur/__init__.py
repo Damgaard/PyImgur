@@ -870,6 +870,10 @@ class Imgur:
                 initial_object = values['method'](regex_result.group('id'))
                 if obj_type == 'image':
                     try:
+                        # A better version might be to ping the url where the
+                        # gallery_image should be with a requests.head call. If
+                        # we get a 200 returned, then that means it exists and
+                        # this becomes less hacky.
                         original_stdout = sys.stdout
                         sys.stdout = NullDevice()
                         return self.get_gallery_image(regex_result.group('id'))
