@@ -10,6 +10,14 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+Unreleased Development version
+------------------------------
+
+ * **[Bugfix]** If ``download`` was used with an invalid filename given as the
+   ``name`` argument or an invalid filename was gotten via the title, then the
+   download would fail with an IOError. It now defaults to saving it with the
+   hash as the name if the primary choice is an invalid filename.
+
 PyImgur 0.4.2
 -------------
 

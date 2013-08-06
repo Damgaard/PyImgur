@@ -536,7 +536,9 @@ class Image(Basic_object):
             will be used.
         :param name: The name the image will be stored as (not including file
             extension). If name is None, then the title of the image will be
-            used. If the image doesn't have a title, it's id will be used.
+            used. If the image doesn't have a title, it's id will be used. Note
+            that if the name given by name or title is an invalid filename,
+            then the hash will be used as the name instead.
         :param overwrite: If True overwrite already existing file with the same
             name as what we want to save the file as.
         :param size: Instead of downloading the image in it's original size, we
@@ -546,6 +548,14 @@ class Image(Basic_object):
 
         :returns: Name of the new file.
         """
+        def save_as(filename):
+            local_path = os.path.join(path, filename)
+            if os.path.exists(local_path) and not overwrite:
+                raise Exception("Trying to save as %s, but file already exists." %
+                                local_path)
+            with open(local_path, 'wb') as out_file:
+                out_file.write(resp.content)
+            return local_path
         valid_sizes = {'small_square': 's', 'big_square': 'b',
                        'small_thumbnail': 't', 'medium_thumbnail': 'm',
                        'large_thumbnail': 'l', 'huge_thumbnail': 'h'}
@@ -557,14 +567,13 @@ class Image(Basic_object):
         suffix = valid_sizes.get(size, '')
         base, sep, ext = self.link.rpartition('.')
         resp = requests.get(base + suffix + sep + ext)
-        filename = (name or self.title or self.id) + suffix + sep + ext
-        local_path = os.path.join(path, filename)
-        if os.path.exists(local_path) and not overwrite:
-            raise Exception("Trying to save as %s, but file already exists." %
-                            local_path)
-        with open(local_path, 'wb') as out_file:
-            out_file.write(resp.content)
-        return local_path
+        if name or self.title:
+            try:
+                return save_as((name or self.title) + suffix + sep + ext)
+            except IOError:
+                pass
+            # Invalid filename
+        return save_as(self.id + suffix + sep + ext)
 
     def favorite(self):
         """
