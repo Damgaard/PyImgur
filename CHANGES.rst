@@ -13,17 +13,19 @@ divided into four categories.
 Unreleased Development version
 ------------------------------
 
- * **[Bugfix]** If ``download`` was used with an invalid filename given as the
-   ``name`` argument or an invalid filename was gotten via the title, then the
-   download would fail with an IOError. It now defaults to saving it with the
-   hash as the name if the primary choice is an invalid filename.
+ * **[Bugfix]** If :meth:`~pyimgur.__init__.Image.download` was used with an
+   invalid filename given as the ``name`` argument or an invalid filename was
+   gotten via the title, then the download would fail with an IOError. It now
+   defaults to saving it with the hash as the name if the primary choice is an
+   invalid filename.
 
 PyImgur 0.4.2
 -------------
 
- * **[FEATURE]** ``upload_image`` can now upload images given with a url as
-   well as being able to upload images given with a path. Either a path or a
-   url to an image must be given when calling ``upload_image``.
+ * **[FEATURE]** :meth:`~pyimgur.__init__.Imgur.upload_image` can now upload
+   images given with a url as well as being able to upload images given with a
+   path. Either a path or a url to an image must be given when calling
+   :meth:`~pyimgur.__init__.Imgur.upload_image`.
 
 PyImgur 0.4.1
 -------------
