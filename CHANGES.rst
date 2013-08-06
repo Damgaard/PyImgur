@@ -13,6 +13,8 @@ divided into four categories.
 Unreleased Development version
 ------------------------------
 
+ * **[FEATURE]** Add :meth:`~pyimgur.__init__.Imgur.get_subreddit_image` that
+   can return a subreddit image.
  * **[Bugfix]** If :meth:`~pyimgur.__init__.Image.download` was used with an
    invalid filename given as the ``name`` argument or an invalid filename was
    gotten via the title, then the download would fail with an IOError. It now

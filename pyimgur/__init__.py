@@ -970,6 +970,17 @@ class Imgur:
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
+    def get_subreddit_image(self, subreddit, id):
+        """
+        Return the Gallery_image with the id submitted to subreddit gallery
+
+        :param subreddit: The subreddit the image has been submitted to.
+        :param id: The id of the image we want.
+        """
+        url = "https://api.imgur.com/3/gallery/r/%s/%s" % (subreddit, id)
+        resp = self._send_request(url)
+        return Gallery_image(resp, self)
+
     def get_user(self, username):
         """
         Return a User object for this username.
