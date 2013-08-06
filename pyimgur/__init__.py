@@ -64,7 +64,6 @@ class Basic_object(object):
     def __getattr__(self, attribute):
         if not self._has_fetched:
             self.refresh()
-            self._has_fetched = True
             return getattr(self, attribute)
         raise AttributeError("%s instance has no attribute '%s'" %
                              (type(self).__name__, attribute))
@@ -216,6 +215,7 @@ class Basic_object(object):
         """
         resp = self._imgur._send_request(self._INFO_URL)
         self._populate(resp)
+        self._has_fetched = True
         # NOTE: What if the object has been deleted in the meantime? That might
         # give a pretty cryptic error.
 

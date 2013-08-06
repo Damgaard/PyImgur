@@ -20,6 +20,8 @@ Unreleased Development version
    gotten via the title, then the download would fail with an IOError. It now
    defaults to saving it with the hash as the name if the primary choice is an
    invalid filename.
+ * **[BUGFIX]** Manually calling :meth:`~pyimgur.__init__.Basic_object.refresh`
+   didn't update the value of ``_has_fetched``.
 
 PyImgur 0.4.2
 -------------
