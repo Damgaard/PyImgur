@@ -10,8 +10,8 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased Development version
-------------------------------
+PyImgur 0.5
+-----------
 
  * **[FEATURE]** Add :meth:`~pyimgur.__init__.Imgur.get_at_url` that takes an
    url and returns an object matching what is located at the url.
