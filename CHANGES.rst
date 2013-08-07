@@ -17,6 +17,10 @@ Unreleased Development version
    return the gallery of memes as on `the webend <http://imgur.com/g/memes>`_.
  * **[FEATURE]** Add :meth:`~pyimgur.__init__.Imgur.get_subreddit_image` that
    can return a subreddit image.
+ * **[IMGUR]** Imgur changed their API to return more data in the response,
+   when uploading an image. But the variables that could be sent were always
+   ``None`` in the response. See `the bug report to Imgur
+   <https://groups.google.com/forum/#!topic/imgur/F3uVb55TMGo>`_
  * **[Bugfix]** If :meth:`~pyimgur.__init__.Image.download` was used with an
    invalid filename given as the ``name`` argument or an invalid filename was
    gotten via the title, then the download would fail with an IOError. It now

@@ -1078,7 +1078,17 @@ class Imgur:
 
         resp = self._send_request("https://api.imgur.com/3/image",
                                   params=payload, method='POST')
-        return Image(resp, self, False)
+        # TEMPORARY HACK:
+        # On 5-08-2013 I noticed Imgur now returned enough information from
+        # this call to fully populate the Image object. However those variables
+        # that matched arguments were always None, even if they had been given.
+        # See https://groups.google.com/forum/#!topic/imgur/F3uVb55TMGo
+        resp['title'] = title
+        resp['description'] = description
+        if album is not None:
+            resp['album'] = (Album({'id': album}, self, False) if not
+                             isinstance(album, Album) else album)
+        return Image(resp, self)
 
 
 class Message(Basic_object):
