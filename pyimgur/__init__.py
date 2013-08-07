@@ -975,6 +975,23 @@ class Imgur:
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
+    '''
+    This method does not seem to return any more data than get_gallery_image.
+    So I'm not sure whether it needs to be included. Speaking for is that
+    people may expect it to be here, speaking against is that the functionality
+    already exists and duplication will reduce usability of the API.
+    07-08-2013
+    def get_memes_image(self, id):
+        """
+        Return the Gallery_image with the id submitted to the memes gallery
+
+        :param id: The id of the image we want.
+        """
+        url = "https://api.imgur.com/3/gallery/g/memes/" % id
+        resp = self._send_request(url)
+        return Gallery_image(resp, self)
+    '''
+
     def get_subreddit_gallery(self, subreddit, sort='time', window='top',
                               limit=None):
         """
