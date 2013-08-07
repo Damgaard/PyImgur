@@ -13,6 +13,8 @@ divided into four categories.
 Unreleased Development version
 ------------------------------
 
+ * **[FEATURE]** Add :meth:`~pyimgur.__init__.Imgur.get_at_url` that takes an
+   url and returns an object matching what is located at the url.
  * **[FEATURE]** Add :meth:`~pyimgur.__init__.Imgur.get_memes_gallery` that
    return the gallery of memes as on `the webend <http://imgur.com/g/memes>`_.
  * **[FEATURE]** Add :meth:`~pyimgur.__init__.Imgur.get_subreddit_image` that
