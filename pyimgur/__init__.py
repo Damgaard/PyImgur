@@ -855,7 +855,7 @@ class Imgur:
                              'method': self.get_album},
                    'comment': {'regex': "gallery/\w*/comment/(?P<id>[\w.]*?)$",
                                'method': self.get_comment},
-                   'gallery': {'regex': "gallery/(?P<id>[\w.]*?)$",
+                   'gallery': {'regex': "(gallery|r/\w*?)/(?P<id>[\w.]*?)$",
                                'method': get_gallery_item},
                    # Valid image extensions: http://imgur.com/faq#types
                    # All are between 3 and 4 chars long.
