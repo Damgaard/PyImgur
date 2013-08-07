@@ -877,6 +877,9 @@ class Imgur:
                         # this becomes less hacky.
                         original_stdout = sys.stdout
                         sys.stdout = NullDevice()
+                        if getattr(initial_object, 'section', None):
+                            sub = initial_object.section
+                            return self.get_subreddit_image(sub, obj_id)
                         return self.get_gallery_image(obj_id)
                     except Exception:
                         pass
