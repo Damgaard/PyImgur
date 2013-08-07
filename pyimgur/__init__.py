@@ -867,7 +867,8 @@ class Imgur:
         for obj_type, values in objects.items():
             regex_result = re.match(base + values['regex'], url)
             if regex_result is not None:
-                initial_object = values['method'](regex_result.group('id'))
+                obj_id = regex_result.group('id')
+                initial_object = values['method'](obj_id)
                 if obj_type == 'image':
                     try:
                         # A better version might be to ping the url where the
@@ -876,7 +877,7 @@ class Imgur:
                         # this becomes less hacky.
                         original_stdout = sys.stdout
                         sys.stdout = NullDevice()
-                        return self.get_gallery_image(regex_result.group('id'))
+                        return self.get_gallery_image(obj_id)
                     except Exception:
                         pass
                     finally:
