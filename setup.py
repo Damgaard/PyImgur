@@ -4,17 +4,17 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from pyimgur import __version__
+
 PACKAGE_NAME = 'pyimgur'
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 INIT = open(os.path.join(HERE, PACKAGE_NAME, '__init__.py')).read()
 README = open(os.path.join(HERE, 'README.rst')).read()
 
-VERSION = "0.5"
-
 setup(
     name=PACKAGE_NAME,
-    version=VERSION,
+    version=__version__,
     author='Andreas Damgaard Pedersen',
     author_email='andreas.damgaard.pedersen@gmail.com',
     url='https://github.com/Damgaard/PyImgur',
