@@ -30,7 +30,7 @@ PyImgur 0.5
    when uploading an image. But the variables that could be sent were always
    ``None`` in the response. See `the bug report to Imgur
    <https://groups.google.com/forum/#!topic/imgur/F3uVb55TMGo>`_
- * **[Bugfix]** If :meth:`~pyimgur.__init__.Image.download` was used with an
+ * **[BUGFIX]** If :meth:`~pyimgur.__init__.Image.download` was used with an
    invalid filename given as the ``name`` argument or an invalid filename was
    gotten via the title, then the download would fail with an IOError. It now
    defaults to saving it with the hash as the name if the primary choice is an
