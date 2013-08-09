@@ -114,7 +114,7 @@ class Basic_object(object):
                 self.author = User({'url': self.account_url}, self._imgur,
                                    has_fetched=False)
                 del self.account_url
-            if "cover" in vars(self):
+            if "cover" in vars(self) and self.cover is not None:
                 self.cover = Image({'id': self.cover}, self._imgur,
                                    has_fetched=False)
             if "images" in vars(self):

@@ -10,6 +10,13 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+Unreleased Development Version
+------------------------------
+
+ * **[BUGFIX]** If an album had no cover Image, then before it would create a
+   lazy Image object for the cover with ``None`` as Id. Now the ``cover``
+   attribute will correctly be ``None``.
+
 PyImgur 0.5
 -----------
 
