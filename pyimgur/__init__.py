@@ -56,7 +56,7 @@ def _change_object(from_object, to_object):
 def _get_album_or_image(json, imgur):
     """Return a gallery image/album depending on what the json represent."""
     if json['is_album']:
-        return Gallery_album(json, imgur)
+        return Gallery_album(json, imgur, has_fetched=False)
     return Gallery_image(json, imgur)
 
 
@@ -231,7 +231,11 @@ class Album(Basic_object):
     :ivar deletehash: For anonymous uploads, this is used to delete the album.
     :ivar description: A short description of the album.
     :ivar id: The ID for the album.
-    :ivar images: A list of the images in this album.
+    :ivar images: A list of the images in this album. Only set at instantiation
+        if created with Imgur.get_album. But even if it isn't set, then you can
+        still access the attribute. This will make PyImgur fetch the newest
+        version of all attributes for this class, including images. So it will
+        work as though images was set all along.
     :ivar is_favorited: Has the logged in user favorited this album?
     :ivar is_nsfw: Is the album Not Safe For Work (contains gore/porn)?
     :ivar layout: The view layout of the album.
@@ -1075,7 +1079,7 @@ class Imgur:
         :param title: The title the image will have when uploaded.
         :param description: The description the image will have when uploaded.
         :param album: The album the image will be added to when uploaded. Can
-            be either a Album object or it's id.  Leave at None to upload
+            be either a Album object or it's id. Leave at None to upload
             without adding to an Album, adding it later is possible.
             Authentication as album owner is necessary to upload to an album
             with this function.
@@ -1248,7 +1252,7 @@ class User(Basic_object):
         url = "https://api.imgur.com/3/account/%s/albums/%s" % (self.name,
                                                                 '%d')
         resp = self._imgur._send_request(url, limit=limit)
-        return [Album(alb, self._imgur) for alb in resp]
+        return [Album(alb, self._imgur, False) for alb in resp]
 
     def get_comments(self):
         """Return the comments made by the user."""

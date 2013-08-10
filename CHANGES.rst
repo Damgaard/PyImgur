@@ -16,6 +16,11 @@ Unreleased Development Version
  * **[BUGFIX]** If an album had no cover Image, then before it would create a
    lazy Image object for the cover with ``None`` as Id. Now the ``cover``
    attribute will correctly be ``None``.
+ * **[BUGFIX]** Only albums instantiated with
+   :meth:`~pyimgur.__init__.Imgur.get_album` starts with the ``images``
+   attribute set. Now ``_has_fetched`` has been set to ``False`` for such
+   albums. Meaning that a call to ``Album.images`` will refresh the object and
+   it will then have the ``images`` attribute set.
 
 PyImgur 0.5
 -----------
