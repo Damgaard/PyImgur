@@ -104,9 +104,9 @@ Imgur, that will update the object with the latest values::
     im = pyimgur.Imgur(CLIENT_ID)
     gallery_image = im.get_gallery_image('JiAaT')
     author = gallery_image.author
-    print(author.has_fetched) # False ie. it's a lazily loaded object
+    print(author._has_fetched) # False ie. it's a lazily loaded object
     print(author.reputation)
-    print(author.has_fetched) # True ie. all values have now been retrieved.
+    print(author._has_fetched) # True ie. all values have now been retrieved.
 
 Introspection
 -------------
