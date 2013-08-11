@@ -13,6 +13,10 @@ divided into four categories.
 Unreleased Development Version
 ------------------------------
 
+ * **[BUGFIX]** Fix bug in :meth:`~pyimgur.__init__.Album.update` that caused
+   it to crash when calling it with a list of image ids as the images argument.
+   A bug also prevented the cover argument from being a Image object as is
+   possible elsewhere, instead it could only be the id of an image.
  * **[BUGFIX]** If an album had no cover Image, then before it would create a
    lazy Image object for the cover with ``None`` as Id. Now the ``cover``
    attribute will correctly be ``None``.

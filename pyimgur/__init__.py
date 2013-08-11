@@ -357,10 +357,13 @@ class Album(Basic_object):
             self.layout = layout or self.layout
             self.privacy = privacy or self.privacy
             if cover is not None:
-                self.cover = Image(cover)
+                self.cover = (cover if isinstance(cover, Image)
+                              else Image({'id': cover}, self._imgur,
+                                         has_fetched=False))
             if images:
                 self.images = [img if isinstance(img, Image) else
-                               Image(img, self._imgur) for img in images]
+                               Image({'id': img}, self._imgur, False)
+                               for img in images]
         return is_updated
 
 
