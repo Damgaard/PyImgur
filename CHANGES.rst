@@ -10,8 +10,8 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased Development Version
-------------------------------
+PyImgur 0.5.1
+-------------
 
  * **[BUGFIX]** Fix bug in :meth:`~pyimgur.__init__.Album.update` that caused
    it to crash when calling it with a list of image ids as the images argument.
