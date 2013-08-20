@@ -10,8 +10,8 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased
-----------
+PyImgur 0.5.2
+-------------
 
  * **[BUGFIX]** Fixed an installation crash that happened if the `requests`
    dependency wasn't already installed.
