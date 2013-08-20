@@ -1,10 +1,9 @@
 import os
+import re
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
-from pyimgur import __version__
 
 PACKAGE_NAME = 'pyimgur'
 
@@ -12,9 +11,11 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 INIT = open(os.path.join(HERE, PACKAGE_NAME, '__init__.py')).read()
 README = open(os.path.join(HERE, 'README.rst')).read()
 
+VERSION = re.search("__version__ = '([^']+)'", INIT).group(1)
+
 setup(
     name=PACKAGE_NAME,
-    version=__version__,
+    version=VERSION,
     author='Andreas Damgaard Pedersen',
     author_email='andreas.damgaard.pedersen@gmail.com',
     url='https://github.com/Damgaard/PyImgur',
