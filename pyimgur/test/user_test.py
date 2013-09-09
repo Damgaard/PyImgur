@@ -31,7 +31,7 @@ import pyimgur
 im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret,
                    refresh_token=refresh_token)
 im.refresh_access_token()
-user = im.get_user('bestthrowaway')
+user = im.get_user('me')
 
 
 def test_change_settings():
@@ -43,8 +43,7 @@ def test_change_settings():
 
 
 def test_get_favorites():
-    favorited = user.get_favorites()
-    assert any(obj.id == 'c9ZDK' for obj in favorited)
+    assert len(user.get_favorites())
 
 
 def test_get_settings():

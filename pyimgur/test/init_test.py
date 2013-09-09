@@ -65,7 +65,7 @@ def test_get_image():
 
 
 def test_upload_image():
-    image = im.upload_image('paradox.png')
+    image = im.upload_image(path='paradox.png')
     assert isinstance(image, pyimgur.Image)
     assert image.title is None
     assert image.description is None
@@ -74,7 +74,8 @@ def test_upload_image():
 
 
 def test_upload_image_with_args():
-    image = im.upload_image('paradox.png', TITLE, DESCRIPTION)
+    image = im.upload_image('paradox.png', title=TITLE,
+                            description=DESCRIPTION)
     assert isinstance(image, pyimgur.Image)
     assert image.title == TITLE
     assert image.description == DESCRIPTION
@@ -142,5 +143,6 @@ def test_image_download_bad_size():
 def test_image_download_to_parent_folder():
     i = im.get_image('Hlddt')
     new_file = i.download(path="..")
-    assert new_file == "..\Hlddt.jpg"
+    expected_path = os.path.join("..", "Hlddt.jpg")
+    assert new_file == expected_path
     os.remove(new_file)

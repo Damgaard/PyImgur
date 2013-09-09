@@ -42,6 +42,7 @@ IMAGE_IDS = ["7skLpQo", "JCVvSVY", "S1jmapR"]
 
 def test_add_images():
     new_album = im.create_album("New fancy album")
+    time.sleep(2)
     assert not len(new_album.images)
     new_album.add_images(IMAGE_IDS)
     new_album.refresh()
@@ -51,7 +52,7 @@ def test_add_images():
 
 def test_remove_images():
     image_ids = ["7skLpQo"]
-    new_album = im.create_album("New fancy album", ids=image_ids)
+    new_album = im.create_album("New fancy album", images=image_ids)
     assert len(new_album.images)
     time.sleep(1)
     new_album.remove_images(image_ids)
@@ -62,19 +63,20 @@ def test_remove_images():
 
 
 def test_remove_images_non_existing():
+    """Assert that no error is raised and that no change is made."""
     image_ids = ["7skLpQo"]
-    new_album = im.create_album("New fancy album", ids=image_ids)
+    new_album = im.create_album("New fancy album", images=image_ids)
+    time.sleep(2)
     assert len(new_album.images)
-    time.sleep(1)
     new_album.remove_images(["NonExisting"])
-    time.sleep(1)
     new_album.refresh()
-    assert not len(new_album.images)
+    assert len(new_album.images)
     new_album.delete()
 
 
 def test_set_images():
-    new_album = im.create_album("New fancy album", ids=[IMAGE_IDS[0]])
+    new_album = im.create_album("New fancy album", images=[IMAGE_IDS[0]])
+    time.sleep(2)
     assert len(new_album.images)
     old_images = new_album.images
     new_album.set_images(IMAGE_IDS[1:])
@@ -85,6 +87,7 @@ def test_set_images():
 
 def test_create():
     new_album = im.create_album("New fancy album")
+    time.sleep(2)
     # If it doesn't work then an exception will be raised.
     assert new_album.link is not None
     new_album.delete()
@@ -92,7 +95,7 @@ def test_create():
 
 def test_delete():
     new_album = im.create_album("New fancy album")
-    time.sleep(1)
+    time.sleep(2)
     new_album.delete()
     with pytest.raises(Exception):  # pylint: disable-msg=E1101
         im.get_album(new_album.id)
@@ -100,14 +103,16 @@ def test_delete():
 
 def test_favorite():
     new_album = im.create_album("New fancy album")
-    assert not new_album.has_favorited
+    time.sleep(2)
+    assert not new_album.is_favorited
     new_album.favorite()
     new_album.refresh()
-    assert new_album.has_favorited
+    assert new_album.is_favorited
 
 
 def test_update():
     new_album = im.create_album(uuid4())
+    time.sleep(2)
     old_title = new_album.title
     new_album.update(title=uuid4())
     assert old_title != new_album.title

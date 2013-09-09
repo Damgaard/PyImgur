@@ -39,20 +39,6 @@ def test_get_comment_replies():
     assert child_comments[0].image.id == comment.image.id
 
 
-def test_get_comments_count_error():
-    gallery = im.get_gallery()
-    gallery_item = gallery[0]
-    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
-        gallery_item.get_comment_count()
-
-
-def test_get_comments_ids_error():
-    gallery = im.get_gallery()
-    gallery_item = gallery[0]
-    with pytest.raises(NotImplementedError):  # pylint: disable-msg=E1101
-        gallery_item.get_comment_ids()
-
-
 def test_get_comments():
     gallery = im.get_gallery()
     gallery_item = gallery[0]

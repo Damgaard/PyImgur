@@ -13,12 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
+sys.path.insert(0, ".")
 
 import pyimgur
 
 
 def test_to_imgur_list():
-    assert None == pyimgur.request.to_imgur_list(None)
-    assert "QK1fZ9L" == pyimgur.request.to_imgur_list(["QK1fZ9L"])
-    assert "QK1fZ9L,NsuNI" == pyimgur.request.to_imgur_list(["QK1fZ9L",
-                                                             "NsuNI"])
+    assert None == pyimgur.request.convert_to_imgur_list(None)
+    assert "QK1fZ9L" == pyimgur.request.convert_to_imgur_list(["QK1fZ9L"])
+    assert "QK1fZ9L,NsuNI" == pyimgur.request.convert_to_imgur_list(["QK1fZ9L",
+                                                                     "NsuNI"])
