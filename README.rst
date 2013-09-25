@@ -77,9 +77,9 @@ Let's use another example to show how to upload an image::
     im = pyimgur.Imgur(CLIENT_ID)
     uploaded_image = im.upload_image(PATH, title="Uploaded with PyImgur")
     print(uploaded_image.title)
-    print(uploaded_image.date)
-    print(uploaded_image.url)
     print(uploaded_image.link)
+    print(uploaded_image.size)
+    print(uploaded_image.type)
 
 
 Some methods here one or more arguments with the default value ``None``. For
