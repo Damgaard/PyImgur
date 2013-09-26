@@ -92,7 +92,7 @@ def send_request(url, params=None, method='GET', data_field='data',
     if data_field is not None:
         content = content[data_field]
     if not resp.ok:
-        error_msg = "Imgur ERROR message: %s" % content['error']
+        error_msg = "Imgur ERROR message: {}".format(content['error'])
         print(error_msg)
         print("-" * len(error_msg))
         resp.raise_for_status()
