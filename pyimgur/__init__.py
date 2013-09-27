@@ -1405,15 +1405,15 @@ class User(Basic_object):
 # alphabetically without errors.
 class Gallery_album(Album, Gallery_item):
     """Gallery Albums are albums submitted to the gallery."""
-    def __init__(self, json_dict, imgur):
+    def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("https://api.imgur.com/3/gallery/album/"
                           "{}".format(json_dict['id']))
-        super(Gallery_album, self).__init__(json_dict, imgur)
+        super(Gallery_album, self).__init__(json_dict, imgur, has_fetched)
 
 
 class Gallery_image(Image, Gallery_item):
     """Gallery images are images submitted to the gallery."""
-    def __init__(self, json_dict, imgur):
+    def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = ("http://api.imgur.com/3/gallery/image/"
                           "{}".format(json_dict['id']))
-        super(Gallery_image, self).__init__(json_dict, imgur)
+        super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
