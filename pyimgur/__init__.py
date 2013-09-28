@@ -828,6 +828,15 @@ class Imgur:
 
         Works for Album, Comment, Gallery_album, Gallery_image, Image and User.
 
+        NOTE: Imgur's documentation does not cover what urls are available.
+        Some urls, such as imgur.com/<ID> can be for several different types of
+        object. Using a wrong, but similair call, such as get_subreddit_image
+        on a meme image will not cause an error. But instead return a subset of
+        information, with either the remaining pieces missing or the value set
+        to None. This makes it hard to create a method such as this that
+        attempts to deduce the object from the url. Due to these factors, this
+        method should be considered experimental and used carefully.
+
         :param url: The url where the content is located at
         """
         class NullDevice():
