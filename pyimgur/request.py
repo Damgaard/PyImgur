@@ -92,9 +92,12 @@ def send_request(url, params=None, method='GET', data_field='data',
     if data_field is not None:
         content = content[data_field]
     if not resp.ok:
-        error_msg = "Imgur ERROR message: {}".format(content['error'])
-        print(error_msg)
-        print("-" * len(error_msg))
+        try:
+            error_msg = "Imgur ERROR message: {}".format(content['error'])
+            print(error_msg)
+            print("-" * len(error_msg))
+        except Exception:
+            pass
         resp.raise_for_status()
     ratelimit_info = {key: int(value) for (key, value) in resp.headers.items()
                       if key.startswith('x-ratelimit')}
