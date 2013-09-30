@@ -705,7 +705,7 @@ class Imgur:
             del kwargs['limit']
             page = 0
             base_url = url
-            url %= page
+            url.format(page)
         kwargs['authentication'] = auth
         while True:
             result = request.send_request(url, **kwargs)
@@ -713,7 +713,7 @@ class Imgur:
             if is_paginated and new_content and limit > len(new_content):
                 content += new_content
                 page += 1
-                url = base_url % page
+                url = base_url.format(page)
             else:
                 if is_paginated:
                     content = (content + new_content)[:limit]
@@ -745,7 +745,7 @@ class Imgur:
             correct resource in your site, nonces, and
             cross-site-request-forgery mitigations.
         """
-        return AUTHORIZE_URL % (self.client_id, response, state)
+        return AUTHORIZE_URL.format(self.client_id, response, state)
 
     def change_authentication(self, client_id=None, client_secret=None,
                               access_token=None, refresh_token=None):
@@ -932,7 +932,7 @@ class Imgur:
         :param limit: The number of items to return.
         """
         url = ("https://api.imgur.com/3/gallery/{}/{}/{}/{}?showViral="
-               "{}".format(section, sort, window, '%d', show_viral))
+               "{}".format(section, sort, window, '{}', show_viral))
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
@@ -998,7 +998,7 @@ class Imgur:
         :param limit: The number of items to return.
         """
         url = ("https://api.imgur.com/3/gallery/g/memes/{}/{}/{}".format(
-               (sort, window, '%d')))
+               (sort, window, '{}')))
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
@@ -1034,7 +1034,7 @@ class Imgur:
         :param limit: The number of items to return.
         """
         url = ("https://api.imgur.com/3/gallery/r/{}/{}}/{}/{}".format(
-               (subreddit, sort, window, '%d')))
+               (subreddit, sort, window, '{}')))
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
@@ -1272,7 +1272,7 @@ class User(Basic_object):
         user.
         """
         url = ("https://api.imgur.com/3/account/{}/albums/{}".format(self.name,
-                                                                     '%d'))
+                                                                     '{}'))
         resp = self._imgur._send_request(url, limit=limit)
         return [Album(alb, self._imgur, False) for alb in resp]
 
@@ -1316,7 +1316,7 @@ class User(Basic_object):
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
         url = ("https://api.imgur.com/3/account/{}/"
-               "images/{}".format(self.name, '%d'))
+               "images/{}".format(self.name, '{}'))
         resp = self._imgur._send_request(url, limit=limit)
         return [Image(img, self._imgur) for img in resp]
 
@@ -1373,7 +1373,7 @@ class User(Basic_object):
     def get_submissions(self, limit=None):
         """Return a list of the images a user has submitted to the gallery."""
         url = ("https://api.imgur.com/3/account/{}/submissions/"
-               "{}".format(self.name, '%d'))
+               "{}".format(self.name, '{}'))
         resp = self._imgur._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self._imgur) for thing in resp]
 
