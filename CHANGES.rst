@@ -10,6 +10,12 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+Unreleased
+----------
+
+ * **[BUGFIX]** Fix incorrect argument that prevented :meth:`.exchange_code`
+   from working.
+
 PyImgur 0.5.2
 -------------
 

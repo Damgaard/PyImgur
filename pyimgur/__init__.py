@@ -795,7 +795,7 @@ class Imgur:
         params = {'client_id': self.client_id,
                   'client_secret': self.client_secret,
                   'grant_type': 'authorization_code',
-                  'pin': code}
+                  'code': code}
         result = self._send_request(EXCHANGE_URL, params=params, method='POST',
                                     data_field=None)
         self.access_token = result['access_token']
