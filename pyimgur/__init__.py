@@ -876,6 +876,10 @@ class Imgur:
                 return self.get_gallery_album(id)
             finally:
                 sys.stdout = original_stdout  # turn STDOUT back on
+
+        if not self.is_imgur_url(url):
+            return None
+
         objects = {'album': {'regex': "a/(?P<id>[\w.]*?)$",
                              'method': self.get_album},
                    'comment': {'regex': "gallery/\w*/comment/(?P<id>[\w.]*?)$",
