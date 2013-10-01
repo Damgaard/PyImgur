@@ -31,6 +31,7 @@ For more information on usage visit https://github.com/Damgaard/PyImgur
 
 
 from base64 import b64encode
+from urlparse import urlparse
 import os.path
 import re
 import sys
@@ -875,7 +876,6 @@ class Imgur:
                 return self.get_gallery_album(id)
             finally:
                 sys.stdout = original_stdout  # turn STDOUT back on
-        base = "(https?://)(i\\.)?imgur.com/"
         objects = {'album': {'regex': "a/(?P<id>[\w.]*?)$",
                              'method': self.get_album},
                    'comment': {'regex': "gallery/\w*/comment/(?P<id>[\w.]*?)$",
@@ -889,8 +889,9 @@ class Imgur:
                    'user': {'regex': "user/(?P<id>[\w.]*?)$",
                             'method': self.get_user}
                    }
+        parsed_url = urlparse(url)
         for obj_type, values in objects.items():
-            regex_result = re.match(base + values['regex'], url)
+            regex_result = re.match('/' + values['regex'], parsed_url.path)
             if regex_result is not None:
                 obj_id = regex_result.group('id')
                 initial_object = values['method'](obj_id)
