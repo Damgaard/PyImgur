@@ -99,6 +99,6 @@ def send_request(url, params=None, method='GET', data_field='data',
         except Exception:
             pass
         resp.raise_for_status()
-    ratelimit_info = {key: int(value) for (key, value) in resp.headers.items()
-                      if key.startswith('x-ratelimit')}
+    ratelimit_info = dict((k, int(v)) for (k, v) in resp.headers.items()
+                          if k.startswith('x-ratelimit'))
     return content, ratelimit_info
