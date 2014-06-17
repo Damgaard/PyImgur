@@ -93,7 +93,7 @@ def send_request(url, params=None, method='GET', data_field='data',
         content = content[data_field]
     if not resp.ok:
         try:
-            error_msg = "Imgur ERROR message: {}".format(content['error'])
+            error_msg = "Imgur ERROR message: {0}".format(content['error'])
             print(error_msg)
             print("-" * len(error_msg))
         except Exception:
