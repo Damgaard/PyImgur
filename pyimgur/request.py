@@ -58,7 +58,7 @@ def to_imgur_format(params):
 
 
 def send_request(url, params=None, method='GET', data_field='data',
-                 authentication=None):
+                 authentication=None, verify=True):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
@@ -77,13 +77,14 @@ def send_request(url, params=None, method='GET', data_field='data',
     tries = 0
     while not is_succesful_request and tries <= MAX_RETRIES:
         if method == 'GET':
-            resp = requests.get(url, params=params, headers=headers)
+            resp = requests.get(url, params=params, headers=headers,
+                                verify=verify)
         elif method == 'POST':
-            resp = requests.post(url, params, headers=headers)
+            resp = requests.post(url, params, headers=headers, verify=verify)
         elif method == 'PUT':
-            resp = requests.put(url, params, headers=headers)
+            resp = requests.put(url, params, headers=headers, verify=verify)
         elif method == 'DELETE':
-            resp = requests.delete(url, headers=headers)
+            resp = requests.delete(url, headers=headers, verify=verify)
         if resp.status_code in RETRY_CODES or resp.content == "":
             tries += 1
         else:
