@@ -640,7 +640,7 @@ class Imgur:
     but instead use the methods in this class to get them.
     """
     def __init__(self, client_id, client_secret=None, access_token=None,
-                 refresh_token=None):
+                 refresh_token=None, verify=True):
         """
         Initialize the Imgur object.
 
@@ -659,6 +659,8 @@ class Imgur:
             access_tokens expire after 1 hour, we need a way to request new
             ones without going through the entire authorization step again. It
             does not expire.
+        :param verify: Verify SSL certificate of server
+            (can result in SSLErrors)?
         """
         self.is_authenticated = False
         self.access_token = access_token
@@ -671,6 +673,7 @@ class Imgur:
         self.ratelimit_userremaining = None
         self.ratelimit_userreset = None
         self.refresh_token = refresh_token
+        self.verify = verify
 
     def _send_request(self, url, needs_auth=False, **kwargs):
         """
@@ -709,7 +712,7 @@ class Imgur:
             url.format(page)
         kwargs['authentication'] = auth
         while True:
-            result = request.send_request(url, **kwargs)
+            result = request.send_request(url, verify=self.verify, **kwargs)
             new_content, ratelimit_info = result
             if is_paginated and new_content and limit > len(new_content):
                 content += new_content
