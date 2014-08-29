@@ -94,12 +94,12 @@ def send_request(url, params=None, method='GET', data_field='data',
         content = content[data_field]
     if not resp.ok:
         try:
-            error_msg = "Imgur ERROR message: {}".format(content['error'])
+            error_msg = "Imgur ERROR message: {0}".format(content['error'])
             print(error_msg)
             print("-" * len(error_msg))
         except Exception:
             pass
         resp.raise_for_status()
-    ratelimit_info = {key: int(value) for (key, value) in resp.headers.items()
-                      if key.startswith('x-ratelimit')}
+    ratelimit_info = dict((k, int(v)) for (k, v) in resp.headers.items()
+                          if k.startswith('x-ratelimit'))
     return content, ratelimit_info
