@@ -31,14 +31,20 @@ For more information on usage visit https://github.com/Damgaard/PyImgur
 
 
 from base64 import b64encode
-from urlparse import urlparse
 import os.path
 import re
 import sys
 
-import requests
+PY3 = sys.version_info.major == 3
 
-from pyimgur import request
+if PY3:
+    from urllib.parse import urlparse
+else:
+    from urlparse import urlparse
+
+import requests  # NOQA
+
+from pyimgur import request  # NOQA
 
 __version__ = '0.5.2'
 
