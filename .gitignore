@@ -1,7 +1,12 @@
-# Images #
-##########
+# General Python
+################
 
-*.png
-*.jpg
-*.jpeg
-*.gif
+*.py[co]
+build/
+virtualenv/
+virtualenv.cache/
+
+# Py.test
+#########
+
+.cache
