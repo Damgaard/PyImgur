@@ -26,19 +26,6 @@ The recommended way to install is via `pip <http://pypi.python.org/pypi/pip>`_
 
 .. begin_getting_started
 
-Version 0.4.0
--------------
-
-On 2013-07-12 version 4.0 of PyImgur was released. It was a complete rework of
-the library meaning that programs using 0.3.2 are unlikely to work with 0.4.0.
-This reworking was necessitated by Imgurs upgrading their API to version 3.0
-and the depreciation of version 2.0. The new version of Imgurs API exposes new
-functionality, but also changed many things. So a backwards compatible
-upgrading of PyImgur was impossible.
-
-Additionally, PyImgur was changed from functional code to utilizing an object
-oriented structure.
-
 Getting Started
 ---------------
 
