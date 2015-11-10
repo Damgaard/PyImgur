@@ -12,5 +12,6 @@ Authentication
 
 The authentication details for these scripts are located in a file called
 `authentication.py` and located within this folder. For security reasons it is
-not included in the repo. The dummy file `dummy_authentication.py` illustrates
-the contents of the authentication file and is included in the repo.
+not included in the repository. The dummy file `dummy_authentication.py`
+illustrates the contents of the authentication file and is included in the
+repository.
