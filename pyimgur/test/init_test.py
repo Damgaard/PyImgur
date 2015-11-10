@@ -65,7 +65,7 @@ def test_get_image():
 
 
 def test_upload_image():
-    image = im.upload_image(path='paradox.png')
+    image = im.upload_image(path='pyimgur/test/cat.jpg')
     assert isinstance(image, pyimgur.Image)
     assert image.title is None
     assert image.description is None
@@ -74,7 +74,7 @@ def test_upload_image():
 
 
 def test_upload_image_with_args():
-    image = im.upload_image('paradox.png', title=TITLE,
+    image = im.upload_image('pyimgur/test/cat.jpg', title=TITLE,
                             description=DESCRIPTION)
     assert isinstance(image, pyimgur.Image)
     assert image.title == TITLE
@@ -82,9 +82,8 @@ def test_upload_image_with_args():
     assert image.deletehash is not None
     image.delete()
 
-
 def test_update_image():
-    image = im.upload_image('paradox.png')
+    image = im.upload_image('pyimgur/test/cat.jpg')
     assert image.title is None
     image.update(TITLE)
     assert image.title == TITLE
