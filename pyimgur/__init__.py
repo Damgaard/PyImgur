@@ -940,7 +940,7 @@ class Imgur:
         :param limit: The number of items to return.
         """
         url = ("https://api.imgur.com/3/gallery/{}/{}/{}/{}?showViral="
-               "{0}".format(section, sort, window, '{}', show_viral))
+               "{}".format(section, sort, window, '{}', show_viral))
         resp = self._send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
