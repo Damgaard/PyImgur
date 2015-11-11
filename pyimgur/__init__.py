@@ -40,7 +40,7 @@ import requests
 
 from pyimgur import request
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 AUTHORIZE_URL = ("https://api.imgur.com/oauth2/authorize?"
                  "client_id={}&response_type={}&state={}")

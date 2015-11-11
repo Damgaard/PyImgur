@@ -10,8 +10,8 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased
-----------
+PyImgur 0.5.3
+-------------
 
  * **[FEATURE]** Make it possible to skip SSL certificate verification.
  * **[FEATURE]** Increase python 2.6 compatibility. PyImgur is still only
