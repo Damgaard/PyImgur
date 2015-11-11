@@ -15,13 +15,11 @@ Unreleased
 
  * **[FEATURE]** Make it possible to skip SSL certificate verification.
  * **[FEATURE]** Increase python 2.6 compatibility. PyImgur is still only
-    officially compatible with python 2.7.
+   officially compatible with python 2.7.
  * **[BUGFIX]** Fix missing `has_fetched` arguments breaking :meth:`.get_subreddit_gallery`.
  * **[BUGFIX]** Fix bug breaking :meth:`.get_gallery` from working.
- * **[BUGFIX]** Fix missing has_fetched argument incorrect argument that prevented :meth:`.exchange_code`
-    from working.
  * **[BUGFIX]** Fix incorrect argument that prevented :meth:`.exchange_code`
-    from working.
+   from working.
 
 PyImgur 0.5.2
 -------------
