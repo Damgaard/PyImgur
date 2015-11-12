@@ -10,6 +10,12 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+Unreleased
+----------
+
+ * **[FEATURE]** Increase python 3.x compatibility. PyImgur is still only
+   officially compatible with python 2.7.
+
 PyImgur 0.5.3
 -------------
 
