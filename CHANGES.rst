@@ -17,6 +17,8 @@ Unreleased
    officially compatible with python 2.7.
  * **[CHANGE]** Tests that require authentication will now be skipped if
    authentication has not been set up.
+ * **[FEATURE]** Add support for Mashape API Keys for commercial usage of the Imgur API.
+   See: http://api.imgur.com/#commercial
 
 PyImgur 0.5.3
 -------------
