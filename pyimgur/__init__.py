@@ -1105,13 +1105,14 @@ class Imgur:
         resp = self._send_request(url)
         return [_get_album_or_image(thing, self) for thing in resp]
 
-    def upload_image(self, path=None, url=None, title=None, description=None,
+    def upload_image(self, path=None, url=None, data=None, title=None, description=None,
                      album=None):
         """
         Upload the image at either path or url.
 
         :param path: The path to the image you want to upload.
         :param url: The url to the image you want to upload.
+        :param data: A string of the data of the image you want to upload.
         :param title: The title the image will have when uploaded.
         :param description: The description the image will have when uploaded.
         :param album: The album the image will be added to when uploaded. Can
@@ -1122,12 +1123,17 @@ class Imgur:
 
         :returns: An Image object representing the uploaded image.
         """
-        if bool(path) == bool(url):
-            raise LookupError("Either path or url must be given.")
+        if [bool(path), bool(url), bool(data)].count(True) != 1:
+            raise LookupError("Either path, data or url must be given.")
+        
         if path:
             with open(path, 'rb') as image_file:
                 binary_data = image_file.read()
                 image = b64encode(binary_data)
+        
+        if data:
+            image = b64encode(data)
+        
         else:
             image = url
 
