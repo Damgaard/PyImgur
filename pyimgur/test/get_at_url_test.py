@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Testing of the get_at_url method."""
+
 import sys
 
 import pytest
@@ -27,8 +29,6 @@ except ImportError:
     refresh_token = None
 
 import pyimgur
-
-"""Testing of the get_at_url method."""
 
 im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret,
                    refresh_token=refresh_token)

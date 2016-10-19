@@ -127,7 +127,7 @@ def test_image_download_own_name():
 def test_image_download_no_overwrite():
     i = im.get_image('Hlddt')
     new_file = i.download()
-    with pytest.raises(Exception):  # pylint: disable-msg=E1101
+    with pytest.raises(Exception):  # pylint: disable=E1101
         i.download()
     os.remove(new_file)
 
@@ -141,7 +141,7 @@ def test_image_download_small_square():
 
 def test_image_download_bad_size():
     i = im.get_image('Hlddt')
-    with pytest.raises(LookupError):  # pylint: disable-msg=E1101
+    with pytest.raises(LookupError):  # pylint: disable=E1101
         i.download(size='Invalid sized triangle')
 
 

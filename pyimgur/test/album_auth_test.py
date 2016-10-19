@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Tests authenticated usage of the methods in the Album class."""
+
 import sys
 import time
 from uuid import uuid4
@@ -29,8 +31,6 @@ except ImportError:
     refresh_token = None
 
 import pyimgur
-
-"""Tests authenticated usage of the methods in the Album class."""
 
 # Make im protected, so it's not run on initialization
 # IDEA: To protect R and SR add a memorize class here, just like in the old
