@@ -43,7 +43,7 @@ class Empty(pyimgur.Basic_object):
 def test_accessing_bad_attribute():
     basic_object = pyimgur.Basic_object({}, None, True)
     with pytest.raises(AttributeError):
-        basic_object.no_such_object
+        basic_object.no_such_object  # pylint: disable=pointless-statement
 
 
 def test_populate():

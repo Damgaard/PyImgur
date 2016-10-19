@@ -200,7 +200,7 @@ class Basic_object(object):
                 if "subject" in self.content:  # pylint: disable=access-member-before-definition
                     self.content = Message(self.content, self._imgur, True)
                 elif "caption" in self.content:
-                    self.content = Comment(self.content, self._imgur, True)
+                    self.content = Comment(self.content, self._imgur, True)  # pylint: disable=redefined-variable-type
         elif isinstance(self, User) and 'url' in vars(self):
             self.name = self.url
             del self.url
@@ -850,7 +850,7 @@ class Imgur:
         :param url: The url where the content is located at
         """
         class NullDevice():
-            def write(self, s):
+            def write(self, string):
                 pass
 
         def get_gallery_item(id):
