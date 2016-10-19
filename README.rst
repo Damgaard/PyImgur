@@ -3,6 +3,9 @@
 PyImgur
 =======
 
+.. image:: https://badge.fury.io/py/pyimgur.svg
+    :target: https://badge.fury.io/py/pyimgur
+
 The simple way of using Imgur.
 
 You can upload images, download images, read comments, update your albums,
