@@ -15,6 +15,8 @@ Unreleased
 
  * **[FEATURE]** Increase python 3.x compatibility. PyImgur is still only
    officially compatible with python 2.7.
+ * **[CHANGE]** Tests that require authentication will now be skipped if
+   authentication has not been set up.
 
 PyImgur 0.5.3
 -------------
