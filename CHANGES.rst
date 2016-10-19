@@ -15,6 +15,9 @@ Unreleased
 
  * **[FEATURE]** Increase python 3.x compatibility. PyImgur is still only
    officially compatible with python 2.7.
+ * **[BUGFIX]** Fixed a bug where accessing a non-existing attribute on a
+   object inheriting from Basic_object would throw a `IndexError` rather
+   than the expected `AttributeError`.
  * **[CHANGE]** Tests that require authentication will now be skipped if
    authentication has not been set up.
 

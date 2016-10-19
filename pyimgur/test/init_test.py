@@ -40,6 +40,12 @@ class Empty(pyimgur.Basic_object):
     pass
 
 
+def test_accessing_bad_attribute():
+    basic_object = pyimgur.Basic_object({}, None, True)
+    with pytest.raises(AttributeError):
+        basic_object.no_such_object
+
+
 def test_populate():
     info = {'score': 1, 'hello': 'world'}
     inst = Empty(info, None)

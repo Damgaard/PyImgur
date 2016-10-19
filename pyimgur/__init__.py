@@ -74,7 +74,7 @@ class Basic_object(object):
             self.refresh()
             return getattr(self, attribute)
         raise AttributeError("{0} instance has no attribute '{1}'".format(
-                             (type(self).__name__, attribute)))
+                             type(self).__name__, attribute))
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._has_fetched = has_fetched
