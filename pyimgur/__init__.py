@@ -38,7 +38,7 @@ import sys
 PY3 = sys.version_info.major == 3
 
 if PY3:
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse # pylint: disable=no-name-in-module,import-error
 else:
     from urlparse import urlparse
 
@@ -122,7 +122,7 @@ class Basic_object(object):
                 self.author = User({'url': self.account_url}, self._imgur,
                                    has_fetched=False)
                 del self.account_url
-            if "cover" in vars(self) and self.cover is not None:
+            if "cover" in vars(self) and self.cover is not None:  # pylint: disable=access-member-before-definition
                 self.cover = Image({'id': self.cover}, self._imgur,
                                    has_fetched=False)
             if "images" in vars(self):
@@ -197,7 +197,7 @@ class Basic_object(object):
                 self.is_viewed = self.viewed
                 del self.viewed
             if "content" in vars(self):
-                if "subject" in self.content:
+                if "subject" in self.content:  # pylint: disable=access-member-before-definition
                     self.content = Message(self.content, self._imgur, True)
                 elif "caption" in self.content:
                     self.content = Comment(self.content, self._imgur, True)
