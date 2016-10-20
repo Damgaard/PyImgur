@@ -104,6 +104,21 @@ Introspection
 Remember that as usual you can use the ``dir``, ``vars`` and ``help`` builtin
 functions to introspect objects to learn more about them and how they work.
 
+Mashape API
+-----------
+
+Imgur supports commercial use via Mashape, which uses a different endpoint and
+some additional authentication. You can enable this easily by providing your
+Mashape key on initialization of the Imgur object::
+
+    import pyimgur
+    CLIENT_ID = "Your_applications_client_id"
+    MASHAPE_KEY = "Your_mashape_api_key"
+    im = pyimgur.Imgur(CLIENT_ID, mashape_key=MASHAPE_KEY)
+
+More information on Mashape's API and Pricing can be found on the `Mashape
+website <https://market.mashape.com/imgur/imgur-9>`_.
+
 Support
 -------
 
