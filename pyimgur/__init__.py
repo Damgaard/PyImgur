@@ -1313,7 +1313,7 @@ class User(Basic_object):
         """Return the users favorited images."""
         url = self._imgur._base_url + "/3/account/{0}/favorites".format(self.name)
         resp = self._imgur._send_request(url, needs_auth=True)
-        return [_get_album_or_image(thing, self) for thing in resp]
+        return [_get_album_or_image(thing, self._imgur) for thing in resp]
 
     def get_gallery_favorites(self):
         """Get a list of the images in the gallery this user has favorited."""
