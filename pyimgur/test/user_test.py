@@ -44,8 +44,8 @@ if refresh_token:
     user = im.get_user('me')
 
 
-@pytest.mark.skipif(refresh_token=None, reason="Cannot run live test without "
-                                               "authentication variables.")
+@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+                                                   "authentication variables.")
 def test_change_settings():
     old_album_default = user.get_settings()['public_images']
     new_setting = False if old_album_default else True
@@ -54,13 +54,13 @@ def test_change_settings():
     assert old_album_default != found_new
 
 
-@pytest.mark.skipif(refresh_token=None, reason="Cannot run live test without "
-                                               "authentication variables.")
+@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+                                                  "authentication variables.")
 def test_get_favorites():
     assert len(user.get_favorites())
 
 
-@pytest.mark.skipif(refresh_token=None, reason="Cannot run live test without "
-                                               "authentication variables.")
+@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+                                                  "authentication variables.")
 def test_get_settings():
     assert 'messaging_enabled' in user.get_settings()
