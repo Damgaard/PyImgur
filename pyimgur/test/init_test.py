@@ -46,6 +46,12 @@ def test_accessing_bad_attribute():
         basic_object.no_such_object  # pylint: disable=pointless-statement
 
 
+def test_can_change_authentication():
+    im = pyimgur.Imgur(client_id="123", client_secret="455")
+    im.change_authentication(client_id="888")
+    assert im.client_id == "888"
+
+
 def test_populate():
     info = {'score': 1, 'hello': 'world'}
     inst = Empty(info, None)
