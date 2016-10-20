@@ -992,6 +992,16 @@ class Imgur:
         resp = self._send_request(url)
         return Image(resp, self)
 
+    def get_random_gallery_image(self, limit=None):
+        """
+        Returns a random set of gallery images.
+
+        :param limit: The number of items to return.
+        """
+        url = "https://api.imgur.com/3/gallery/random/random/{}"
+        resp = self._send_request(url, limit=limit)
+        return [_get_album_or_image(thing, self) for thing in resp]
+
     def get_message(self, id):
         """
         Return a Message object for given id.
