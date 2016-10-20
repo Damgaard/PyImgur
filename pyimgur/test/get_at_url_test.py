@@ -82,7 +82,7 @@ def test_retrieve_image():
 @pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
                                                   "authentication variables.")
 def test_retrieve_user():
-    user = im.get_at_url('http://imgur.com/user/AwildNikkiappears')
+    user = im.get_at_url('http://imgur.com/user/sarah')
     assert isinstance(user, pyimgur.User)
     assert user.name is not None
 
