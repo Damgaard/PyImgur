@@ -64,3 +64,9 @@ def test_get_favorites():
                                                   "authentication variables.")
 def test_get_settings():
     assert 'messaging_enabled' in user.get_settings()
+
+
+@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+                                                  "authentication variables.")
+def test_get_notificationssettings():
+    assert "messages" in user.get_notifications()

@@ -17,6 +17,8 @@ Unreleased
    officially compatible with python 2.7.
  * **[FEATURE]** Add support for Mashape API Keys for commercial usage of the
    Imgur API. See: http://api.imgur.com/#commercial
+ * **[BUGFIX]** Fix a crash that would occur when trying to use the
+   method :meth:`~pyimgur.__init__.user.get_notifications`.
  * **[BUGFIX]** Fixed a bug where accessing a non-existing attribute on a
    object inheriting from Basic_object would throw a `IndexError` rather
    than the expected `AttributeError`.

@@ -1368,7 +1368,7 @@ class User(Basic_object):
         resp = self._imgur._send_request(url, params=locals(), needs_auth=True)
         msgs = [Message(msg_dict, self._imgur, has_fetched=True) for msg_dict
                 in resp['messages']]
-        replies = [Comment(msg_dict, self._imgur, has_fetched=True) for
+        replies = [Comment(com_dict, self._imgur, has_fetched=True) for
                    com_dict in resp['replies']]
         return {'messages': msgs, 'replies': replies}
 
