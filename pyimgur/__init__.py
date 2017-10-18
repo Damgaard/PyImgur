@@ -676,11 +676,7 @@ class Imgur:
         self.client_id = client_id
         self.client_secret = client_secret
         self.DEFAULT_LIMIT = 100
-        self.ratelimit_clientlimit = None
-        self.ratelimit_clientremaining = None
-        self.ratelimit_userlimit = None
-        self.ratelimit_userremaining = None
-        self.ratelimit_userreset = None
+        self.ratelimit = None
         self.refresh_token = refresh_token
         self.verify = verify
         self.mashape_key = mashape_key
@@ -743,8 +739,7 @@ class Imgur:
         # Note: When the cache is implemented, it's important that the
         # ratelimit info doesn't get updated with the ratelimit info in the
         # cache since that's likely incorrect.
-        for key, value in ratelimit_info.items():
-            setattr(self, key[2:].replace('-', '_'), value)
+        self.ratelimit = ratelimit_info
         return content
 
     def authorization_url(self, response, state=""):

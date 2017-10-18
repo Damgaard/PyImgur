@@ -101,5 +101,6 @@ def send_request(url, params=None, method='GET', data_field='data',
             pass
         resp.raise_for_status()
     ratelimit_info = dict((k, int(v)) for (k, v) in resp.headers.items()
-                          if k.startswith('x-ratelimit'))
+                          if k.upper().startswith('X-POST-RATE-LIMIT-')
+                          or k.upper().startswith('X-RATELIMIT-'))
     return content, ratelimit_info
