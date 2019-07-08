@@ -18,8 +18,6 @@
 # Note: The name should probably be changed to avoid confusion with the module
 # requestS
 
-from __future__ import print_function
-
 from numbers import Integral
 
 import requests
@@ -27,6 +25,10 @@ import requests
 
 MAX_RETRIES = 3
 RETRY_CODES = [500]
+
+class ImgurException(Exception):
+    """Basic Exception while interacting with Imgur API"""
+    pass
 
 
 def convert_general(value):
@@ -95,8 +97,7 @@ def send_request(url, params=None, method='GET', data_field='data',
     if not resp.ok:
         try:
             error_msg = "Imgur ERROR message: {0}".format(content['error'])
-            print(error_msg)
-            print("-" * len(error_msg))
+            raise ImgurException(error_msg)
         except Exception:
             pass
         resp.raise_for_status()
