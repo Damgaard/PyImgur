@@ -39,12 +39,15 @@ import pyimgur
 
 im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret,
                    refresh_token=refresh_token)
+user = None
+
 if refresh_token:
     im.refresh_access_token()
     user = im.get_user('me')
 
+USER_NOT_AUTHENTICATED = refresh_token is None or user is None
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+@pytest.mark.skipif(USER_NOT_AUTHENTICATED, reason="Cannot run live test without "
                                                    "authentication variables.")
 def test_change_settings():
     old_album_default = user.get_settings()['public_images']
@@ -54,19 +57,19 @@ def test_change_settings():
     assert old_album_default != found_new
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+@pytest.mark.skipif(USER_NOT_AUTHENTICATED, reason="Cannot run live test without "
                                                   "authentication variables.")
 def test_get_favorites():
     assert len(user.get_favorites())
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+@pytest.mark.skipif(USER_NOT_AUTHENTICATED, reason="Cannot run live test without "
                                                   "authentication variables.")
 def test_get_settings():
     assert 'messaging_enabled' in user.get_settings()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
+@pytest.mark.skipif(USER_NOT_AUTHENTICATED, reason="Cannot run live test without "
                                                   "authentication variables.")
 def test_get_notificationssettings():
     assert "messages" in user.get_notifications()
