@@ -53,10 +53,10 @@ def test_can_change_authentication():
 
 
 def test_populate():
-    info = {'score': 1, 'hello': 'world'}
+    info = {"score": 1, "hello": "world"}
     inst = Empty(info, None)
-    assert 'score' in vars(inst)
-    assert 'hello' in vars(inst)
+    assert "score" in vars(inst)
+    assert "hello" in vars(inst)
     assert inst.score == 1
 
 
@@ -70,14 +70,14 @@ def test_is_imgur_url():
 
 
 def test_get_image():
-    image = im.get_image('JPz2i')
+    image = im.get_image("JPz2i")
     assert isinstance(image, pyimgur.Image)
     assert image.deletehash is None
     assert image.height == 78
 
 
 def test_upload_image():
-    image = im.upload_image(path='pyimgur/test/cat.jpg')
+    image = im.upload_image(path="pyimgur/test/cat.jpg")
     assert isinstance(image, pyimgur.Image)
     assert image.title is None
     assert image.description is None
@@ -86,16 +86,18 @@ def test_upload_image():
 
 
 def test_upload_image_with_args():
-    image = im.upload_image('pyimgur/test/cat.jpg', title=TITLE,
-                            description=DESCRIPTION)
+    image = im.upload_image(
+        "pyimgur/test/cat.jpg", title=TITLE, description=DESCRIPTION
+    )
     assert isinstance(image, pyimgur.Image)
     assert image.title == TITLE
     assert image.description == DESCRIPTION
     assert image.deletehash is not None
     image.delete()
 
+
 def test_update_image():
-    image = im.upload_image('pyimgur/test/cat.jpg')
+    image = im.upload_image("pyimgur/test/cat.jpg")
     assert image.title is None
     image.update(TITLE)
     assert image.title == TITLE
@@ -117,21 +119,21 @@ def test_update_album():
 
 
 def test_image_download():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download()
-    assert new_file == 'Hlddt.jpeg'
+    assert new_file == "Hlddt.jpeg"
     os.remove(new_file)
 
 
 def test_image_download_own_name():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download(name="hello")
-    assert new_file == 'hello.jpeg'
+    assert new_file == "hello.jpeg"
     os.remove(new_file)
 
 
 def test_image_download_no_overwrite():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download()
     with pytest.raises(Exception):  # pylint: disable=E1101
         i.download()
@@ -139,20 +141,20 @@ def test_image_download_no_overwrite():
 
 
 def test_image_download_small_square():
-    i = im.get_image('Hlddt')
-    new_file = i.download(size='small square')
-    assert new_file == 'Hlddts.jpeg'
+    i = im.get_image("Hlddt")
+    new_file = i.download(size="small square")
+    assert new_file == "Hlddts.jpeg"
     os.remove(new_file)
 
 
 def test_image_download_bad_size():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     with pytest.raises(LookupError):  # pylint: disable=E1101
-        i.download(size='Invalid sized triangle')
+        i.download(size="Invalid sized triangle")
 
 
 def test_image_download_to_parent_folder():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download(path="..")
     expected_path = os.path.join("..", "Hlddt.jpeg")
     assert new_file == expected_path

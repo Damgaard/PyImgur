@@ -23,5 +23,6 @@ import pyimgur
 def test_to_imgur_list():
     assert pyimgur.request.convert_to_imgur_list(None) is None
     assert "QK1fZ9L" == pyimgur.request.convert_to_imgur_list(["QK1fZ9L"])
-    assert "QK1fZ9L,NsuNI" == pyimgur.request.convert_to_imgur_list(["QK1fZ9L",
-                                                                     "NsuNI"])
+    assert "QK1fZ9L,NsuNI" == pyimgur.request.convert_to_imgur_list(
+        ["QK1fZ9L", "NsuNI"]
+    )

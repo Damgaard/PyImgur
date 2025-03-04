@@ -26,11 +26,12 @@ im = pyimgur.Imgur(client_id)
 
 def test_get_subreddit():
     response = im.get_subreddit_gallery("pic", limit=5)
-    assert isinstance(response[0], pyimgur.Image) or isinstance(response[0], pyimgur.Album)
+    assert isinstance(response[0], pyimgur.Image) or isinstance(
+        response[0], pyimgur.Album
+    )
 
 
 def test_get_subreddit_gallery_low_limit():
     requested_limit = 5
     response = im.get_subreddit_gallery("pic", limit=requested_limit)
     assert len(response) == requested_limit
-

@@ -37,7 +37,7 @@ def test_retrieve_non_imgur_url():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_comment():
-    url = 'http://imgur.com/gallery/CleiK2V/comment/87511312'
+    url = "http://imgur.com/gallery/CleiK2V/comment/87511312"
     comment = im.get_at_url(url)
     assert isinstance(comment, pyimgur.Comment)
 
@@ -47,7 +47,7 @@ def test_retrieve_comment():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_album():
-    album = im.get_at_url('http://imgur.com/a/SPlYO')
+    album = im.get_at_url("http://imgur.com/a/SPlYO")
     assert isinstance(album, pyimgur.Album)
 
 
@@ -56,7 +56,7 @@ def test_retrieve_album():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_album_with_fragment():
-    album = im.get_at_url('http://imgur.com/a/SPlYO#0')
+    album = im.get_at_url("http://imgur.com/a/SPlYO#0")
     assert isinstance(album, pyimgur.Album)
 
 
@@ -65,7 +65,7 @@ def test_retrieve_album_with_fragment():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_album_with_GET_params():
-    album = im.get_at_url('http://imgur.com/a/SPlYO?sort=hot')
+    album = im.get_at_url("http://imgur.com/a/SPlYO?sort=hot")
     assert isinstance(album, pyimgur.Album)
 
 
@@ -74,7 +74,7 @@ def test_retrieve_album_with_GET_params():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_image():
-    image = im.get_at_url('http://imgur.com/c79sp')
+    image = im.get_at_url("http://imgur.com/c79sp")
     assert isinstance(image, pyimgur.Image)
     assert image.title is not None
 
@@ -84,7 +84,7 @@ def test_retrieve_image():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_user():
-    user = im.get_at_url('http://imgur.com/user/sarah')
+    user = im.get_at_url("http://imgur.com/user/sarah")
     assert isinstance(user, pyimgur.User)
     assert user.name is not None
 
@@ -94,7 +94,7 @@ def test_retrieve_user():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_gallery_image():
-    gallery_image = im.get_at_url('http://imgur.com/gallery/CleiK2V')
+    gallery_image = im.get_at_url("http://imgur.com/gallery/CleiK2V")
     assert isinstance(gallery_image, pyimgur.Gallery_image)
     assert gallery_image.title is not None
 
@@ -104,11 +104,11 @@ def test_retrieve_gallery_image():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_retrieve_gallery_album():
-    gallery_album = im.get_at_url('http://imgur.com/gallery/mpVzS')
+    gallery_album = im.get_at_url("http://imgur.com/gallery/mpVzS")
     assert isinstance(gallery_album, pyimgur.Gallery_album)
     assert gallery_album.title is not None
 
 
 def test_retrive_non_existing_url_format():
-    bad_result = im.get_at_url('http://imgur.com/bad/mpVzS')
+    bad_result = im.get_at_url("http://imgur.com/bad/mpVzS")
     assert bad_result is None
