@@ -35,6 +35,13 @@ im = pyimgur.Imgur(client_id)
 TITLE = "Fancy title!"
 DESCRIPTION = "Hello Description"
 
+# Identify path to cat image. Needed as otherwise 2 tests might
+# break depending on whether test suite is run from root or from
+# the test folder.
+current_file_path = os.path.abspath(__file__)
+current_directory = os.path.dirname(current_file_path)
+CAT_IMAGE_PATH = os.path.join(current_directory, "cat.jpg")
+
 
 class Empty(pyimgur.Basic_object):
     pass
@@ -77,7 +84,7 @@ def test_get_image():
 
 
 def test_upload_image():
-    image = im.upload_image(path="pyimgur/test/cat.jpg")
+    image = im.upload_image(path=CAT_IMAGE_PATH)
     assert isinstance(image, pyimgur.Image)
     assert image.title is None
     assert image.description is None
@@ -86,9 +93,7 @@ def test_upload_image():
 
 
 def test_upload_image_with_args():
-    image = im.upload_image(
-        "pyimgur/test/cat.jpg", title=TITLE, description=DESCRIPTION
-    )
+    image = im.upload_image(CAT_IMAGE_PATH, title=TITLE, description=DESCRIPTION)
     assert isinstance(image, pyimgur.Image)
     assert image.title == TITLE
     assert image.description == DESCRIPTION
@@ -97,7 +102,7 @@ def test_upload_image_with_args():
 
 
 def test_update_image():
-    image = im.upload_image("pyimgur/test/cat.jpg")
+    image = im.upload_image(CAT_IMAGE_PATH)
     assert image.title is None
     image.update(TITLE)
     assert image.title == TITLE
