@@ -19,15 +19,7 @@ import pytest
 
 sys.path.insert(0, ".")
 
-
-try:
-    from authentication import client_id, client_secret, refresh_token
-except ImportError:
-    client_id = None
-    client_secret = None
-    refresh_token = None
-
-import pyimgur
+from . import USER_NOT_AUTHENTICATED, user
 
 """Tests authenticated usage of the methods in the Album class."""
 
