@@ -48,7 +48,7 @@ def test_change_settings():
 )
 def test_get_favorites():
     # This test is flaky. It assumes the authenticated users has favourited at
-    # least 1 image.
+    # least 1 gallery.
     assert len(user.get_favorites())
 
 

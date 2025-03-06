@@ -128,9 +128,15 @@ class Basic_object(object):
             if "cover" in vars(self) and self.cover is not None:  # pylint: disable=access-member-before-definition
                 self.cover = Image({'id': self.cover}, self._imgur,
                                    has_fetched=False)
+            # Looks like Imgur has broken backwards compatibility here and it is no
+            # longer possible to favourite individual images. Only galleries, which
+            # may be single images.
             if "images" in vars(self):
-                self.images = [Image(img, self._imgur, has_fetched=False) for
-                               img in self.images]
+                if self.images is None:
+                    self.images = []
+                else:
+                    self.images = [Image(img, self._imgur, has_fetched=False) for
+                                img in self.images]
             if "images_count" in vars(self):
                 del self.images_count
         elif isinstance(self, Comment):
