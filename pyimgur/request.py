@@ -85,13 +85,17 @@ def send_request(url, params=None, method='GET', data_field='data',
             else:
                 resp = requests.post(url, params, headers=headers, verify=verify)
         elif method == 'PUT':
-            resp = requests.put(url, params, headers=headers, verify=verify)
+            if alternate:
+                resp = requests.put(url, json=params, headers=headers, verify=verify)
+            else:
+                resp = requests.put(url, params, headers=headers, verify=verify)
         elif method == 'DELETE':
             resp = requests.delete(url, headers=headers, verify=verify)
         if resp.status_code in RETRY_CODES or resp.content == "":
             tries += 1
         else:
             is_succesful_request = True
+
     content = resp.json()
     if data_field is not None:
         content = content[data_field]

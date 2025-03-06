@@ -367,10 +367,17 @@ class Album(Basic_object):
         :param layout: The way the album is displayed, can be blog, grid,
             horizontal or vertical.
         """
+
+        # TODO: Make more generic error here. Should be a decorator
+        assert self._imgur.access_token is not None
+
+        params = remove_none_values(locals())
+        del params["self"]
+
         url = (self._imgur._base_url + "/3/album/"
                "{0}".format(self._delete_or_id_hash))
-        is_updated = self._imgur._send_request(url, params=locals(),
-                                               method='POST')
+        is_updated = self._imgur._send_request(url, params=params,
+                                               method='PUT', alternate=True)
         if is_updated:
             self.title = title or self.title
             self.description = description or self.description
@@ -809,10 +816,14 @@ class Imgur:
 
         :returns: The newly created album.
         """
+
+        # TODO: Make more generic error here. Should be a decorator
+        assert self.access_token is not None
+
         url = self._base_url + "/3/album/"
         payload = {'ids': images, 'title': title,
                    'description': description, 'cover': cover}
-        resp = self._send_request(url, params=payload, method='POST')
+        resp = self._send_request(url, params=payload, method='POST', alternate=True)
         return Album(resp, self, has_fetched=False)
 
     '''
@@ -1470,3 +1481,12 @@ class Gallery_image(Image, Gallery_item):
         self._INFO_URL = (imgur._base_url + "/3/gallery/image/"
                           "{0}".format(json_dict['id']))
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
+
+
+def remove_none_values(originals):
+    params = {}
+    for variable in originals.keys():
+        if originals[variable] is not None:
+            params[variable] = originals[variable]
+
+    return params

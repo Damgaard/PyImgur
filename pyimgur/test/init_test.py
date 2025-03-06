@@ -20,11 +20,12 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from authentication import client_id
+from authentication import client_id, client_secret, refresh_token
 import pyimgur
 
 # Make im protected, so it's not run on initialization
-im = pyimgur.Imgur(client_id)
+im = pyimgur.Imgur(client_id, client_secret=client_secret, refresh_token=refresh_token)
+im.refresh_access_token()
 
 
 # TODO: Currently some tests do more than one thing. This is to limit the
