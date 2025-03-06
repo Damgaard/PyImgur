@@ -649,11 +649,8 @@ class Image(Basic_object):
         # TODO: Replace with error
         assert title or description
 
-        params = {}
-        if title:
-            params["title"] = title
-        if description:
-            params["description"] = description
+        params = remove_none_values(locals())
+        del params["self"]
 
         is_updated = self._imgur._send_request(url, params=params,
                                                method='POST', alternate=True)
