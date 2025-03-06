@@ -58,7 +58,7 @@ def to_imgur_format(params):
 
 
 def send_request(url, params=None, method='GET', data_field='data',
-                 authentication=None, verify=True):
+                 authentication=None, verify=True, alternate=False):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
@@ -80,7 +80,10 @@ def send_request(url, params=None, method='GET', data_field='data',
             resp = requests.get(url, params=params, headers=headers,
                                 verify=verify)
         elif method == 'POST':
-            resp = requests.post(url, params, headers=headers, verify=verify)
+            if alternate:
+                resp = requests.post(url, json=params, headers=headers, verify=verify)
+            else:
+                resp = requests.post(url, params, headers=headers, verify=verify)
         elif method == 'PUT':
             resp = requests.put(url, params, headers=headers, verify=verify)
         elif method == 'DELETE':
