@@ -32,7 +32,7 @@ from . import USER_NOT_AUTHENTICATED, user
 
 @pytest.mark.skipif(
     USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_change_settings():
     old_album_default = user.get_settings()["public_images"]
@@ -44,7 +44,7 @@ def test_change_settings():
 
 @pytest.mark.skipif(
     USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_get_favorites():
     # This test is flaky. It assumes the authenticated users has favourited at
@@ -54,7 +54,7 @@ def test_get_favorites():
 
 @pytest.mark.skipif(
     USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_get_settings():
     assert "messaging_enabled" in user.get_settings()
@@ -62,7 +62,7 @@ def test_get_settings():
 
 @pytest.mark.skipif(
     USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_get_notificationssettings():
     assert "messages" in user.get_notifications()
