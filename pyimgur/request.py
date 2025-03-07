@@ -58,7 +58,7 @@ def to_imgur_format(params):
 
 
 def send_request(url, params=None, method='GET', data_field='data',
-                 authentication=None, verify=True, alternate=True, use_form_data=False):
+                 authentication=None, verify=True, alternate=False, use_form_data=False):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
