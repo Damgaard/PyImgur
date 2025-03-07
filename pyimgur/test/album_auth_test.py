@@ -50,7 +50,7 @@ IMAGE_IDS = ["4UoRzGc", "wHxiibZ", "w5pB7vT"]
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_add_images():
     new_album = im.create_album("New fancy album")
@@ -64,7 +64,7 @@ def test_add_images():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_remove_images():
     image_ids = IMAGE_IDS
@@ -80,7 +80,7 @@ def test_remove_images():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_remove_images_non_existing():
     """Assert that no error is raised and that no change is made."""
@@ -100,7 +100,7 @@ def test_remove_images_non_existing():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_set_images():
     new_album = im.create_album("New fancy album", images=[IMAGE_IDS[0]])
@@ -115,7 +115,7 @@ def test_set_images():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_create():
     new_album = im.create_album("New fancy album")
@@ -127,7 +127,7 @@ def test_create():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_delete():
     new_album = im.create_album("New fancy album")
@@ -139,7 +139,7 @@ def test_delete():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_favorite():
     new_album = im.create_album("New fancy album")
@@ -152,7 +152,7 @@ def test_favorite():
 
 @pytest.mark.skipif(
     refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_update():
     new_album = im.create_album(title="Ok album")

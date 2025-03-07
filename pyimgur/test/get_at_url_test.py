@@ -34,7 +34,7 @@ def test_retrieve_non_imgur_url():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_comment():
     url = "http://imgur.com/gallery/CleiK2V/comment/87511312"
@@ -44,7 +44,7 @@ def test_retrieve_comment():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_album():
     album = im.get_at_url("http://imgur.com/a/SPlYO")
@@ -53,7 +53,7 @@ def test_retrieve_album():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_album_with_fragment():
     album = im.get_at_url("http://imgur.com/a/SPlYO#0")
@@ -62,7 +62,7 @@ def test_retrieve_album_with_fragment():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_album_with_GET_params():
     album = im.get_at_url("http://imgur.com/a/SPlYO?sort=hot")
@@ -71,7 +71,7 @@ def test_retrieve_album_with_GET_params():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_image():
     image = im.get_at_url("http://imgur.com/c79sp")
@@ -81,7 +81,7 @@ def test_retrieve_image():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_user():
     user = im.get_at_url("http://imgur.com/user/sarah")
@@ -91,7 +91,7 @@ def test_retrieve_user():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_gallery_image():
     gallery_image = im.get_at_url("http://imgur.com/gallery/CleiK2V")
@@ -101,7 +101,7 @@ def test_retrieve_gallery_image():
 
 @pytest.mark.skipif(
     im.refresh_token is None,
-    reason="Cannot run live test without " "authentication variables.",
+    reason="Cannot run live test without authentication variables.",
 )
 def test_retrieve_gallery_album():
     gallery_album = im.get_at_url("http://imgur.com/gallery/mpVzS")
