@@ -45,7 +45,7 @@ if refresh_token:
     im.refresh_access_token()
 
 
-IMAGE_IDS = ["7skLpQo", "JCVvSVY", "S1jmapR"]
+IMAGE_IDS = ["4UoRzGc", "wHxiibZ"]
 
 
 @pytest.mark.skipif(
@@ -67,7 +67,7 @@ def test_add_images():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_remove_images():
-    image_ids = ["7skLpQo"]
+    image_ids = IMAGE_IDS
     new_album = im.create_album("New fancy album", images=image_ids)
     assert len(new_album.images)
     time.sleep(1)
@@ -84,13 +84,13 @@ def test_remove_images():
 )
 def test_remove_images_non_existing():
     """Assert that no error is raised and that no change is made."""
-    image_ids = ["7skLpQo"]
+    image_ids = IMAGE_IDS[0]
     new_album = im.create_album("New fancy album", images=image_ids)
+    assert len(new_album.images) == 1
     time.sleep(2)
-    assert len(new_album.images)
-    new_album.remove_images(["NonExisting"])
+    new_album.remove_images([IMAGE_IDS[-1], ])
     new_album.refresh()
-    assert len(new_album.images)
+    assert len(new_album.images) == 1
     new_album.delete()
 
 

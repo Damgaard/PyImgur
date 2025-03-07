@@ -277,10 +277,13 @@ class Album(Basic_object):
             cannot add (non-existing or not owned by you) will not cause
             exceptions, but fail silently.
         """
+        params = remove_none_values(locals())
+        del params["self"]
+
         url = self._imgur._base_url + "/3/album/{0}/add".format(self.id)
         params = {'ids': images}
         return self._imgur._send_request(url, needs_auth=True, params=params,
-                                         method="POST")
+                                         method="POST", alternate=True)
 
     def delete(self):
         """Delete this album."""
@@ -311,7 +314,7 @@ class Album(Basic_object):
         # NOTE: Returns True and everything seem to be as it should in testing.
         # Seems most likely to be upstream bug.
         params = {'ids': images}
-        return self._imgur._send_request(url, params=params, method="DELETE")
+        return self._imgur._send_request(url, params=params, method="POST", alternate=True, use_form_data=True)
 
     def set_images(self, images):
         """
@@ -326,7 +329,7 @@ class Album(Basic_object):
                "{0}/".format(self._delete_or_id_hash))
         params = {'ids': images}
         return self._imgur._send_request(url, needs_auth=True, params=params,
-                                         method="POST")
+                                         method="POST", alternate=True, use_form_data=True)
 
     def submit_to_gallery(self, title, bypass_terms=False):
         """
@@ -820,8 +823,11 @@ class Imgur:
         url = self._base_url + "/3/album/"
         payload = {'ids': images, 'title': title,
                    'description': description, 'cover': cover}
-        resp = self._send_request(url, params=payload, method='POST', alternate=True)
+        payload = remove_none_values(payload)
+
+        resp = self._send_request(url, params=payload, method='POST', alternate=True, use_form_data=True)
         return Album(resp, self, has_fetched=False)
+
 
     '''
     Not currently implemented for 3 reasons.

@@ -58,13 +58,14 @@ def to_imgur_format(params):
 
 
 def send_request(url, params=None, method='GET', data_field='data',
-                 authentication=None, verify=True, alternate=False):
+                 authentication=None, verify=True, alternate=True, use_form_data=False):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
     # We may need to add more elements to the header later. For now, it seems
     # the only thing in the header is the authentication
     headers = authentication
+
     # NOTE I could also convert the returned output to the correct object here.
     # The reason I don't is that some queries just want the json, so they can
     # update an existing object. This we do with lazy evaluation. Here we
@@ -80,8 +81,18 @@ def send_request(url, params=None, method='GET', data_field='data',
             resp = requests.get(url, params=params, headers=headers,
                                 verify=verify)
         elif method == 'POST':
+            files = []
+
             if alternate:
-                resp = requests.post(url, json=params, headers=headers, verify=verify)
+                if use_form_data:
+                    if "ids" in params:
+                        split_ids = params["ids"].split(",")
+                        for split_id in split_ids:
+                            files.append( ("ids", (None, split_id)) )
+
+                        del params["ids"]
+
+                resp = requests.post(url, json=params, files=files, headers=headers, verify=verify)
             else:
                 resp = requests.post(url, params, headers=headers, verify=verify)
         elif method == 'PUT':
