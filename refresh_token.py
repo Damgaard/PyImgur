@@ -9,9 +9,10 @@ import os
 
 import pyimgur
 
+
 def get_refresh_token():
     im = pyimgur.Imgur(client_id, client_secret)
-    auth_url = im.authorization_url('pin')
+    auth_url = im.authorization_url("pin")
 
     print("Go to the following url to authenticate with your app")
     print(auth_url)
@@ -32,12 +33,14 @@ def get_refresh_token():
     print("Authentication.py file has been created with credentials.")
     print("It is needed for test suite and for development.")
 
+
 if __name__ == "__main__":
     if not os.path.exists("authentication.py"):
         print("ERROR: Cannot get refresh token without knowing client_id and secret")
         print("Create a file called authentication.py and set client_id and")
         print("client_secret in it.")
-    
+
     else:
         from authentication import client_id, client_secret
+
         get_refresh_token()

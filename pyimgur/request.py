@@ -38,8 +38,8 @@ def convert_general(value):
         value = convert_to_imgur_list(value)
     elif isinstance(value, Integral):
         return str(value)
-    elif 'pyimgur' in str(type(value)):
-        return str(getattr(value, 'id', value))
+    elif "pyimgur" in str(type(value)):
+        return str(getattr(value, "id", value))
     return value
 
 
@@ -57,8 +57,16 @@ def to_imgur_format(params):
     return dict((k, convert_general(val)) for (k, val) in params.items())
 
 
-def send_request(url, params=None, method='GET', data_field='data',
-                 authentication=None, verify=True, alternate=False, use_form_data=False):
+def send_request(
+    url,
+    params=None,
+    method="GET",
+    data_field="data",
+    authentication=None,
+    verify=True,
+    alternate=False,
+    use_form_data=False,
+):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params = to_imgur_format(params)
@@ -77,10 +85,9 @@ def send_request(url, params=None, method='GET', data_field='data',
     is_succesful_request = False
     tries = 0
     while not is_succesful_request and tries <= MAX_RETRIES:
-        if method == 'GET':
-            resp = requests.get(url, params=params, headers=headers,
-                                verify=verify)
-        elif method == 'POST':
+        if method == "GET":
+            resp = requests.get(url, params=params, headers=headers, verify=verify)
+        elif method == "POST":
             files = []
 
             if alternate:
@@ -88,19 +95,21 @@ def send_request(url, params=None, method='GET', data_field='data',
                     if "ids" in params:
                         split_ids = params["ids"].split(",")
                         for split_id in split_ids:
-                            files.append( ("ids", (None, split_id)) )
+                            files.append(("ids", (None, split_id)))
 
                         del params["ids"]
 
-                resp = requests.post(url, json=params, files=files, headers=headers, verify=verify)
+                resp = requests.post(
+                    url, json=params, files=files, headers=headers, verify=verify
+                )
             else:
                 resp = requests.post(url, params, headers=headers, verify=verify)
-        elif method == 'PUT':
+        elif method == "PUT":
             if alternate:
                 resp = requests.put(url, json=params, headers=headers, verify=verify)
             else:
                 resp = requests.put(url, params, headers=headers, verify=verify)
-        elif method == 'DELETE':
+        elif method == "DELETE":
             resp = requests.delete(url, headers=headers, verify=verify)
         if resp.status_code in RETRY_CODES or resp.content == "":
             tries += 1
@@ -112,12 +121,13 @@ def send_request(url, params=None, method='GET', data_field='data',
         content = content[data_field]
     if not resp.ok:
         try:
-            error_msg = "Imgur ERROR message: {0}".format(content['error'])
+            error_msg = "Imgur ERROR message: {0}".format(content["error"])
             print(error_msg)
             print("-" * len(error_msg))
         except Exception:
             pass
         resp.raise_for_status()
-    ratelimit_info = dict((k, int(v)) for (k, v) in resp.headers.items()
-                          if k.startswith('x-ratelimit'))
+    ratelimit_info = dict(
+        (k, int(v)) for (k, v) in resp.headers.items() if k.startswith("x-ratelimit")
+    )
     return content, ratelimit_info
