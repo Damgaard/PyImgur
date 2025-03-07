@@ -151,9 +151,9 @@ def test_favorite():
     reason="Cannot run live test without " "authentication variables.",
 )
 def test_update():
-    new_album = im.create_album(uuid4())
+    new_album = im.create_album(title="Ok album")
     time.sleep(2)
     old_title = new_album.title
-    new_album.update(title=uuid4())
+    new_album.update(title="Great album")
     assert old_title != new_album.title
     new_album.delete()
