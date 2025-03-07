@@ -13,16 +13,42 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 
-sys.path.insert(0, ".")
-
-import pyimgur
+from pyimgur.request import to_imgur_format, convert_to_imgur_list
 
 
 def test_to_imgur_list():
-    assert pyimgur.request.convert_to_imgur_list(None) is None
-    assert "QK1fZ9L" == pyimgur.request.convert_to_imgur_list(["QK1fZ9L"])
-    assert "QK1fZ9L,NsuNI" == pyimgur.request.convert_to_imgur_list(
-        ["QK1fZ9L", "NsuNI"]
-    )
+    assert convert_to_imgur_list(None) is None
+    assert "QK1fZ9L" == convert_to_imgur_list(["QK1fZ9L"])
+    assert "QK1fZ9L,NsuNI" == convert_to_imgur_list(["QK1fZ9L", "NsuNI"])
+
+
+def test_to_imgur_format_string():
+    params = {"title": "Hello world"}
+    assert params == to_imgur_format(params)
+
+
+def test_to_imgur_format_number():
+    params = {"number": 5}
+    assert {"number": "5"} == to_imgur_format(params)
+
+
+def test_to_imgur_format_boolean_true():
+    params = {"truthiness": True}
+    assert {"truthiness": "true"} == to_imgur_format(params)
+
+
+def test_to_imgur_format_boolean_false():
+    params = {"truthiness": False}
+    assert {"truthiness": "false"} == to_imgur_format(params)
+
+
+def test_to_imgur_list_empty():
+    params = {"ids": []}
+    assert {"ids": ""} == to_imgur_format(params)
+
+
+def test_to_imgur_format_multiple_values():
+    params = {"truthiness": False, "number": 5, "title": "Hello World"}
+    result = {"truthiness": "false", "number": "5", "title": "Hello World"}
+    assert result == to_imgur_format(params)
