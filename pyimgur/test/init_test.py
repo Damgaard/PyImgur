@@ -77,11 +77,16 @@ def test_is_imgur_url():
     assert not im.is_imgur_url("www.evil_domain/imgur.com/")
 
 
-def test_get_image():
+def test_get_image_i_didnt_upload():
     image = im.get_image("JPz2i")
     assert isinstance(image, pyimgur.Image)
-    assert image.deletehash is None
-    assert image.height == 78
+    assert image.deletehash is ""
+
+
+def test_get_image_i_uploaded():
+    image = im.get_image("4UoRzGc")
+    assert isinstance(image, pyimgur.Image)
+    assert image.deletehash is not ""
 
 
 def test_upload_image():
