@@ -45,7 +45,7 @@ if refresh_token:
     im.refresh_access_token()
 
 
-IMAGE_IDS = ["4UoRzGc", "wHxiibZ"]
+IMAGE_IDS = ["4UoRzGc", "wHxiibZ", "w5pB7vT"]
 
 
 @pytest.mark.skipif(
@@ -88,7 +88,11 @@ def test_remove_images_non_existing():
     new_album = im.create_album("New fancy album", images=image_ids)
     assert len(new_album.images) == 1
     time.sleep(2)
-    new_album.remove_images([IMAGE_IDS[-1], ])
+    new_album.remove_images(
+        [
+            IMAGE_IDS[-1],
+        ]
+    )
     new_album.refresh()
     assert len(new_album.images) == 1
     new_album.delete()
