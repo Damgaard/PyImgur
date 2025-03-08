@@ -102,12 +102,15 @@ def test_remove_images_non_existing():
     refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
+@pytest.mark.skip(
+    reason="Endpoint seem broken on Imgurs end. Skipping until it's fixed or a wrongaround can be found.",
+)
 def test_set_images():
     new_album = im.create_album("New fancy album", images=[IMAGE_IDS[0]])
     time.sleep(2)
     assert len(new_album.images)
     old_images = new_album.images
-    new_album.set_images(IMAGE_IDS[1:])
+    new_album._set_images(IMAGE_IDS[1:])
     new_album.refresh()
     assert new_album.images != old_images
     new_album.delete()

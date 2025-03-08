@@ -332,7 +332,9 @@ class Album(Basic_object):
             url, params=params, method="POST", alternate=True, use_form_data=True
         )
 
-    def set_images(self, images):
+    # Endpoint seem broken on Imgurs end. Keeping it a private function until it's fixed
+    # or a wrongaround can be found.
+    def _set_images(self, images):
         """
         Set the images in this album.
 
