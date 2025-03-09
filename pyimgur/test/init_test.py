@@ -54,12 +54,6 @@ def test_accessing_bad_attribute():
         basic_object.no_such_object  # pylint: disable=pointless-statement
 
 
-def test_can_change_authentication():
-    im = pyimgur.Imgur(client_id="123", client_secret="455")
-    im.change_authentication(client_id="888")
-    assert im.client_id == "888"
-
-
 def test_populate():
     info = {"score": 1, "hello": "world"}
     inst = Empty(info, None)
@@ -170,3 +164,39 @@ def test_image_download_to_parent_folder():
     expected_path = os.path.join("..", "Hlddt.jpeg")
     assert new_file == expected_path
     os.remove(new_file)
+
+
+def test_can_change_authentication_cannot_just_update_id():
+    client = pyimgur.Imgur(client_id="123", client_secret="455")
+    with pytest.raises(Exception):
+        client.change_authentication(client_id="888")
+
+
+def test_change_authentication_client_resets_auth():
+    client = pyimgur.Imgur(
+        client_id="123",
+        client_secret="455",
+        access_token="Hello",
+        refresh_token="Refresh",
+    )
+
+    client.change_authentication(
+        client_id="test test", client_secret="Something diffrent"
+    )
+    assert client.access_token == None
+    assert client.refresh_token == None
+
+
+def test_change_authentication_client_can_swithc_refresh_auth():
+    client = pyimgur.Imgur(
+        client_id="123",
+        client_secret="455",
+        access_token="Hello",
+        refresh_token="Refresh",
+    )
+
+    client.change_authentication(refresh_token="New refresh token")
+    assert client.access_token == None
+    assert client.refresh_token != None
+    assert client.client_id != None
+    assert client.client_secret != None

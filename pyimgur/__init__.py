@@ -855,12 +855,22 @@ class Imgur:
         self, client_id=None, client_secret=None, access_token=None, refresh_token=None
     ):
         """Change the current authentication."""
-        # TODO: Add error checking so you cannot change client_id and retain
-        # access_token. Because that doesn't make sense.
-        self.client_id = client_id or self.client_id
-        self.client_secret = client_secret or self.client_secret
-        self.access_token = access_token or self.access_token
-        self.refresh_token = refresh_token or self.refresh_token
+        if not ((client_id is None) == (client_secret is None)):
+            # Temporary. Will add library errors.
+            raise SyntaxError(
+                "Must set both or none of client_id and client_secret at once"
+            )
+
+        if client_id:
+            self.client_id = client_id
+            self.client_secret = client_secret
+            self.access_token = access_token
+            self.refresh_token = refresh_token
+        else:
+            # Used for cases where the app switchings authentications. Ie. which user
+            # it is operating on behalf of while being the same client.
+            self.access_token = access_token
+            self.refresh_token = refresh_token
 
     def create_album(self, title=None, description=None, images=None, cover=None):
         """
