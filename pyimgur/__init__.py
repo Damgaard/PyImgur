@@ -51,7 +51,7 @@ __version__ = "0.5.3"
 MASHAPE_BASE = "https://imgur-apiv3.p.mashape.com"
 IMGUR_BASE = "https://api.imgur.com"
 
-AUTHORIZE_URL = "{}/oauth2/authorize?" "client_id={}&response_type={}&state={}"
+AUTHORIZE_URL = "{}/oauth2/authorize?client_id={}&response_type={}&state={}"
 EXCHANGE_URL = "{}/oauth2/token"
 REFRESH_URL = "{}/oauth2/token"
 
@@ -168,7 +168,7 @@ class Basic_object(object):
                 self.is_deleted = self.deleted
                 del self.deleted
             if "image_id" in vars(self):
-                self.permalink = "http://imgur.com/gallery/{0}/comment/" "{1}".format(
+                self.permalink = "http://imgur.com/gallery/{0}/comment/{1}".format(
                     self.image_id, self.id
                 )
                 self.image = Image(
@@ -277,7 +277,7 @@ class Album(Basic_object):
     """
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur._base_url + "/3/album/" "{0}".format(json_dict["id"])
+        self._INFO_URL = imgur._base_url + "/3/album/{0}".format(json_dict["id"])
         self.deletehash = None
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
@@ -301,7 +301,7 @@ class Album(Basic_object):
 
     def delete(self):
         """Delete this album."""
-        url = self._imgur._base_url + "/3/album/" "{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + "/3/album/{0}".format(self._delete_or_id_hash)
         return self._imgur._send_request(url, method="DELETE")
 
     def favorite(self):
@@ -322,7 +322,7 @@ class Album(Basic_object):
             you cannot remove (non-existing, not owned by you or not part of
             album) will not cause exceptions, but fail silently.
         """
-        url = self._imgur._base_url + "/3/album/{0}/" "remove_images".format(
+        url = self._imgur._base_url + "/3/album/{0}/remove_images".format(
             self._delete_or_id_hash
         )
         # NOTE: Returns True and everything seem to be as it should in testing.
@@ -343,7 +343,7 @@ class Album(Basic_object):
             images that you cannot set (non-existing or not owned by you) will
             not cause exceptions, but fail silently.
         """
-        url = self._imgur._base_url + "/3/album/" "{0}/".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + "/3/album/{0}/".format(self._delete_or_id_hash)
         params = {"ids": images}
         return self._imgur._send_request(
             url,
@@ -406,7 +406,7 @@ class Album(Basic_object):
         params = remove_none_values(locals())
         del params["self"]
 
-        url = self._imgur._base_url + "/3/album/" "{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + "/3/album/{0}".format(self._delete_or_id_hash)
         is_updated = self._imgur._send_request(
             url, params=params, method="PUT", alternate=True
         )
@@ -465,12 +465,12 @@ class Comment(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
-        self._INFO_URL = imgur._base_url + "/3/comment/" "{0}".format(json_dict["id"])
+        self._INFO_URL = imgur._base_url + "/3/comment/{0}".format(json_dict["id"])
         super(Comment, self).__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
         """Delete the comment."""
-        url = self._imgur._base_url + "/3/image/" "{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
         return self._imgur._send_request(url, method="DELETE")
         # NOTE: Gives a 403 permission denied error on comment 77087313 which
         # made by me.
@@ -592,16 +592,19 @@ class Image(Basic_object):
     :ivar title: The albums title.
     :ivar views: Total number of views the album has received.
     :ivar width: The width of the image in bytes.
+
     """
 
+    # TODO: Looks like not all of these attributes are available still?
+    # Alternatively, the lazy loading might have broken.
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur._base_url + "/3/image/" "{0}".format(json_dict["id"])
+        self._INFO_URL = imgur._base_url + "/3/image/{0}".format(json_dict["id"])
         self.deletehash = None
         super(Image, self).__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
         """Delete the image."""
-        url = self._imgur._base_url + "/3/image/" "{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
         return self._imgur._send_request(url, method="DELETE")
 
     def download(self, path="", name=None, overwrite=False, size=None):
@@ -694,7 +697,7 @@ class Image(Basic_object):
 
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
-        url = self._imgur._base_url + "/3/image/" "{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
 
         # TODO: Replace with error
         assert title or description
@@ -789,7 +792,7 @@ class Imgur:
         if self.access_token is None and needs_auth:
             # TODO: Use inspect to insert name of method in error msg.
             raise Exception(
-                "Authentication as a user is required to use this " "method."
+                "Authentication as a user is required to use this method."
             )
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
@@ -1067,7 +1070,7 @@ class Imgur:
             'user' section. Defaults to true.
         :param limit: The number of items to return.
         """
-        url = self._base_url + "/3/gallery/{}/{}/{}/{}?showViral=" "{}".format(
+        url = self._base_url + "/3/gallery/{}/{}/{}/{}?showViral={}".format(
             section, sort, window, "{}", show_viral
         )
         resp = self._send_request(url, limit=limit)
@@ -1210,11 +1213,11 @@ class Imgur:
         """
         if self.client_secret is None:
             raise Exception(
-                "client_secret must be set to execute " "refresh_access_token."
+                "client_secret must be set to execute refresh_access_token."
             )
         if self.refresh_token is None:
             raise Exception(
-                "refresh_token must be set to execute " "refresh_access_token."
+                "refresh_token must be set to execute refresh_access_token."
             )
         params = {
             "client_id": self.client_id,
@@ -1461,9 +1464,7 @@ class User(Basic_object):
 
     def get_gallery_profile(self):
         """Return the users gallery profile."""
-        url = self._imgur._base_url + "/3/account/{0}/" "gallery_profile".format(
-            self.name
-        )
+        url = self._imgur._base_url + "/3/account/{0}/gallery_profile".format(self.name)
         return self._imgur._send_request(url)
 
     def has_verified_email(self):
@@ -1474,12 +1475,12 @@ class User(Basic_object):
         sending an email to the user and the owner of the email user verifying
         that he is the same as the Imgur user.
         """
-        url = self._imgur._base_url + "/3/account/{0}/" "verifyemail".format(self.name)
+        url = self._imgur._base_url + "/3/account/{0}/verifyemail".format(self.name)
         return self._imgur._send_request(url, needs_auth=True)
 
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
-        url = self._imgur._base_url + "/3/account/{0}/" "images/{1}".format(
+        url = self._imgur._base_url + "/3/account/{0}/images/{1}".format(
             self.name, "{}"
         )
         resp = self._imgur._send_request(url, limit=limit)
@@ -1492,7 +1493,7 @@ class User(Basic_object):
         :param new: False for all notifications, True for only non-viewed
             notifications.
         """
-        url = self._imgur._base_url + "/3/account/{0}/notifications/" "messages".format(
+        url = self._imgur._base_url + "/3/account/{0}/notifications/messages".format(
             self.name
         )
         result = self._imgur._send_request(url, params=locals(), needs_auth=True)
@@ -1502,9 +1503,7 @@ class User(Basic_object):
 
     def get_notifications(self, new=True):
         """Return all the notifications for this user."""
-        url = self._imgur._base_url + "/3/account/{0}/" "notifications".format(
-            self.name
-        )
+        url = self._imgur._base_url + "/3/account/{0}/notifications".format(self.name)
         resp = self._imgur._send_request(url, params=locals(), needs_auth=True)
         msgs = [
             Message(msg_dict, self._imgur, has_fetched=True)
@@ -1523,7 +1522,7 @@ class User(Basic_object):
         :param new: False for all notifications, True for only non-viewed
             notifications.
         """
-        url = self._imgur._base_url + "/3/account/{0}/" "notifications/replies".format(
+        url = self._imgur._base_url + "/3/account/{0}/notifications/replies".format(
             self.name
         )
         return self._imgur._send_request(url, needs_auth=True)
@@ -1544,7 +1543,7 @@ class User(Basic_object):
 
     def get_submissions(self, limit=None):
         """Return a list of the images a user has submitted to the gallery."""
-        url = self._imgur._base_url + "/3/account/{0}/submissions/" "{1}".format(
+        url = self._imgur._base_url + "/3/account/{0}/submissions/{1}".format(
             self.name, "{}"
         )
         resp = self._imgur._send_request(url, limit=limit)
@@ -1580,7 +1579,7 @@ class User(Basic_object):
         Remember that the verification email may end up in the users spam
         folder.
         """
-        url = self._imgur._base_url + "/3/account/{0}" "/verifyemail".format(self.name)
+        url = self._imgur._base_url + "/3/account/{0}/verifyemail".format(self.name)
         self._imgur._send_request(url, needs_auth=True, method="POST")
 
 
@@ -1591,7 +1590,7 @@ class Gallery_album(Album, Gallery_item):
     """Gallery Albums are albums submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur._base_url + "/3/gallery/album/" "{0}".format(
+        self._INFO_URL = imgur._base_url + "/3/gallery/album/{0}".format(
             json_dict["id"]
         )
         super(Gallery_album, self).__init__(json_dict, imgur, has_fetched)
@@ -1601,7 +1600,7 @@ class Gallery_image(Image, Gallery_item):
     """Gallery images are images submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur._base_url + "/3/gallery/image/" "{0}".format(
+        self._INFO_URL = imgur._base_url + "/3/gallery/image/{0}".format(
             json_dict["id"]
         )
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)

@@ -191,7 +191,7 @@ latex_documents = [
         "index",
         "PyImgur.tex",
         "PyImgur Documentation",
-        "Andreas Damgaard " "Pedersen",
+        "Andreas Damgaard Pedersen",
         "manual",
     ),
 ]
@@ -239,7 +239,7 @@ texinfo_documents = [
         "index",
         "PyImgur",
         "PyImgur Documentation",
-        "Andreas Damgaard " "Pedersen",
+        "Andreas Damgaard Pedersen",
         "PyImgur",
         "One line description of project.",
         "Miscellaneous",
