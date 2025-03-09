@@ -50,11 +50,23 @@ def convert_to_imgur_list(regular_list):
     return ",".join(str(id) for id in regular_list)
 
 
-def to_imgur_format(params):
+def to_imgur_format(params: dict, use_form_data=False):
     """Convert the parameters to the format Imgur expects."""
+    files = []
+    if use_form_data:
+        if params and "ids" in params:
+            split_ids = convert_general(params["ids"]).split(",")
+            for split_id in split_ids:
+                files.append(("ids", (None, split_id)))
+
+            del params["ids"]
+
     if params is None:
-        return None
-    return dict((k, convert_general(val)) for (k, val) in params.items())
+        return {}, files
+
+    params = dict((k, convert_general(val)) for (k, val) in params.items())
+
+    return params, files
 
 
 def send_request(
@@ -69,7 +81,8 @@ def send_request(
 ):
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
-    params = to_imgur_format(params)
+    params, files = to_imgur_format(params, alternate and use_form_data)
+
     # We may need to add more elements to the header later. For now, it seems
     # the only thing in the header is the authentication
     headers = authentication
@@ -82,23 +95,26 @@ def send_request(
     # be done here could make the code simpler at the highest level. Just
     # request an url with some parameters and voila you get the object back you
     # wanted.
+
+    if alternate:
+        print("Being called with alternate")
+        # headers["Content-Type"] = "application/json; charset=utf-8"
+        # headers["Accept-Encoding"] = "gzip, deflate, br"
+
+    print("Use form Data", use_form_data)
+    print(f"Headers: {headers}")
+    print(f"Url: {url}")
+    print(f"Method: {method}")
+    print(f"Params: {params}".replace("'", '"'))
+    print(f"Headers: {headers}")
+
     is_succesful_request = False
     tries = 0
     while not is_succesful_request and tries <= MAX_RETRIES:
         if method == "GET":
             resp = requests.get(url, params=params, headers=headers, verify=verify)
         elif method == "POST":
-            files = []
-
             if alternate:
-                if use_form_data:
-                    if "ids" in params:
-                        split_ids = params["ids"].split(",")
-                        for split_id in split_ids:
-                            files.append(("ids", (None, split_id)))
-
-                        del params["ids"]
-
                 resp = requests.post(
                     url, json=params, files=files, headers=headers, verify=verify
                 )

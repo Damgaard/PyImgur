@@ -23,32 +23,54 @@ def test_to_imgur_list():
     assert "QK1fZ9L,NsuNI" == convert_to_imgur_list(["QK1fZ9L", "NsuNI"])
 
 
+def test_to_imgur_format_called_with_none_dict():
+    assert ({}, []) == to_imgur_format(None)
+
+
+def test_to_imgur_format_called_with_empty_dict():
+    assert ({}, []) == to_imgur_format({})
+
+
 def test_to_imgur_format_string():
     params = {"title": "Hello world"}
-    assert params == to_imgur_format(params)
+    assert params, None == to_imgur_format(params)
 
 
 def test_to_imgur_format_number():
     params = {"number": 5}
-    assert {"number": "5"} == to_imgur_format(params)
+    assert {"number": "5"}, None == to_imgur_format(params)
 
 
 def test_to_imgur_format_boolean_true():
     params = {"truthiness": True}
-    assert {"truthiness": "true"} == to_imgur_format(params)
+    assert {"truthiness": "true"}, None == to_imgur_format(params)
 
 
 def test_to_imgur_format_boolean_false():
     params = {"truthiness": False}
-    assert {"truthiness": "false"} == to_imgur_format(params)
+    assert {"truthiness": "false"}, None == to_imgur_format(params)
 
 
 def test_to_imgur_list_empty():
     params = {"ids": []}
-    assert {"ids": ""} == to_imgur_format(params)
+    assert {"ids": ""}, [] == to_imgur_format(params)
+
+
+def test_to_imgur_format_with_list_empty():
+    assert ({"values": ""}, []) == to_imgur_format({"values": []})
+
+
+def test_to_imgur_format_with_list():
+    assert ({"values": "QK1fZ9L"}, []) == to_imgur_format({"values": "QK1fZ9L"})
+
+
+def test_to_imgur_format_with_list_concats_on_string():
+    assert ({"values": "QK1fZ9L,NsuNI"}, []) == to_imgur_format(
+        {"values": ["QK1fZ9L", "NsuNI"]}
+    )
 
 
 def test_to_imgur_format_multiple_values():
     params = {"truthiness": False, "number": 5, "title": "Hello World"}
     result = {"truthiness": "false", "number": "5", "title": "Hello World"}
-    assert result == to_imgur_format(params)
+    assert (result, []) == to_imgur_format(params)
