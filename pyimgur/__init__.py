@@ -92,8 +92,8 @@ class Basic_object(object):
     def _delete_or_id_hash(self):
         if self._imgur.access_token:
             return self.id
-        else:
-            return self.deletehash
+
+        return self.deletehash
 
     def _populate(self, json_dict):
         for key, value in json_dict.items():
@@ -102,7 +102,7 @@ class Basic_object(object):
         # is. But we also have "voted" which is the current users vote on it.
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
-        if isinstance(self, Album) or isinstance(self, Image):
+        if isinstance(self, (Album, Image)):
             if "favorite" in vars(self):
                 self.is_favorited = self.favorite
                 del self.favorite
