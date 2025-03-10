@@ -83,7 +83,7 @@ def send_request(
 ):
     """Send a request to the Imgur API.
 
-    Note that a lot is also handled in the _send_request method inside the __init__.py file.
+    Note that a lot is also handled in the send_request method inside the __init__.py file.
 
     Args:
         url: The API endpoint URL to send the request to.
