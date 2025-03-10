@@ -290,8 +290,7 @@ class Album(Basic_object):
             cannot add (non-existing or not owned by you) will not cause
             exceptions, but fail silently.
         """
-        params = remove_none_values(locals())
-        del params["self"]
+        params = clean_imgur_params(locals())
 
         url = self._imgur._base_url + "/3/album/{0}/add".format(self.id)
         params = {"ids": images}
@@ -403,8 +402,7 @@ class Album(Basic_object):
         # TODO: Make more generic error here. Should be a decorator
         assert self._imgur.access_token is not None
 
-        params = remove_none_values(locals())
-        del params["self"]
+        params = clean_imgur_params(locals())
 
         url = self._imgur._base_url + "/3/album/{0}".format(self._delete_or_id_hash)
         is_updated = self._imgur._send_request(
@@ -702,8 +700,7 @@ class Image(Basic_object):
         # TODO: Replace with error
         assert title or description
 
-        params = remove_none_values(locals())
-        del params["self"]
+        params = clean_imgur_params(locals())
 
         is_updated = self._imgur._send_request(
             url, params=params, method="POST", alternate=True
@@ -897,7 +894,7 @@ class Imgur:
             "description": description,
             "cover": cover,
         }
-        payload = remove_none_values(payload)
+        payload = clean_imgur_params(payload)
 
         resp = self._send_request(
             url, params=payload, method="POST", alternate=True, use_form_data=True
@@ -1616,9 +1613,21 @@ class Gallery_image(Image, Gallery_item):
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
 
 
-def remove_none_values(originals):
+def clean_imgur_params(originals):
+    """Clean the params before sending to Imgur.
+
+    Remove keys set for internal purposes. Remove none
+    values, that otherwise cause Imgur to throw errors.
+
+    """
+    if not originals:
+        return {}
+
     params = {}
     for variable in originals.keys():
+        if variable == "self":
+            continue
+
         if originals[variable] is not None:
             params[variable] = originals[variable]
 

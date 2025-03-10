@@ -21,6 +21,7 @@ import pytest
 sys.path.insert(0, ".")
 
 import pyimgur
+from pyimgur import clean_imgur_params
 from . import USER_NOT_AUTHENTICATED, im
 
 TITLE = "Fancy title!"
@@ -254,3 +255,27 @@ def test_change_authentication_client_can_swithc_refresh_auth():
     assert client.refresh_token != None
     assert client.client_id != None
     assert client.client_secret != None
+
+
+def test_clean_imgur_params_none():
+    assert {} == clean_imgur_params(None)
+
+
+def test_clean_imgur_params_empty_params():
+    assert {} == clean_imgur_params({})
+
+
+def test_clean_imgur_params_purges_self():
+    assert {} == clean_imgur_params({"self": "BOB"})
+
+
+def test_clean_imgur_params_purges_removes_none_keys():
+    assert {} == clean_imgur_params({"number": None})
+
+
+def test_clean_imgur_params_keeps_regular_values():
+    assert {"number": 5} == clean_imgur_params({"number": 5})
+
+
+def test_clean_imgur_params_doesnt_purge_false_keys():
+    assert {"number": False} == clean_imgur_params({"number": False})
