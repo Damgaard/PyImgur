@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Handles sending and parsing requests to/from Imgur REST API."""
+"""Handles sending and parsing requests to/from Imgur's REST API."""
 
 # Note: The name should probably be changed to avoid confusion with the module
 # requestS
@@ -33,13 +33,15 @@ def convert_general(value):
     """Take a python object and convert it to the format Imgur expects."""
     if isinstance(value, bool):
         return "true" if value else "false"
-    elif isinstance(value, list):
+
+    if isinstance(value, list):
         value = [convert_general(item) for item in value]
         value = convert_to_imgur_list(value)
     elif isinstance(value, Integral):
         return str(value)
     elif "pyimgur" in str(type(value)):
         return str(getattr(value, "id", value))
+
     return value
 
 
@@ -50,7 +52,7 @@ def convert_to_imgur_list(regular_list):
     return ",".join(str(id) for id in regular_list)
 
 
-def to_imgur_format(params: dict, use_form_data=False):
+def to_imgur_format(params: dict | None, use_form_data=False):
     """Convert the parameters to the format Imgur expects."""
     files = []
     if use_form_data:
@@ -79,6 +81,21 @@ def send_request(
     alternate=False,
     use_form_data=False,
 ):
+    """Send a request to the Imgur API.
+
+    Note that a lot is also handled in the _send_request method inside the __init__.py file.
+
+    Args:
+        url: The API endpoint URL to send the request to.
+        params: Optional dictionary of parameters to send with the request.
+        method: HTTP method to use ('GET', 'POST', 'PUT'). Defaults to 'GET'.
+        data_field: Field in response containing the data. Defaults to 'data'.
+        authentication: Optional authentication headers.
+        verify: Whether to verify SSL certificates. Defaults to True.
+        alternate: Whether to use alternate request format. Defaults to False.
+        use_form_data: Whether to send data as form data. Defaults to False.
+
+    """
     # TODO: Looks like there isn't any protection to protect against
     # making calls without client_id / access_token. Not even on
     # endpoints that require it.
@@ -113,24 +130,48 @@ def send_request(
     print(f"Headers: {headers}")
 
     is_succesful_request = False
+    TIMEOUT_SECONDS = 30
     tries = 0
     while not is_succesful_request and tries <= MAX_RETRIES:
         if method == "GET":
-            resp = requests.get(url, params=params, headers=headers, verify=verify)
+            resp = requests.get(
+                url,
+                params=params,
+                headers=headers,
+                verify=verify,
+                timeout=TIMEOUT_SECONDS,
+            )
         elif method == "POST":
             if alternate:
                 resp = requests.post(
-                    url, json=params, files=files, headers=headers, verify=verify
+                    url,
+                    json=params,
+                    files=files,
+                    headers=headers,
+                    verify=verify,
+                    timeout=TIMEOUT_SECONDS,
                 )
             else:
-                resp = requests.post(url, params, headers=headers, verify=verify)
+                resp = requests.post(
+                    url, params, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
+                )
         elif method == "PUT":
             if alternate:
-                resp = requests.put(url, json=params, headers=headers, verify=verify)
+                resp = requests.put(
+                    url,
+                    json=params,
+                    headers=headers,
+                    verify=verify,
+                    timeout=TIMEOUT_SECONDS,
+                )
             else:
-                resp = requests.put(url, params, headers=headers, verify=verify)
+                resp = requests.put(
+                    url, params, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
+                )
         elif method == "DELETE":
-            resp = requests.delete(url, headers=headers, verify=verify)
+            resp = requests.delete(
+                url, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
+            )
         else:
             raise Exception("Unsupported Method used")
 
@@ -144,7 +185,7 @@ def send_request(
         content = content[data_field]
     if not resp.ok:
         try:
-            error_msg = "Imgur ERROR message: {0}".format(content["error"])
+            error_msg = f"Imgur ERROR message: {content['error']}"
             print(error_msg)
             print("-" * len(error_msg))
         except Exception:
