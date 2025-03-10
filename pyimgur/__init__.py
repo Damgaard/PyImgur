@@ -470,7 +470,7 @@ class Comment(Basic_object):
         """Delete the comment."""
         url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
         return self._imgur._send_request(url, method="DELETE")
-        # NOTE: Gives a 403 permission denied error on comment 77087313 which
+        # TODO: Gives a 403 permission denied error on comment 77087313 which
         # made by me.
 
     def downvote(self):
@@ -885,6 +885,7 @@ class Imgur:
         """
 
         # TODO: Make more generic error here. Should be a decorator
+        # TODO: Test that this is required. Would imply documentaiton is wrong
         assert self.access_token is not None
 
         url = self._base_url + "/3/album/"
@@ -988,7 +989,7 @@ class Imgur:
             url endpoints that return either a Gallery_album or a Gallery_image
             depending on what the id represents. So the only option is to
             assume it's a Gallery_image and if we get an exception then try
-            Gallery_album.  Gallery_image is attempted first because there is
+            Gallery_album. Gallery_image is attempted first because there is
             the most of them.
             """
             try:
@@ -1612,7 +1613,8 @@ class Gallery_image(Image, Gallery_item):
         )
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
 
-
+# TODO: Given the name, this should probably be in requests.
+# Together with the other cleaning functions there.
 def clean_imgur_params(originals):
     """Clean the params before sending to Imgur.
 

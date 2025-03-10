@@ -79,6 +79,10 @@ def send_request(
     alternate=False,
     use_form_data=False,
 ):
+    # TODO: Looks like there isn't any protection to protect against
+    # making calls without client_id / access_token. Not even on
+    # endpoints that require it.
+
     # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params, files = to_imgur_format(params, alternate and use_form_data)
@@ -127,6 +131,9 @@ def send_request(
                 resp = requests.put(url, params, headers=headers, verify=verify)
         elif method == "DELETE":
             resp = requests.delete(url, headers=headers, verify=verify)
+        else:
+            raise Exception("Unsupported Method used")
+
         if resp.status_code in RETRY_CODES or resp.content == "":
             tries += 1
         else:
