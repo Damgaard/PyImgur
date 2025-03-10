@@ -74,3 +74,36 @@ def test_to_imgur_format_multiple_values():
     params = {"truthiness": False, "number": 5, "title": "Hello World"}
     result = {"truthiness": "false", "number": "5", "title": "Hello World"}
     assert (result, []) == to_imgur_format(params)
+
+
+def test_to_imgur_format_files():
+    assert ({}, []) == to_imgur_format({}, True)
+
+
+def test_to_imgur_format_files_for_ids():
+    assert (
+        {},
+        [
+            ("ids", (None, "QK1fZ9L")),
+        ],
+    ) == to_imgur_format({"ids": "QK1fZ9L"}, True)
+
+
+def test_to_imgur_format_files_for_ids_multiple():
+    assert (
+        {},
+        [
+            ("ids", (None, "QK1fZ9L")),
+            ("ids", (None, "NsuNI")),
+        ],
+    ) == to_imgur_format({"ids": ["QK1fZ9L", "NsuNI"]}, True)
+
+
+def test_to_imgur_format_files_for_ids_multiple_and_params():
+    assert (
+        {"number": "5"},
+        [
+            ("ids", (None, "QK1fZ9L")),
+            ("ids", (None, "NsuNI")),
+        ],
+    ) == to_imgur_format({"ids": ["QK1fZ9L", "NsuNI"], "number": 5}, True)
