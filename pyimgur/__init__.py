@@ -168,8 +168,8 @@ class Basic_object(object):
                 self.is_deleted = self.deleted
                 del self.deleted
             if "image_id" in vars(self):
-                self.permalink = "http://imgur.com/gallery/{0}/comment/{1}".format(
-                    self.image_id, self.id
+                self.permalink = (
+                    f"http://imgur.com/gallery/{self.image_id}/comment/{self.id}"
                 )
                 self.image = Image(
                     {"id": self.image_id}, self._imgur, has_fetched=False
@@ -291,8 +291,7 @@ class Album(Basic_object):
             exceptions, but fail silently.
         """
         params = clean_imgur_params(locals())
-
-        url = self._imgur._base_url + "/3/album/{0}/add".format(self.id)
+        url = self._imgur._base_url + f"/3/album/{self.id}/add"
         params = {"ids": images}
         return self._imgur._send_request(
             url, needs_auth=True, params=params, method="POST", alternate=True
@@ -300,7 +299,7 @@ class Album(Basic_object):
 
     def delete(self):
         """Delete this album."""
-        url = self._imgur._base_url + "/3/album/{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + f"/3/album/{self._delete_or_id_hash}"
         return self._imgur._send_request(url, method="DELETE")
 
     def favorite(self):
@@ -309,7 +308,7 @@ class Album(Basic_object):
 
         Favoriting an already favorited album will unfavor it.
         """
-        url = self._imgur._base_url + "/3/album/{0}/favorite".format(self.id)
+        url = self._imgur._base_url + f"/3/album/{self.id}/favorite"
         return self._imgur._send_request(url, needs_auth=True, method="POST")
 
     def remove_images(self, images):
@@ -321,8 +320,8 @@ class Album(Basic_object):
             you cannot remove (non-existing, not owned by you or not part of
             album) will not cause exceptions, but fail silently.
         """
-        url = self._imgur._base_url + "/3/album/{0}/remove_images".format(
-            self._delete_or_id_hash
+        url = (
+            self._imgur._base_url + f"/3/album/{self._delete_or_id_hash}/remove_images"
         )
         # NOTE: Returns True and everything seem to be as it should in testing.
         # Seems most likely to be upstream bug.
@@ -342,7 +341,7 @@ class Album(Basic_object):
             images that you cannot set (non-existing or not owned by you) will
             not cause exceptions, but fail silently.
         """
-        url = self._imgur._base_url + "/3/album/{0}/".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + f"/3/album/{self._delete_or_id_hash}/"
         params = {"ids": images}
         return self._imgur._send_request(
             url,
@@ -365,7 +364,7 @@ class Album(Basic_object):
             this method will return an error. Set this to True to by-pass the
             terms.
         """
-        url = self._imgur._base_url + "/3/gallery/{0}".format(self.id)
+        url = self._imgur._base_url + f"/3/gallery/{self.id}"
         payload = {"title": title, "terms": "1" if bypass_terms else "0"}
         self._imgur._send_request(url, needs_auth=True, params=payload, method="POST")
         item = self._imgur.get_gallery_album(self.id)
@@ -404,7 +403,7 @@ class Album(Basic_object):
 
         params = clean_imgur_params(locals())
 
-        url = self._imgur._base_url + "/3/album/{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + f"/3/album/{self._delete_or_id_hash}"
         is_updated = self._imgur._send_request(
             url, params=params, method="PUT", alternate=True
         )
@@ -468,26 +467,26 @@ class Comment(Basic_object):
 
     def delete(self):
         """Delete the comment."""
-        url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + f"/3/image/{self._delete_or_id_hash}"
         return self._imgur._send_request(url, method="DELETE")
         # TODO: Gives a 403 permission denied error on comment 77087313 which
         # made by me.
 
     def downvote(self):
         """Downvote this comment."""
-        url = self._imgur._base_url + "/3/comment/{0}/vote/down".format(self.id)
+        url = self._imgur._base_url + f"/3/comment/{self.id}/vote/down"
         return self._imgur._send_request(url, needs_auth=True, method="POST")
 
     def get_replies(self):
         """Get the replies to this comment."""
-        url = self._imgur._base_url + "/3/comment/{0}/replies".format(self.id)
+        url = self._imgur._base_url + f"/3/comment/{self.id}/replies"
         json = self._imgur._send_request(url)
         child_comments = json["children"]
         return [Comment(com, self._imgur) for com in child_comments]
 
     def reply(self, text):
         """Make a comment reply."""
-        url = self._imgur._base_url + "/3/comment/{0}".format(self.id)
+        url = self._imgur._base_url + f"/3/comment/{self.id}"
         payload = {"image_id": self.image.id, "comment": text}
         resp = self._imgur._send_request(
             url, params=payload, needs_auth=True, method="POST"
@@ -505,7 +504,7 @@ class Comment(Basic_object):
 
     def upvote(self):
         """Upvote this comment."""
-        url = self._imgur._base_url + "/3/comment/{0}/vote/up".format(self.id)
+        url = self._imgur._base_url + f"/3/comment/{self.id}/vote/up"
         return self._imgur._send_request(url, needs_auth=True, method="POST")
 
 
@@ -533,18 +532,18 @@ class Gallery_item(object):
         something the authenticated user has already downvoted will set the
         vote to neutral.
         """
-        url = self._imgur._base_url + "/3/gallery/{0}/vote/down".format(self.id)
+        url = self._imgur._base_url + f"/3/gallery/{self.id}/vote/down"
         return self._imgur._send_request(url, needs_auth=True, method="POST")
 
     def get_comments(self):
         """Get a list of the top-level comments."""
-        url = self._imgur._base_url + "/3/gallery/{0}/comments".format(self.id)
+        url = self._imgur._base_url + f"/3/gallery/{self.id}/comments"
         resp = self._imgur._send_request(url)
         return [Comment(com, self._imgur) for com in resp]
 
     def remove_from_gallery(self):
         """Remove this image from the gallery."""
-        url = self._imgur._base_url + "/3/gallery/{0}".format(self.id)
+        url = self._imgur._base_url + f"/3/gallery/{self.id}"
         self._imgur._send_request(url, needs_auth=True, method="DELETE")
         if isinstance(self, Image):
             item = self._imgur.get_image(self.id)
@@ -602,7 +601,7 @@ class Image(Basic_object):
 
     def delete(self):
         """Delete the image."""
-        url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + f"/3/image/{self._delete_or_id_hash}"
         return self._imgur._send_request(url, method="DELETE")
 
     def download(self, path="", name=None, overwrite=False, size=None):
@@ -631,8 +630,7 @@ class Image(Basic_object):
             local_path = os.path.join(path, filename)
             if os.path.exists(local_path) and not overwrite:
                 raise Exception(
-                    "Trying to save as {0}, but file "
-                    "already exists.".format(local_path)
+                    f"Trying to save as {local_path}, but file already exists."
                 )
             with open(local_path, "wb") as out_file:
                 out_file.write(resp.content)
@@ -686,7 +684,7 @@ class Image(Basic_object):
             this method will return an error. Set this to True to by-pass the
             terms.
         """
-        url = self._imgur._base_url + "/3/gallery/{0}".format(self.id)
+        url = self._imgur._base_url + f"/3/gallery/{self.id}"
         payload = {"title": title, "terms": "1" if bypass_terms else "0"}
         self._imgur._send_request(url, needs_auth=True, params=payload, method="POST")
         item = self._imgur.get_gallery_image(self.id)
@@ -695,7 +693,7 @@ class Image(Basic_object):
 
     def update(self, title=None, description=None):
         """Update the image with a new title and/or description."""
-        url = self._imgur._base_url + "/3/image/{0}".format(self._delete_or_id_hash)
+        url = self._imgur._base_url + f"/3/image/{self._delete_or_id_hash}"
 
         # TODO: Replace with error
         assert title or description
@@ -788,9 +786,7 @@ class Imgur:
         # automatically refresh it before carrying out the request.
         if self.access_token is None and needs_auth:
             # TODO: Use inspect to insert name of method in error msg.
-            raise Exception(
-                "Authentication as a user is required to use this method."
-            )
+            raise Exception("Authentication as a user is required to use this method.")
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
             auth = {"Authorization": "Client-ID {0}".format(self.client_id)}
@@ -952,7 +948,7 @@ class Imgur:
 
     def get_album(self, id):
         """Return information about this album."""
-        url = self._base_url + "/3/album/{0}".format(id)
+        url = self._base_url + f"/3/album/{id}"
         json = self._send_request(url)
         return Album(json, self)
 
@@ -1060,7 +1056,7 @@ class Imgur:
 
     def get_comment(self, id):
         """Return information about this comment."""
-        url = self._base_url + "/3/comment/{0}".format(id)
+        url = self._base_url + f"/3/comment/{id}"
         json = self._send_request(url)
         return Comment(json, self)
 
@@ -1092,7 +1088,7 @@ class Imgur:
         This makes it possible to remove an album from the gallery and setting
         it's privacy setting as secret, without compromising it's secrecy.
         """
-        url = self._base_url + "/3/gallery/album/{0}".format(id)
+        url = self._base_url + f"/3/gallery/album/{id}"
         resp = self._send_request(url)
         return Gallery_album(resp, self)
 
@@ -1104,13 +1100,13 @@ class Imgur:
         This makes it possible to remove an image from the gallery and setting
         it's privacy setting as secret, without compromising it's secrecy.
         """
-        url = self._base_url + "/3/gallery/image/{0}".format(id)
+        url = self._base_url + f"/3/gallery/image/{id}"
         resp = self._send_request(url)
         return Gallery_image(resp, self)
 
     def get_image(self, id):
         """Return a Image object representing the image with the given id."""
-        url = self._base_url + "/3/image/{0}".format(id)
+        url = self._base_url + f"/3/image/{id}"
         resp = self._send_request(url)
         return Image(resp, self)
 
@@ -1120,7 +1116,7 @@ class Imgur:
 
         :param id: The id of the message object to return.
         """
-        url = self._base_url + "/3/message/{0}".format(id)
+        url = self._base_url + f"/3/message/{id}"
         resp = self._send_request(url)
         return Message(resp, self)
 
@@ -1130,7 +1126,7 @@ class Imgur:
 
         :param id: The id of the notification object to return.
         """
-        url = self._base_url + "/3/notification/{0}".format(id)
+        url = self._base_url + f"/3/notification/{id}"
         resp = self._send_request(url)
         return Notification(resp, self)
 
@@ -1194,7 +1190,7 @@ class Imgur:
         :param subreddit: The subreddit the image has been submitted to.
         :param id: The id of the image we want.
         """
-        url = self._base_url + "/3/gallery/r/{0}/{1}".format(subreddit, id)
+        url = self._base_url + f"/3/gallery/r/{subreddit}/{id}"
         resp = self._send_request(url)
         return Gallery_image(resp, self)
 
@@ -1204,7 +1200,7 @@ class Imgur:
 
         :param username: The name of the user we want more information about.
         """
-        url = self._base_url + "/3/account/{0}".format(username)
+        url = self._base_url + f"/3/account/{username}"
         json = self._send_request(url)
         return User(json, self)
 
@@ -1244,7 +1240,7 @@ class Imgur:
 
     def search_gallery(self, q):
         """Search the gallery with the given query string."""
-        url = self._base_url + "/3/gallery/search?q={0}".format(q)
+        url = self._base_url + f"/3/gallery/search?q={q}"
         resp = self._send_request(url)
         return [_get_album_or_image(thing, self) for thing in resp]
 
@@ -1320,14 +1316,12 @@ class Message(Basic_object):
 
     def delete(self):
         """Delete the message."""
-        url = self._imgur._base_url + "/3/message/{0}".format(self.id)
+        url = f"{self._imgur._base_url}/3/message/{self.id}"
         return self._imgur._send_request(url, method="DELETE")
 
     def get_thread(self):
         """Return the message thread this Message is in."""
-        url = self._imgur._base_url + "/3/message/{0}/thread".format(
-            self.first_message.id
-        )
+        url = f"{self._imgur._base_url}/3/message/{self.first_message.id}/thread"
         resp = self._imgur._send_request(url)
         return [Message(msg, self._imgur) for msg in resp]
 
@@ -1378,7 +1372,7 @@ class Notification(Basic_object):
 
         Notifications cannot be marked as unviewed.
         """
-        url = self._imgur._base_url + "/3/notification/{0}".format(self.id)
+        url = f"{self._imgur._base_url}/3/notification/{self.id}"
         return self._imgur._send_request(url, method="POST")
 
 
@@ -1426,7 +1420,7 @@ class User(Basic_object):
         # NOTE: album_privacy should maybe be renamed to default_privacy
         # NOTE: public_images is a boolean, despite the documentation saying it
         # is a string.
-        url = self._imgur._base_url + "/3/account/{0}/settings".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/settings"
         resp = self._imgur._send_request(
             url, needs_auth=True, params=locals(), method="POST"
         )
@@ -1434,7 +1428,7 @@ class User(Basic_object):
 
     def delete(self):
         """Delete this user. Require being authenticated as the user."""
-        url = self._imgur._base_url + "/3/account/{0}".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}"
         return self._imgur._send_request(url, needs_auth=True, method="DELETE")
 
     def get_albums(self, limit=None):
@@ -1452,27 +1446,25 @@ class User(Basic_object):
 
     def get_comments(self):
         """Return the comments made by the user."""
-        url = self._imgur._base_url + "/3/account/{0}/comments".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/comments"
         resp = self._imgur._send_request(url)
         return [Comment(com, self._imgur) for com in resp]
 
     def get_favorites(self):
         """Return the users favorited images."""
-        url = self._imgur._base_url + "/3/account/{0}/favorites".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/favorites"
         resp = self._imgur._send_request(url, needs_auth=True)
         return [_get_album_or_image(thing, self._imgur) for thing in resp]
 
     def get_gallery_favorites(self):
         """Get a list of the images in the gallery this user has favorited."""
-        url = self._imgur._base_url + "/3/account/{0}/gallery_favorites".format(
-            self.name
-        )
+        url = f"{self._imgur._base_url}/3/account/{self.name}/gallery_favorites"
         resp = self._imgur._send_request(url)
         return [Image(img, self._imgur) for img in resp]
 
     def get_gallery_profile(self):
         """Return the users gallery profile."""
-        url = self._imgur._base_url + "/3/account/{0}/gallery_profile".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/gallery_profile"
         return self._imgur._send_request(url)
 
     def has_verified_email(self):
@@ -1483,7 +1475,7 @@ class User(Basic_object):
         sending an email to the user and the owner of the email user verifying
         that he is the same as the Imgur user.
         """
-        url = self._imgur._base_url + "/3/account/{0}/verifyemail".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/verifyemail"
         return self._imgur._send_request(url, needs_auth=True)
 
     def get_images(self, limit=None):
@@ -1501,9 +1493,7 @@ class User(Basic_object):
         :param new: False for all notifications, True for only non-viewed
             notifications.
         """
-        url = self._imgur._base_url + "/3/account/{0}/notifications/messages".format(
-            self.name
-        )
+        url = f"{self._imgur._base_url}/3/account/{self.name}/notifications/messages"
         result = self._imgur._send_request(url, params=locals(), needs_auth=True)
         return [
             Notification(msg_dict, self._imgur, has_fetched=True) for msg_dict in result
@@ -1511,7 +1501,7 @@ class User(Basic_object):
 
     def get_notifications(self, new=True):
         """Return all the notifications for this user."""
-        url = self._imgur._base_url + "/3/account/{0}/notifications".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/notifications"
         resp = self._imgur._send_request(url, params=locals(), needs_auth=True)
         msgs = [
             Message(msg_dict, self._imgur, has_fetched=True)
@@ -1530,9 +1520,7 @@ class User(Basic_object):
         :param new: False for all notifications, True for only non-viewed
             notifications.
         """
-        url = self._imgur._base_url + "/3/account/{0}/notifications/replies".format(
-            self.name
-        )
+        url = f"{self._imgur._base_url}/3/account/{self.name}/notifications/replies"
         return self._imgur._send_request(url, needs_auth=True)
 
     def get_settings(self):
@@ -1541,12 +1529,12 @@ class User(Basic_object):
 
         Only accessible if authenticated as the user.
         """
-        url = self._imgur._base_url + "/3/account/{0}/settings".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/settings"
         return self._imgur._send_request(url)
 
     def get_statistics(self):
         """Return statistics about this user."""
-        url = self._imgur._base_url + "/3/account/{0}/stats".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/stats"
         return self._imgur._send_request(url, needs_auth=True)
 
     def get_submissions(self, limit=None):
@@ -1570,7 +1558,7 @@ class User(Basic_object):
             message thread. If it's a Message object or message_id, then the
             new message will be sent as a reply to the reply_to message.
         """
-        url = self._imgur._base_url + "/3/message"
+        url = f"{self._imgur._base_url}/3/message"
         parent_id = reply_to.id if isinstance(reply_to, Message) else reply_to
         payload = {
             "recipient": self.name,
@@ -1587,7 +1575,7 @@ class User(Basic_object):
         Remember that the verification email may end up in the users spam
         folder.
         """
-        url = self._imgur._base_url + "/3/account/{0}/verifyemail".format(self.name)
+        url = f"{self._imgur._base_url}/3/account/{self.name}/verifyemail"
         self._imgur._send_request(url, needs_auth=True, method="POST")
 
 
@@ -1598,9 +1586,7 @@ class Gallery_album(Album, Gallery_item):
     """Gallery Albums are albums submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur._base_url + "/3/gallery/album/{0}".format(
-            json_dict["id"]
-        )
+        self._INFO_URL = f"{imgur._base_url}/3/gallery/album/{json_dict['id']}"
         super(Gallery_album, self).__init__(json_dict, imgur, has_fetched)
 
 
@@ -1608,10 +1594,9 @@ class Gallery_image(Image, Gallery_item):
     """Gallery images are images submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur._base_url + "/3/gallery/image/{0}".format(
-            json_dict["id"]
-        )
+        self._INFO_URL = f"{imgur._base_url}/3/gallery/image/{json_dict['id']}"
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
+
 
 # TODO: Given the name, this should probably be in requests.
 # Together with the other cleaning functions there.
