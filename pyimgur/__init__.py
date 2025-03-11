@@ -44,7 +44,11 @@ else:
 
 import requests  # NOQA
 
-from pyimgur.exceptions import AuthenticationError, InvalidParameterError
+from pyimgur.exceptions import (
+    AuthenticationError,
+    InvalidParameterError,
+    ResourceNotFoundError,
+)
 from pyimgur import request  # NOQA
 
 __version__ = "0.5.3"
@@ -971,10 +975,6 @@ class Imgur:
         :param url: The url where the content is located at
         """
 
-        class NullDevice:
-            def write(self, string):
-                pass
-
         def get_gallery_item(gallery_item_id):
             """
             Special helper method to get gallery items.
@@ -988,25 +988,9 @@ class Imgur:
             the most of them.
             """
             try:
-                # HACK: Problem is that send_request prints the error message
-                # from Imgur when it encounters an error. This is nice because
-                # this error message is more descriptive than just the status
-                # code that Requests give. But since we first assume the id
-                # belong to an image, it means we will get an error whenever
-                # the id belongs to an album. The following code temporarily
-                # disables stdout to avoid give a cryptic and incorrect error.
-
-                # Code for disabling stdout is from
-                # http://coreygoldberg.blogspot.dk/2009/05/
-                # python-redirect-or-turn-off-stdout-and.html
-                original_stdout = sys.stdout  # keep a reference to STDOUT
-                sys.stdout = NullDevice()  # redirect the real STDOUT
                 return self.get_gallery_image(gallery_item_id)
-            # TODO: Add better error codes so I don't have to do a catch-all
-            except Exception:
+            except ResourceNotFoundError:
                 return self.get_gallery_album(gallery_item_id)
-            finally:
-                sys.stdout = original_stdout  # turn STDOUT back on
 
         if not self.is_imgur_url(url):
             return None
@@ -1035,22 +1019,19 @@ class Imgur:
             if regex_result is not None:
                 obj_id = regex_result.group("id")
                 initial_object = values["method"](obj_id)
+
+                # We cannot diffrentiate image from GalleryImage based on the url,
+                # so first we assume it's an image. Then we try to fetch it as a
+                # gallery image / subreddit image. If that fails, then we know it's
+                # an image.
                 if obj_type == "image":
                     try:
-                        # A better version might be to ping the url where the
-                        # gallery_image should be with a requests.head call. If
-                        # we get a 200 returned, then that means it exists and
-                        # this becomes less hacky.
-                        original_stdout = sys.stdout
-                        sys.stdout = NullDevice()
                         if getattr(initial_object, "section", None):
                             sub = initial_object.section
                             return self.get_subreddit_image(sub, obj_id)
                         return self.get_gallery_image(obj_id)
-                    except Exception:
+                    except ResourceNotFoundError:
                         pass
-                    finally:
-                        sys.stdout = original_stdout
                 return initial_object
 
     def get_comment(self, comment_id):

@@ -22,7 +22,11 @@ from numbers import Integral
 
 import requests
 
-from pyimgur.exceptions import UnexpectedImgurException, InvalidParameterError
+from pyimgur.exceptions import (
+    UnexpectedImgurException,
+    InvalidParameterError,
+    ResourceNotFoundError,
+)
 
 MAX_RETRIES = 3
 RETRY_CODES = [500]
@@ -176,6 +180,9 @@ def send_request(
             tries += 1
         else:
             is_succesful_request = True
+
+    if resp.status_code == 404:
+        raise ResourceNotFoundError(f"Resource not found: {url}")
 
     content = resp.json()
     if "data" in content.keys():

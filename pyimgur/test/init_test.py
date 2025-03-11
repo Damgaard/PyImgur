@@ -124,6 +124,21 @@ def test_update_image():
     USER_NOT_AUTHENTICATED,
     reason="Cannot run live test without authentication variables.",
 )
+def test_get_subreddit_image():
+    image = im.get_subreddit_image("memes", "DqaPOFs")
+    assert (
+        image.title
+        == "Maybe we got this whole ”Canada joining the US” thing backwards?"
+    )
+    assert image.datetime == 1741288211
+    assert image.id == "DqaPOFs"
+    assert image.link == "https://i.imgur.com/DqaPOFs.jpg"
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_create_album():
     album = im.create_album()
     assert isinstance(album, pyimgur.Album)

@@ -19,7 +19,7 @@ sys.path.insert(0, ".")
 
 import pytest
 
-from pyimgur import Album, Image
+from pyimgur import Album, Image, ResourceNotFoundError
 from . import USER_NOT_AUTHENTICATED, im
 
 
@@ -40,3 +40,21 @@ def test_get_subreddit_gallery_low_limit():
     requested_limit = 5
     response = im.get_subreddit_gallery("pic", limit=requested_limit)
     assert len(response) == requested_limit
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_gallery_album():
+    album = im.get_gallery_album("vDtsSUW")
+    assert album.title == "Baby elephant asks for water from a man in Nepal"
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_gallery_album_does_not_exist():
+    with pytest.raises(ResourceNotFoundError):
+        im.get_gallery_album("NotExist")

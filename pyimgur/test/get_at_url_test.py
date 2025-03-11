@@ -103,6 +103,16 @@ def test_retrieve_gallery_image():
     im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
+def test_retrieve_subreddit_image():
+    gallery_image = im.get_at_url("http://imgur.com/gallery/RSwYGcc")
+    assert isinstance(gallery_image, pyimgur.Gallery_image)
+    assert gallery_image.title is not None
+
+
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_gallery_album():
     gallery_album = im.get_at_url("http://imgur.com/gallery/mpVzS")
     assert isinstance(gallery_album, pyimgur.Gallery_album)
