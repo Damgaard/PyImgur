@@ -221,9 +221,7 @@ class Basic_object(object):
                 ):  # pylint: disable=access-member-before-definition
                     self.content = Message(self.content, self._imgur, True)
                 elif "caption" in self.content:
-                    self.content = Comment(
-                        self.content, self._imgur, True
-                    )  # pylint: disable=redefined-variable-type
+                    self.content = Comment(self.content, self._imgur, True)
         elif isinstance(self, User) and "url" in vars(self):
             self.name = self.url
             del self.url
@@ -461,7 +459,7 @@ class Comment(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
-        self._INFO_URL = imgur.BASE_URL + "/3/comment/{0}".format(json_dict["id"])
+        self._INFO_URL = f"{imgur.BASE_URL}/3/comment/{json_dict['id']}"
         super(Comment, self).__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
@@ -507,7 +505,7 @@ class Comment(Basic_object):
         return self._imgur.send_request(url, needs_auth=True, method="POST")
 
 
-class Gallery_item(object):
+class Gallery_item:
     """Functionality shared by Gallery_image and Gallery_album."""
 
     def comment(self, text):
@@ -559,7 +557,7 @@ class Gallery_item(object):
         something the authenticated user has already upvoted will set the vote
         to neutral.
         """
-        url = self._imgur.BASE_URL + "/3/gallery/{0}/vote/up".format(self.id)
+        url = self._imgur.BASE_URL + f"/3/gallery/{self.id}/vote/up"
         return self._imgur.send_request(url, needs_auth=True, method="POST")
 
 
@@ -653,7 +651,7 @@ class Image(Basic_object):
                 )
         suffix = valid_sizes.get(size, "")
         base, sep, ext = self.link.rpartition(".")
-        resp = requests.get(base + suffix + sep + ext)
+        resp = requests.get(base + suffix + sep + ext, timeout=60)
         if name or self.title:
             try:
                 return save_as((name or self.title) + suffix + sep + ext)
@@ -789,19 +787,20 @@ class Imgur:
 
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
-            auth = {"Authorization": "Client-ID {0}".format(self.client_id)}
+            auth = {"Authorization": f"Client-ID {self.client_id}"}
         else:
-            auth = {"Authorization": "Bearer {0}".format(self.access_token)}
+            auth = {"Authorization": f"Bearer {self.access_token}"}
         if self.mashape_key:
             auth.update({"X-Mashape-Key": self.mashape_key})
         content = []
         is_paginated = False
+        base_url = url
+
         if "limit" in kwargs:
             is_paginated = True
             limit = kwargs["limit"] or self.DEFAULT_LIMIT
             del kwargs["limit"]
             page = 0
-            base_url = url
             url.format(page)
 
         while True:
@@ -1013,22 +1012,22 @@ class Imgur:
             return None
 
         objects = {
-            "album": {"regex": "a/(?P<id>[\w.]*?)$", "method": self.get_album},
+            "album": {"regex": r"a/(?P<id>[\w.]*?)$", "method": self.get_album},
             "comment": {
-                "regex": "gallery/\w*/comment/(?P<id>[\w.]*?)$",
+                "regex": r"gallery/\w*/comment/(?P<id>[\w.]*?)$",
                 "method": self.get_comment,
             },
             "gallery": {
-                "regex": "(gallery|r/\w*?)/(?P<id>[\w.]*?)$",
+                "regex": r"(gallery|r/\w*?)/(?P<id>[\w.]*?)$",
                 "method": get_gallery_item,
             },
             # Valid image extensions: http://imgur.com/faq#types
             # All are between 3 and 4 chars long.
             "image": {
-                "regex": "(?P<id>[\w.]*?)(\\.\w{3,4})?$",
+                "regex": r"(?P<id>[\w.]*?)(\\.\w{3,4})?$",
                 "method": self.get_image,
             },
-            "user": {"regex": "user/(?P<id>[\w.]*?)$", "method": self.get_user},
+            "user": {"regex": r"user/(?P<id>[\w.]*?)$", "method": self.get_user},
         }
         parsed_url = urlparse(url)
         for obj_type, values in objects.items():
@@ -1206,7 +1205,7 @@ class Imgur:
 
     def is_imgur_url(self, url):
         """Is the given url a valid Imgur url?"""
-        return re.match("(http://)?(www\.)?imgur\.com", url, re.I) is not None
+        return re.match(r"(http://)?(www\.)?imgur\.com", url, re.I) is not None
 
     def refresh_access_token(self):
         """
@@ -1300,7 +1299,7 @@ class Message(Basic_object):
     """This corresponds to the messages users can send each other."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur.BASE_URL + "/3/message/{0}".format(json_dict["id"])
+        self._INFO_URL = f"{imgur.BASE_URL}/3/message/{json_dict['id']}"
         super(Message, self).__init__(json_dict, imgur, has_fetched)
 
     """
@@ -1362,7 +1361,7 @@ class Notification(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         # Is never gotten lazily, so _has_fetched is always True
-        self._INFO_URL = imgur.BASE_URL + "/3/notification/{0}".format(json_dict["id"])
+        self._INFO_URL = f"{imgur.BASE_URL}/3/notification/{json_dict['id']}"
         super(Notification, self).__init__(json_dict, imgur, has_fetched)
 
     def mark_as_viewed(self):
@@ -1388,7 +1387,7 @@ class User(Basic_object):
     """
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur.BASE_URL + "/3/account/{0}".format(json_dict["url"])
+        self._INFO_URL = f"{imgur.BASE_URL}/3/account/{json_dict['url']}"
         super(User, self).__init__(json_dict, imgur, has_fetched)
 
     # Overrides __repr__ method in Basic_object

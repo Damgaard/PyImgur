@@ -98,7 +98,6 @@ def send_request(
     # making calls without client_id / access_token. Not even on
     # endpoints that require it.
 
-    # TODO figure out if there is a way to minimize this
     # TODO Add error checking
     params, files = to_imgur_format(params, alternate and use_form_data)
 
