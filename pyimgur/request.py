@@ -48,7 +48,7 @@ def convert_to_imgur_list(regular_list):
     """Turn a python list into the list format Imgur expects."""
     if regular_list is None:
         return None
-    return ",".join(str(id) for id in regular_list)
+    return ",".join(str(item) for item in regular_list)
 
 
 def to_imgur_format(params: dict | None, use_form_data=False):

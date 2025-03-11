@@ -946,9 +946,9 @@ class Imgur:
         self.refresh_token = result["refresh_token"]
         return self.access_token, self.refresh_token
 
-    def get_album(self, id):
+    def get_album(self, album_id):
         """Return information about this album."""
-        url = self.BASE_URL + f"/3/album/{id}"
+        url = self.BASE_URL + f"/3/album/{album_id}"
         json = self.send_request(url)
         return Album(json, self)
 
@@ -976,7 +976,7 @@ class Imgur:
             def write(self, string):
                 pass
 
-        def get_gallery_item(id):
+        def get_gallery_item(gallery_item_id):
             """
             Special helper method to get gallery items.
 
@@ -1002,10 +1002,10 @@ class Imgur:
                 # python-redirect-or-turn-off-stdout-and.html
                 original_stdout = sys.stdout  # keep a reference to STDOUT
                 sys.stdout = NullDevice()  # redirect the real STDOUT
-                return self.get_gallery_image(id)
+                return self.get_gallery_image(gallery_item_id)
             # TODO: Add better error codes so I don't have to do a catch-all
             except Exception:
-                return self.get_gallery_album(id)
+                return self.get_gallery_album(gallery_item_id)
             finally:
                 sys.stdout = original_stdout  # turn STDOUT back on
 
@@ -1054,9 +1054,9 @@ class Imgur:
                         sys.stdout = original_stdout
                 return initial_object
 
-    def get_comment(self, id):
+    def get_comment(self, comment_id):
         """Return information about this comment."""
-        url = self.BASE_URL + f"/3/comment/{id}"
+        url = self.BASE_URL + f"/3/comment/{comment_id}"
         json = self.send_request(url)
         return Comment(json, self)
 
@@ -1080,19 +1080,19 @@ class Imgur:
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
-    def get_gallery_album(self, id):
+    def get_gallery_album(self, gallery_album_id):
         """
-        Return the gallery album matching the id.
+        Return the gallery album.
 
         Note that an album's id is different from it's id as a gallery album.
         This makes it possible to remove an album from the gallery and setting
         it's privacy setting as secret, without compromising it's secrecy.
         """
-        url = self.BASE_URL + f"/3/gallery/album/{id}"
+        url = self.BASE_URL + f"/3/gallery/album/{gallery_album_id}"
         resp = self.send_request(url)
         return Gallery_album(resp, self)
 
-    def get_gallery_image(self, id):
+    def get_gallery_image(self, gallery_item_id):
         """
         Return the gallery image matching the id.
 
@@ -1100,33 +1100,33 @@ class Imgur:
         This makes it possible to remove an image from the gallery and setting
         it's privacy setting as secret, without compromising it's secrecy.
         """
-        url = self.BASE_URL + f"/3/gallery/image/{id}"
+        url = self.BASE_URL + f"/3/gallery/image/{gallery_item_id}"
         resp = self.send_request(url)
         return Gallery_image(resp, self)
 
-    def get_image(self, id):
+    def get_image(self, image_id):
         """Return a Image object representing the image with the given id."""
-        url = self.BASE_URL + f"/3/image/{id}"
+        url = self.BASE_URL + f"/3/image/{image_id}"
         resp = self.send_request(url)
         return Image(resp, self)
 
-    def get_message(self, id):
+    def get_message(self, message_id):
         """
         Return a Message object for given id.
 
         :param id: The id of the message object to return.
         """
-        url = self.BASE_URL + f"/3/message/{id}"
+        url = self.BASE_URL + f"/3/message/{message_id}"
         resp = self.send_request(url)
         return Message(resp, self)
 
-    def get_notification(self, id):
+    def get_notification(self, notification_id):
         """
         Return a Notification object.
 
         :param id: The id of the notification object to return.
         """
-        url = self.BASE_URL + f"/3/notification/{id}"
+        url = self.BASE_URL + f"/3/notification/{notification_id}"
         resp = self.send_request(url)
         return Notification(resp, self)
 
@@ -1183,14 +1183,14 @@ class Imgur:
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
-    def get_subreddit_image(self, subreddit, id):
+    def get_subreddit_image(self, subreddit, image_id):
         """
         Return the Gallery_image with the id submitted to subreddit gallery
 
         :param subreddit: The subreddit the image has been submitted to.
-        :param id: The id of the image we want.
+        :param image_id: The id of the image we want.
         """
-        url = self.BASE_URL + f"/3/gallery/r/{subreddit}/{id}"
+        url = self.BASE_URL + f"/3/gallery/r/{subreddit}/{image_id}"
         resp = self.send_request(url)
         return Gallery_image(resp, self)
 
