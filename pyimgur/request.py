@@ -74,7 +74,6 @@ def send_request(
     url,
     params=None,
     method="GET",
-    data_field="data",
     authentication=None,
     verify=True,
     alternate=False,
@@ -180,8 +179,8 @@ def send_request(
             is_succesful_request = True
 
     content = resp.json()
-    if data_field is not None:
-        content = content[data_field]
+    if "data" in content.keys():
+        content = content["data"]
 
     if not resp.ok:
         error_msg = f"Imgur ERROR message: {content.get('error', 'unknown Error')}"

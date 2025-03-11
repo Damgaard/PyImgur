@@ -924,7 +924,6 @@ class Imgur:
             EXCHANGE_URL.format(self.BASE_URL),
             params=params,
             method="POST",
-            data_field=None,
         )
         self.access_token = result["access_token"]
         self.refresh_token = result["refresh_token"]
@@ -942,7 +941,6 @@ class Imgur:
             EXCHANGE_URL.format(self.BASE_URL),
             params=params,
             method="POST",
-            data_field=None,
         )
         self.access_token = result["access_token"]
         self.refresh_token = result["refresh_token"]
@@ -1235,7 +1233,6 @@ class Imgur:
             REFRESH_URL.format(self.BASE_URL),
             params=params,
             method="POST",
-            data_field=None,
         )
         self.access_token = result["access_token"]
         return self.access_token
