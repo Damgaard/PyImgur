@@ -22,13 +22,10 @@ from numbers import Integral
 
 import requests
 
+from pyimgur.exceptions import UnexpectedImgurException
 
 MAX_RETRIES = 3
 RETRY_CODES = [500]
-
-class ImgurException(Exception):
-    """Basic Exception while interacting with Imgur API"""
-    pass
 
 
 def convert_general(value):
@@ -185,13 +182,11 @@ def send_request(
     content = resp.json()
     if data_field is not None:
         content = content[data_field]
+
     if not resp.ok:
-        try:
-            error_msg = "Imgur ERROR message: {0}".format(content['error'])
-            raise ImgurException(error_msg)
-        except Exception:
-            pass
-        resp.raise_for_status()
+        error_msg = f"Imgur ERROR message: {content.get('error', 'unknown Error')}"
+        raise UnexpectedImgurException(error_msg)
+
     ratelimit_info = dict(
         (k, int(v)) for (k, v) in resp.headers.items() if k.startswith("x-ratelimit")
     )

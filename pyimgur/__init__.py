@@ -44,6 +44,7 @@ else:
 
 import requests  # NOQA
 
+from pyimgur.exceptions import AuthenticationError, InvalidParameterError
 from pyimgur import request  # NOQA
 
 __version__ = "0.5.3"
@@ -647,7 +648,7 @@ class Image(Basic_object):
         if size is not None:
             size = size.lower().replace(" ", "_")
             if size not in valid_sizes:
-                raise LookupError(
+                raise InvalidParameterError(
                     "Invalid size. Valid options are: {0}".format(
                         ", ".join(valid_sizes.keys())
                     )
@@ -695,8 +696,10 @@ class Image(Basic_object):
         """Update the image with a new title and/or description."""
         url = self._imgur.BASE_URL + f"/3/image/{self._delete_or_id_hash}"
 
-        # TODO: Replace with error
-        assert title or description
+        if not title and not description:
+            raise InvalidParameterError(
+                "At least one of title or description must be provided."
+            )
 
         params = clean_imgur_params(locals())
 
@@ -782,8 +785,10 @@ class Imgur:
         # TODO: Add automatic test for timed_out access_tokens and
         # automatically refresh it before carrying out the request.
         if self.access_token is None and needs_auth:
-            # TODO: Use inspect to insert name of method in error msg.
-            raise Exception("Authentication as a user is required to use this method.")
+            raise AuthenticationError(
+                "Authentication as a user is required to use this method."
+            )
+
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
             auth = {"Authorization": "Client-ID {0}".format(self.client_id)}
@@ -847,7 +852,7 @@ class Imgur:
         """Change the current authentication."""
         if not ((client_id is None) == (client_secret is None)):
             # Temporary. Will add library errors.
-            raise SyntaxError(
+            raise InvalidParameterError(
                 "Must set both or none of client_id and client_secret at once"
             )
 
@@ -1260,7 +1265,7 @@ class Imgur:
         :returns: An Image object representing the uploaded image.
         """
         if bool(path) == bool(url):
-            raise LookupError("Either path or url must be given.")
+            raise InvalidParameterError("Either path or url must be given.")
         if path:
             with open(path, "rb") as image_file:
                 binary_data = image_file.read()

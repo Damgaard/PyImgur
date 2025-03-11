@@ -21,7 +21,7 @@ import pytest
 sys.path.insert(0, ".")
 
 import pyimgur
-from pyimgur import clean_imgur_params
+from pyimgur import clean_imgur_params, InvalidParameterError
 from . import USER_NOT_AUTHENTICATED, im
 
 TITLE = "Fancy title!"
@@ -193,7 +193,7 @@ def test_image_download_small_square():
 )
 def test_image_download_bad_size():
     i = im.get_image("Hlddt")
-    with pytest.raises(LookupError):  # pylint: disable=E1101
+    with pytest.raises(InvalidParameterError):  # pylint: disable=E1101
         i.download(size="Invalid sized triangle")
 
 

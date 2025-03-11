@@ -14,7 +14,11 @@
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pyimgur.request import to_imgur_format, convert_to_imgur_list
+import responses
+
+import pytest
+from pyimgur.request import to_imgur_format, convert_to_imgur_list, send_request
+from pyimgur.exceptions import UnexpectedImgurException
 
 
 def test_to_imgur_list():
@@ -107,3 +111,39 @@ def test_to_imgur_format_files_for_ids_multiple_and_params():
             ("ids", (None, "NsuNI")),
         ],
     ) == to_imgur_format({"ids": ["QK1fZ9L", "NsuNI"], "number": 5}, True)
+
+
+@responses.activate
+def test_send_request():
+    responses.get(
+        "https://api.imgur.com/3/test",
+        json={"data": "hello world"},
+    )
+    content, _ = send_request("https://api.imgur.com/3/test")
+    assert content == "hello world"
+
+
+@responses.activate
+def test_send_request_unexpected_imgur_exception():
+    responses.get(
+        "https://api.imgur.com/3/test",
+        json={"data": {"error": "Im a teapot", "request": "3/test", "method": "PUT"}},
+        status=429,
+    )
+
+    with pytest.raises(UnexpectedImgurException):
+        _, _ = send_request("https://api.imgur.com/3/test")
+
+
+@responses.activate
+def test_send_request_adds_paramaters():
+    responses.get(
+        "https://api.imgur.com/3/test",
+        json={"data": "hello world"},
+        match=[responses.matchers.query_param_matcher({"bool_value": "true"})],
+    )
+
+    content, _ = send_request(
+        "https://api.imgur.com/3/test", params={"bool_value": True}
+    )
+    assert content == "hello world"
