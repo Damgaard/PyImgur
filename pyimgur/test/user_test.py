@@ -19,15 +19,7 @@ import pytest
 
 sys.path.insert(0, ".")
 
-
-try:
-    from authentication import client_id, client_secret, refresh_token
-except ImportError:
-    client_id = None
-    client_secret = None
-    refresh_token = None
-
-import pyimgur
+from . import USER_NOT_AUTHENTICATED, user
 
 """Tests authenticated usage of the methods in the Album class."""
 
@@ -37,36 +29,40 @@ import pyimgur
 # create the object, given an instance of PRAW, for the subsequent runs it will
 # return the previously created object.
 
-im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret,
-                   refresh_token=refresh_token)
-if refresh_token:
-    im.refresh_access_token()
-    user = im.get_user('me')
 
-
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                   "authentication variables.")
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_change_settings():
-    old_album_default = user.get_settings()['public_images']
+    old_album_default = user.get_settings()["public_images"]
     new_setting = False if old_album_default else True
     user.change_settings(public_images=new_setting)
-    found_new = user.get_settings()['album_privacy']
+    found_new = user.get_settings()["album_privacy"]
     assert old_album_default != found_new
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_favorites():
+    # This test is flaky. It assumes the authenticated users has favourited at
+    # least 1 gallery.
     assert len(user.get_favorites())
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_settings():
-    assert 'messaging_enabled' in user.get_settings()
+    assert "messaging_enabled" in user.get_settings()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_notificationssettings():
     assert "messages" in user.get_notifications()

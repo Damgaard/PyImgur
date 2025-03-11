@@ -21,19 +21,9 @@ import pytest
 
 sys.path.insert(0, ".")
 
-try:
-    from authentication import client_id, client_secret, refresh_token
-except ImportError:
-    client_id = None
-    client_secret = None
-    refresh_token = None
-
 import pyimgur
 
-im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret,
-                   refresh_token=refresh_token)
-if refresh_token:
-    im.refresh_access_token()
+from . import im
 
 
 def test_retrieve_non_imgur_url():
@@ -42,67 +32,83 @@ def test_retrieve_non_imgur_url():
     assert result is None
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_comment():
-    url = 'http://imgur.com/gallery/CleiK2V/comment/87511312'
+    url = "http://imgur.com/gallery/CleiK2V/comment/87511312"
     comment = im.get_at_url(url)
     assert isinstance(comment, pyimgur.Comment)
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_album():
-    album = im.get_at_url('http://imgur.com/a/SPlYO')
+    album = im.get_at_url("http://imgur.com/a/SPlYO")
     assert isinstance(album, pyimgur.Album)
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_album_with_fragment():
-    album = im.get_at_url('http://imgur.com/a/SPlYO#0')
+    album = im.get_at_url("http://imgur.com/a/SPlYO#0")
     assert isinstance(album, pyimgur.Album)
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_album_with_GET_params():
-    album = im.get_at_url('http://imgur.com/a/SPlYO?sort=hot')
+    album = im.get_at_url("http://imgur.com/a/SPlYO?sort=hot")
     assert isinstance(album, pyimgur.Album)
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_image():
-    image = im.get_at_url('http://imgur.com/c79sp')
+    image = im.get_at_url("http://imgur.com/c79sp")
     assert isinstance(image, pyimgur.Image)
     assert image.title is not None
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_user():
-    user = im.get_at_url('http://imgur.com/user/sarah')
+    user = im.get_at_url("http://imgur.com/user/sarah")
     assert isinstance(user, pyimgur.User)
     assert user.name is not None
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_gallery_image():
-    gallery_image = im.get_at_url('http://imgur.com/gallery/CleiK2V')
+    gallery_image = im.get_at_url("http://imgur.com/gallery/CleiK2V")
     assert isinstance(gallery_image, pyimgur.Gallery_image)
     assert gallery_image.title is not None
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    im.refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_retrieve_gallery_album():
-    gallery_album = im.get_at_url('http://imgur.com/gallery/mpVzS')
+    gallery_album = im.get_at_url("http://imgur.com/gallery/mpVzS")
     assert isinstance(gallery_album, pyimgur.Gallery_album)
     assert gallery_album.title is not None
 
 
 def test_retrive_non_existing_url_format():
-    bad_result = im.get_at_url('http://imgur.com/bad/mpVzS')
+    bad_result = im.get_at_url("http://imgur.com/bad/mpVzS")
     assert bad_result is None

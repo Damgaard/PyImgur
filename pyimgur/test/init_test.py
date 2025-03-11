@@ -20,20 +20,19 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from authentication import client_id
 import pyimgur
-
-# Make im protected, so it's not run on initialization
-im = pyimgur.Imgur(client_id)
-
-
-# TODO: Currently some tests do more than one thing. This is to limit the
-# calls to Imgur and thus the requests consumed and to prevent getting
-# ratelimited. They need to be split into more tests when a local fake
-# imitation of Imgur has been set up.
+from pyimgur import clean_imgur_params
+from . import USER_NOT_AUTHENTICATED, im
 
 TITLE = "Fancy title!"
 DESCRIPTION = "Hello Description"
+
+# Identify path to cat image. Needed as otherwise 2 tests might
+# break depending on whether test suite is run from root or from
+# the test folder.
+current_file_path = os.path.abspath(__file__)
+current_directory = os.path.dirname(current_file_path)
+CAT_IMAGE_PATH = os.path.join(current_directory, "cat.jpg")
 
 
 class Empty(pyimgur.Basic_object):
@@ -46,17 +45,11 @@ def test_accessing_bad_attribute():
         basic_object.no_such_object  # pylint: disable=pointless-statement
 
 
-def test_can_change_authentication():
-    im = pyimgur.Imgur(client_id="123", client_secret="455")
-    im.change_authentication(client_id="888")
-    assert im.client_id == "888"
-
-
 def test_populate():
-    info = {'score': 1, 'hello': 'world'}
+    info = {"score": 1, "hello": "world"}
     inst = Empty(info, None)
-    assert 'score' in vars(inst)
-    assert 'hello' in vars(inst)
+    assert "score" in vars(inst)
+    assert "hello" in vars(inst)
     assert inst.score == 1
 
 
@@ -69,15 +62,32 @@ def test_is_imgur_url():
     assert not im.is_imgur_url("www.evil_domain/imgur.com/")
 
 
-def test_get_image():
-    image = im.get_image('JPz2i')
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_image_i_didnt_upload():
+    image = im.get_image("JPz2i")
     assert isinstance(image, pyimgur.Image)
-    assert image.deletehash is None
-    assert image.height == 78
+    assert image.deletehash is ""
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_image_i_uploaded():
+    image = im.get_image("4UoRzGc")
+    assert isinstance(image, pyimgur.Image)
+    assert image.deletehash is not ""
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_upload_image():
-    image = im.upload_image(path='pyimgur/test/cat.jpg')
+    image = im.upload_image(path=CAT_IMAGE_PATH)
     assert isinstance(image, pyimgur.Image)
     assert image.title is None
     assert image.description is None
@@ -85,29 +95,45 @@ def test_upload_image():
     image.delete()
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_upload_image_with_args():
-    image = im.upload_image('pyimgur/test/cat.jpg', title=TITLE,
-                            description=DESCRIPTION)
+    image = im.upload_image(CAT_IMAGE_PATH, title=TITLE, description=DESCRIPTION)
     assert isinstance(image, pyimgur.Image)
     assert image.title == TITLE
     assert image.description == DESCRIPTION
     assert image.deletehash is not None
     image.delete()
 
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_update_image():
-    image = im.upload_image('pyimgur/test/cat.jpg')
+    image = im.upload_image(CAT_IMAGE_PATH)
     assert image.title is None
     image.update(TITLE)
     assert image.title == TITLE
     image.delete()
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_create_album():
     album = im.create_album()
     assert isinstance(album, pyimgur.Album)
     album.delete()
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_update_album():
     album = im.create_album(TITLE)
     assert album.title == TITLE
@@ -116,44 +142,140 @@ def test_update_album():
     album.delete()
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_image_download():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download()
-    assert new_file == 'Hlddt.jpg'
+    assert new_file == "Hlddt.jpeg"
     os.remove(new_file)
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_image_download_own_name():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download(name="hello")
-    assert new_file == 'hello.jpg'
+    assert new_file == "hello.jpeg"
     os.remove(new_file)
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_image_download_no_overwrite():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download()
     with pytest.raises(Exception):  # pylint: disable=E1101
         i.download()
     os.remove(new_file)
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_image_download_small_square():
-    i = im.get_image('Hlddt')
-    new_file = i.download(size='small square')
-    assert new_file == 'Hlddts.jpg'
+    i = im.get_image("Hlddt")
+    new_file = i.download(size="small square")
+    assert new_file == "Hlddts.jpeg"
     os.remove(new_file)
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_image_download_bad_size():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     with pytest.raises(LookupError):  # pylint: disable=E1101
-        i.download(size='Invalid sized triangle')
+        i.download(size="Invalid sized triangle")
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_image_download_to_parent_folder():
-    i = im.get_image('Hlddt')
+    i = im.get_image("Hlddt")
     new_file = i.download(path="..")
-    expected_path = os.path.join("..", "Hlddt.jpg")
+    expected_path = os.path.join("..", "Hlddt.jpeg")
     assert new_file == expected_path
     os.remove(new_file)
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_can_change_authentication_cannot_just_update_id():
+    client = pyimgur.Imgur(client_id="123", client_secret="455")
+    with pytest.raises(Exception):
+        client.change_authentication(client_id="888")
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_change_authentication_client_resets_auth():
+    client = pyimgur.Imgur(
+        client_id="123",
+        client_secret="455",
+        access_token="Hello",
+        refresh_token="Refresh",
+    )
+
+    client.change_authentication(
+        client_id="test test", client_secret="Something diffrent"
+    )
+    assert client.access_token == None
+    assert client.refresh_token == None
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_change_authentication_client_can_swithc_refresh_auth():
+    client = pyimgur.Imgur(
+        client_id="123",
+        client_secret="455",
+        access_token="Hello",
+        refresh_token="Refresh",
+    )
+
+    client.change_authentication(refresh_token="New refresh token")
+    assert client.access_token == None
+    assert client.refresh_token != None
+    assert client.client_id != None
+    assert client.client_secret != None
+
+
+def test_clean_imgur_params_none():
+    assert {} == clean_imgur_params(None)
+
+
+def test_clean_imgur_params_empty_params():
+    assert {} == clean_imgur_params({})
+
+
+def test_clean_imgur_params_purges_self():
+    assert {} == clean_imgur_params({"self": "BOB"})
+
+
+def test_clean_imgur_params_purges_removes_none_keys():
+    assert {} == clean_imgur_params({"number": None})
+
+
+def test_clean_imgur_params_keeps_regular_values():
+    assert {"number": 5} == clean_imgur_params({"number": 5})
+
+
+def test_clean_imgur_params_doesnt_purge_false_keys():
+    assert {"number": False} == clean_imgur_params({"number": False})

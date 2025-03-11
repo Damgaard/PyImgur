@@ -17,7 +17,6 @@
 
 import sys
 import time
-from uuid import uuid4
 
 import pytest
 
@@ -38,17 +37,20 @@ import pyimgur
 # create the object, given an instance of PRAW, for the subsequent runs it will
 # return the previously created object.
 
-im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret,
-                   refresh_token=refresh_token)
+im = pyimgur.Imgur(
+    client_id=client_id, client_secret=client_secret, refresh_token=refresh_token
+)
 if refresh_token:
     im.refresh_access_token()
 
 
-IMAGE_IDS = ["7skLpQo", "JCVvSVY", "S1jmapR"]
+IMAGE_IDS = ["4UoRzGc", "wHxiibZ", "w5pB7vT"]
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_add_images():
     new_album = im.create_album("New fancy album")
     time.sleep(2)
@@ -59,10 +61,12 @@ def test_add_images():
     new_album.delete()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_remove_images():
-    image_ids = ["7skLpQo"]
+    image_ids = IMAGE_IDS
     new_album = im.create_album("New fancy album", images=image_ids)
     assert len(new_album.images)
     time.sleep(1)
@@ -73,35 +77,48 @@ def test_remove_images():
     new_album.delete()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_remove_images_non_existing():
     """Assert that no error is raised and that no change is made."""
-    image_ids = ["7skLpQo"]
+    image_ids = IMAGE_IDS[0]
     new_album = im.create_album("New fancy album", images=image_ids)
+    assert len(new_album.images) == 1
     time.sleep(2)
-    assert len(new_album.images)
-    new_album.remove_images(["NonExisting"])
+    new_album.remove_images(
+        [
+            IMAGE_IDS[-1],
+        ]
+    )
     new_album.refresh()
-    assert len(new_album.images)
+    assert len(new_album.images) == 1
     new_album.delete()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
+@pytest.mark.skip(
+    reason="Endpoint seem broken on Imgurs end. Skipping until it's fixed or a wrongaround can be found.",
+)
 def test_set_images():
     new_album = im.create_album("New fancy album", images=[IMAGE_IDS[0]])
     time.sleep(2)
     assert len(new_album.images)
     old_images = new_album.images
-    new_album.set_images(IMAGE_IDS[1:])
+    new_album._set_images(IMAGE_IDS[1:])
     new_album.refresh()
     assert new_album.images != old_images
     new_album.delete()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_create():
     new_album = im.create_album("New fancy album")
     time.sleep(2)
@@ -110,8 +127,10 @@ def test_create():
     new_album.delete()
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_delete():
     new_album = im.create_album("New fancy album")
     time.sleep(2)
@@ -120,8 +139,10 @@ def test_delete():
         im.get_album(new_album.id)
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_favorite():
     new_album = im.create_album("New fancy album")
     time.sleep(2)
@@ -131,12 +152,26 @@ def test_favorite():
     assert new_album.is_favorited
 
 
-@pytest.mark.skipif(refresh_token is None, reason="Cannot run live test without "
-                                                  "authentication variables.")
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_update():
-    new_album = im.create_album(uuid4())
+    new_album = im.create_album(title="Ok album")
     time.sleep(2)
     old_title = new_album.title
-    new_album.update(title=uuid4())
+    new_album.update(title="Great album")
     assert old_title != new_album.title
+    new_album.delete()
+
+
+@pytest.mark.skipif(
+    refresh_token is None,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_update_with_images():
+    new_album = im.create_album(title="Ok album")
+    time.sleep(2)
+    new_album.update(title="Great album", images=IMAGE_IDS)
+    assert len(new_album.images)
     new_album.delete()

@@ -17,20 +17,26 @@ import sys
 
 sys.path.insert(0, ".")
 
-from authentication import client_id
-import pyimgur
+import pytest
 
-# Make im protected, so it's not run on initialization
-im = pyimgur.Imgur(client_id)
+from pyimgur import Album, Image
+from . import USER_NOT_AUTHENTICATED, user, im
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_subreddit():
     response = im.get_subreddit_gallery("pic", limit=5)
-    assert isinstance(response[0], pyimgur.Image) or isinstance(response[0], pyimgur.Album)
+    assert isinstance(response[0], Image) or isinstance(response[0], Album)
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_subreddit_gallery_low_limit():
     requested_limit = 5
     response = im.get_subreddit_gallery("pic", limit=requested_limit)
     assert len(response) == requested_limit
-

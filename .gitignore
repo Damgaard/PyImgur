@@ -3,8 +3,14 @@
 
 *.py[co]
 build/
+venv/
 virtualenv/
 virtualenv.cache/
+
+# Authentication
+################
+
+authentication.py
 
 # Py.test
 #########

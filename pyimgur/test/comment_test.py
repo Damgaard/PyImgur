@@ -17,29 +17,40 @@ import sys
 
 sys.path.insert(0, ".")
 
-from authentication import client_id
-import pyimgur
+import pytest
 
-# Make im protected, so it's not run on initialization
-im = pyimgur.Imgur(client_id)
+from pyimgur import Comment
+from . import USER_NOT_AUTHENTICATED, im
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_comment():
     comment = im.get_comment("49538390")
-    assert isinstance(comment, pyimgur.Comment)
+    assert isinstance(comment, Comment)
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_comment_replies():
     comment = im.get_comment("49538390")
     child_comments = comment.get_replies()
     assert len(child_comments)
-    assert isinstance(child_comments[0], pyimgur.Comment)
+    assert isinstance(child_comments[0], Comment)
     assert child_comments[0].image.id == comment.image.id
 
 
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
 def test_get_comments():
     gallery = im.get_gallery()
     gallery_item = gallery[0]
     comments = gallery_item.get_comments()
     assert isinstance(comments, list)
-    assert isinstance(comments[0], pyimgur.Comment)
+    assert isinstance(comments[0], Comment)
