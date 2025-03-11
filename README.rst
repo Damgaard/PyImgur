@@ -20,10 +20,19 @@ Installation
 ------------
 
 The recommended way to install is via `pip <http://pypi.python.org/pypi/pip>`_
+or via `conda install
+<https://github.com/conda-forge/pyimgur-feedstock#installing-pyimgur>`_ when
+using
+`Anaconda <https://www.anaconda.com/distribution/>`_ (packaged via
+`conda-forge <https://github.com/conda-forge/pyimgur-feedstock>`_).
 
 .. code-block:: bash
 
    $ pip install pyimgur
+
+.. code-block:: bash
+
+   $ conda install -c conda-forge pyimgur
 
 .. end_installation
 
