@@ -321,9 +321,7 @@ class Album(Basic_object):
             you cannot remove (non-existing, not owned by you or not part of
             album) will not cause exceptions, but fail silently.
         """
-        url = (
-            self._imgur.BASE_URL + f"/3/album/{self._delete_or_id_hash}/remove_images"
-        )
+        url = self._imgur.BASE_URL + f"/3/album/{self._delete_or_id_hash}/remove_images"
         # NOTE: Returns True and everything seem to be as it should in testing.
         # Seems most likely to be upstream bug.
         params = {"ids": images}
@@ -362,7 +360,7 @@ class Album(Basic_object):
 
         :param title: The title of the new gallery item.
         :param bypass_terms: If the user has not accepted Imgur's terms yet,
-            this method will return an error. Set this to True to by-pass the
+            this method will return an error. Set this to True to bypass the
             terms.
         """
         url = self._imgur.BASE_URL + f"/3/gallery/{self.id}"
@@ -805,9 +803,11 @@ class Imgur:
             page = 0
             base_url = url
             url.format(page)
-        kwargs["authentication"] = auth
+
         while True:
-            result = request.send_request(url, verify=self.verify, **kwargs)
+            result = request.send_request(
+                url, authentication=auth, verify=self.verify, **kwargs
+            )
             new_content, ratelimit_info = result
             if is_paginated and new_content and limit > len(new_content):
                 content += new_content
@@ -1437,9 +1437,7 @@ class User(Basic_object):
         Secret and hidden albums are only returned if this is the logged-in
         user.
         """
-        url = self._imgur.BASE_URL + "/3/account/{0}/albums/{1}".format(
-            self.name, "{}"
-        )
+        url = self._imgur.BASE_URL + "/3/account/{0}/albums/{1}".format(self.name, "{}")
         resp = self._imgur.send_request(url, limit=limit)
         return [Album(alb, self._imgur, False) for alb in resp]
 
@@ -1479,9 +1477,7 @@ class User(Basic_object):
 
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
-        url = self._imgur.BASE_URL + "/3/account/{0}/images/{1}".format(
-            self.name, "{}"
-        )
+        url = self._imgur.BASE_URL + "/3/account/{0}/images/{1}".format(self.name, "{}")
         resp = self._imgur.send_request(url, limit=limit)
         return [Image(img, self._imgur) for img in resp]
 

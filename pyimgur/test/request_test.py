@@ -18,7 +18,7 @@ import responses
 
 import pytest
 from pyimgur.request import to_imgur_format, convert_to_imgur_list, send_request
-from pyimgur.exceptions import UnexpectedImgurException
+from pyimgur.exceptions import UnexpectedImgurException, InvalidParameterError
 
 
 def test_to_imgur_list():
@@ -117,10 +117,26 @@ def test_to_imgur_format_files_for_ids_multiple_and_params():
 def test_send_request():
     responses.get(
         "https://api.imgur.com/3/test",
-        json={"data": "hello world"},
+        json={"data": {"title": "hello world"}},
     )
     content, _ = send_request("https://api.imgur.com/3/test")
-    assert content == "hello world"
+    assert content == {"title": "hello world"}
+
+
+@responses.activate
+def test_send_request_handles_no_data_field():
+    responses.get(
+        "https://api.imgur.com/3/test",
+        json={"status": "success"},
+    )
+    content, _ = send_request("https://api.imgur.com/3/test")
+    assert content == {"status": "success"}
+
+
+@responses.activate
+def test_send_request_bad_method():
+    with pytest.raises(InvalidParameterError):
+        send_request("https://api.imgur.com/3/test", method="BAD")
 
 
 @responses.activate

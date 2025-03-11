@@ -22,7 +22,7 @@ from numbers import Integral
 
 import requests
 
-from pyimgur.exceptions import UnexpectedImgurException
+from pyimgur.exceptions import UnexpectedImgurException, InvalidParameterError
 
 MAX_RETRIES = 3
 RETRY_CODES = [500]
@@ -171,7 +171,7 @@ def send_request(
                 url, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
             )
         else:
-            raise Exception("Unsupported Method used")
+            raise InvalidParameterError("Unsupported Method used")
 
         if resp.status_code in RETRY_CODES or resp.content == "":
             tries += 1

@@ -20,7 +20,7 @@ sys.path.insert(0, ".")
 import pytest
 
 from pyimgur import Album, Image
-from . import USER_NOT_AUTHENTICATED, user, im
+from . import USER_NOT_AUTHENTICATED, im
 
 
 @pytest.mark.skipif(
