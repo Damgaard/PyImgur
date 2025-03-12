@@ -15,8 +15,6 @@
 
 """Handles sending and parsing requests to/from Imgur's REST API."""
 
-# Note: The name should probably be changed to avoid confusion with the module
-# requestS
 
 import os
 from numbers import Integral
@@ -31,6 +29,9 @@ from pyimgur.exceptions import (
 
 MAX_RETRIES = 3
 RETRY_CODES = [500]
+
+VERIFY_SSL = os.getenv("PYIMGUR_VERIFY_SSL", "True").lower() == "true"
+TIMEOUT_SECONDS = int(os.getenv("PYIMGUR_TIMEOUT", "30"))
 
 
 def convert_general(value):
@@ -76,12 +77,12 @@ def to_imgur_format(params: dict | None, use_form_data=False):
 
 
 def send_request(
-    url,
-    params=None,
-    method="GET",
-    authentication=None,
-    alternate=False,
-    use_form_data=False,
+    url: str,
+    params: dict | None = None,
+    method: str = "GET",
+    authentication: dict | None = None,
+    alternate: bool = False,
+    use_form_data: bool = False,
 ):
     """Send a request to the Imgur API.
 
@@ -103,20 +104,7 @@ def send_request(
     # the only thing in the header is the authentication
     headers = authentication
 
-    # NOTE I could also convert the returned output to the correct object here.
-    # The reason I don't is that some queries just want the json, so they can
-    # update an existing object. This we do with lazy evaluation. Here we
-    # wouldn't know that, although obviously we could have a "raw" parameter
-    # that just returned the json. Dunno. Having parsing of the returned output
-    # be done here could make the code simpler at the highest level. Just
-    # request an url with some parameters and voila you get the object back you
-    # wanted.
-
-    if alternate:
-        print("Being called with alternate")
-        # headers["Content-Type"] = "application/json; charset=utf-8"
-        # headers["Accept-Encoding"] = "gzip, deflate, br"
-
+    print("Alternate", alternate)
     print("Use form Data", use_form_data)
     print(f"Headers: {headers}")
     print(f"Url: {url}")
@@ -124,79 +112,56 @@ def send_request(
     print(f"Params: {params}".replace("'", '"'))
     print(f"Headers: {headers}")
 
-    is_succesful_request = False
-    verify_ssl = os.getenv("PYIMGUR_VERIFY_SSL", "True").lower() == "true"
-    timeout_seconds = int(os.getenv("PYIMGUR_TIMEOUT", "30"))
+    content_to_send = {"files": files, "params": None, "data": None, "json": None}
 
-    tries = 0
-    while not is_succesful_request and tries <= MAX_RETRIES:
-        if method == "GET":
-            resp = requests.get(
-                url,
-                params=params,
-                headers=headers,
-                verify=verify_ssl,
-                timeout=timeout_seconds,
-            )
-        elif method == "POST":
-            if alternate:
-                resp = requests.post(
-                    url,
-                    json=params,
-                    files=files,
-                    headers=headers,
-                    verify=verify_ssl,
-                    timeout=timeout_seconds,
-                )
-            else:
-                resp = requests.post(
-                    url,
-                    params,
-                    headers=headers,
-                    verify=verify_ssl,
-                    timeout=timeout_seconds,
-                )
-        elif method == "PUT":
-            if alternate:
-                resp = requests.put(
-                    url,
-                    json=params,
-                    headers=headers,
-                    verify=verify_ssl,
-                    timeout=timeout_seconds,
-                )
-            else:
-                resp = requests.put(
-                    url,
-                    params,
-                    headers=headers,
-                    verify=verify_ssl,
-                    timeout=timeout_seconds,
-                )
-        elif method == "DELETE":
-            resp = requests.delete(
-                url, headers=headers, verify=verify_ssl, timeout=timeout_seconds
-            )
-        else:
-            raise InvalidParameterError("Unsupported Method used")
+    if method == "GET":
+        content_to_send["params"] = params
+    elif alternate:
+        content_to_send["json"] = params
+    else:
+        content_to_send["data"] = params
 
-        if resp.status_code in RETRY_CODES or resp.content == "":
-            tries += 1
-        else:
-            is_succesful_request = True
+    response = perform_request(url, method, content_to_send, headers)
 
-    if resp.status_code == 404:
+    if response.status_code == 404:
         raise ResourceNotFoundError(f"Resource not found: {url}")
 
-    content = resp.json()
+    content = response.json()
     if "data" in content.keys():
         content = content["data"]
 
-    if not resp.ok:
+    if not response.ok:
         error_msg = f"Imgur ERROR message: {content.get('error', 'unknown Error')}"
         raise UnexpectedImgurException(error_msg)
 
     ratelimit_info = dict(
-        (k, int(v)) for (k, v) in resp.headers.items() if k.startswith("x-ratelimit")
+        (k, int(v)) for (k, v) in response.headers.items() if k.startswith("x-ratelimit")
     )
     return content, ratelimit_info
+
+
+def perform_request(url, method, content_to_send, headers):
+    """Perform the actual request to the Imgur API with retries."""
+    if method not in ["GET", "POST", "PUT", "DELETE"]:
+        raise InvalidParameterError("Unsupported Method used")
+
+    tries = 0
+    while tries <= MAX_RETRIES:
+        response = requests.request(
+            method,
+            url,
+            params=content_to_send.get("params", None),
+            data=content_to_send.get("data", None),
+            json=content_to_send.get("json", None),
+            files=content_to_send.get("files", None),
+            headers=headers,
+            verify=VERIFY_SSL,
+            timeout=TIMEOUT_SECONDS,
+        )
+
+        if response.status_code in RETRY_CODES or response.content == "":
+            tries += 1
+        else:
+            break
+
+    return response
