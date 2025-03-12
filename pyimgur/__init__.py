@@ -728,7 +728,6 @@ class Imgur:
         client_secret=None,
         access_token=None,
         refresh_token=None,
-        verify=True,
         mashape_key=None,
     ):
         """
@@ -749,8 +748,6 @@ class Imgur:
             access_tokens expire after 1 hour, we need a way to request new
             ones without going through the entire authorization step again. It
             does not expire.
-        :param verify: Verify SSL certificate of server
-            (can result in SSLErrors)?
         """
         self.is_authenticated = False
         self.access_token = access_token
@@ -763,7 +760,6 @@ class Imgur:
         self.ratelimit_userremaining = None
         self.ratelimit_userreset = None
         self.refresh_token = refresh_token
-        self.verify = verify
         self.mashape_key = mashape_key
         self.BASE_URL = MASHAPE_BASE if self.mashape_key else IMGUR_BASE
 
@@ -808,9 +804,7 @@ class Imgur:
             url.format(page)
 
         while True:
-            result = request.send_request(
-                url, authentication=auth, verify=self.verify, **kwargs
-            )
+            result = request.send_request(url, authentication=auth, **kwargs)
             new_content, ratelimit_info = result
             if is_paginated and new_content and limit > len(new_content):
                 content += new_content

@@ -26,6 +26,12 @@ Unreleased
    than the expected `AttributeError`.
  * **[CHANGE]** Tests that require authentication will now be skipped if
    authentication has not been set up.
+ * **[CHANGE]** Added PYIMGUR_TIMEOUT environment variable to set the timeout
+   for requests. Defaults to 30 seconds.
+ * **[CHANGE]** Added PYIMGUR_VERIFY_SSL environment variable to set whether
+   IMGUR's SSL certificates should be verified. Defaults to True. Note that
+   this is a _breaking_ change as the Imgur object no longer accepts a verify
+   argument.
 
 PyImgur 0.5.3
 -------------

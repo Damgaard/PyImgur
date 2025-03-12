@@ -18,6 +18,7 @@
 # Note: The name should probably be changed to avoid confusion with the module
 # requestS
 
+import os
 from numbers import Integral
 
 import requests
@@ -79,7 +80,6 @@ def send_request(
     params=None,
     method="GET",
     authentication=None,
-    verify=True,
     alternate=False,
     use_form_data=False,
 ):
@@ -91,17 +91,11 @@ def send_request(
         url: The API endpoint URL to send the request to.
         params: Optional dictionary of parameters to send with the request.
         method: HTTP method to use ('GET', 'POST', 'PUT'). Defaults to 'GET'.
-        data_field: Field in response containing the data. Defaults to 'data'.
         authentication: Optional authentication headers.
-        verify: Whether to verify SSL certificates. Defaults to True.
         alternate: Whether to use alternate request format. Defaults to False.
         use_form_data: Whether to send data as form data. Defaults to False.
 
     """
-    # TODO: Looks like there isn't any protection to protect against
-    # making calls without client_id / access_token. Not even on
-    # endpoints that require it.
-
     # TODO Add error checking
     params, files = to_imgur_format(params, alternate and use_form_data)
 
@@ -131,7 +125,9 @@ def send_request(
     print(f"Headers: {headers}")
 
     is_succesful_request = False
-    TIMEOUT_SECONDS = 30
+    verify_ssl = os.getenv("PYIMGUR_VERIFY_SSL", "True").lower() == "true"
+    timeout_seconds = int(os.getenv("PYIMGUR_TIMEOUT", "30"))
+
     tries = 0
     while not is_succesful_request and tries <= MAX_RETRIES:
         if method == "GET":
@@ -139,8 +135,8 @@ def send_request(
                 url,
                 params=params,
                 headers=headers,
-                verify=verify,
-                timeout=TIMEOUT_SECONDS,
+                verify=verify_ssl,
+                timeout=timeout_seconds,
             )
         elif method == "POST":
             if alternate:
@@ -149,12 +145,16 @@ def send_request(
                     json=params,
                     files=files,
                     headers=headers,
-                    verify=verify,
-                    timeout=TIMEOUT_SECONDS,
+                    verify=verify_ssl,
+                    timeout=timeout_seconds,
                 )
             else:
                 resp = requests.post(
-                    url, params, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
+                    url,
+                    params,
+                    headers=headers,
+                    verify=verify_ssl,
+                    timeout=timeout_seconds,
                 )
         elif method == "PUT":
             if alternate:
@@ -162,16 +162,20 @@ def send_request(
                     url,
                     json=params,
                     headers=headers,
-                    verify=verify,
-                    timeout=TIMEOUT_SECONDS,
+                    verify=verify_ssl,
+                    timeout=timeout_seconds,
                 )
             else:
                 resp = requests.put(
-                    url, params, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
+                    url,
+                    params,
+                    headers=headers,
+                    verify=verify_ssl,
+                    timeout=timeout_seconds,
                 )
         elif method == "DELETE":
             resp = requests.delete(
-                url, headers=headers, verify=verify, timeout=TIMEOUT_SECONDS
+                url, headers=headers, verify=verify_ssl, timeout=timeout_seconds
             )
         else:
             raise InvalidParameterError("Unsupported Method used")
