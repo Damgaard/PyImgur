@@ -23,6 +23,20 @@ sys.path.insert(0, ".")
 import pyimgur
 from pyimgur import InvalidParameterError
 from . import USER_NOT_AUTHENTICATED, im
+from .data import (
+    IMAGE_POPULATE_DATA,
+    IMAGE_EXPECTED_DATA,
+    ALBUM_POPULATE_DATA,
+    ALBUM_EXPECTED_DATA,
+    GALLERY_ALBUM_POPULATE_DATA,
+    GALLERY_ALBUM_EXPECTED_DATA,
+    GALLERY_IMAGE_POPULATE_DATA,
+    GALLERY_IMAGE_EXPECTED_DATA,
+    COMMENT_POPULATE_DATA,
+    COMMENT_EXPECTED_DATA,
+    USER_POPULATE_DATA,
+    USER_EXPECTED_DATA,
+)
 
 TITLE = "Fancy title!"
 DESCRIPTION = "Hello Description"
@@ -51,6 +65,68 @@ def test_populate():
     assert "score" in vars(inst)
     assert "hello" in vars(inst)
     assert inst.score == 1
+
+
+def test_populate_with_image():
+    image = pyimgur.Image(IMAGE_POPULATE_DATA, im, True)
+    result = vars(image)
+    del result["_imgur"]
+    assert result.keys() == IMAGE_EXPECTED_DATA.keys()
+    assert result == IMAGE_EXPECTED_DATA
+
+
+def test_populate_with_album():
+    album = pyimgur.Album(ALBUM_POPULATE_DATA, im, True)
+    result = vars(album)
+    del result["_imgur"]
+    del result["author"]
+    del result["cover"]
+    del result["images"]
+
+    assert result.keys() == ALBUM_EXPECTED_DATA.keys()
+    assert result == ALBUM_EXPECTED_DATA
+
+
+def test_populate_with_gallery_album():
+    gallery_album = pyimgur.Gallery_album(GALLERY_ALBUM_POPULATE_DATA, im, True)
+    result = vars(gallery_album)
+    del result["_imgur"]
+    del result["author"]
+    del result["cover"]
+    del result["images"]
+
+    assert result.keys() == GALLERY_ALBUM_EXPECTED_DATA.keys()
+    assert result == GALLERY_ALBUM_EXPECTED_DATA
+
+
+def test_populate_with_gallery_image():
+    gallery_image = pyimgur.Gallery_image(GALLERY_IMAGE_POPULATE_DATA, im, True)
+    result = vars(gallery_image)
+    del result["_imgur"]
+    del result["author"]
+
+    assert result.keys() == GALLERY_IMAGE_EXPECTED_DATA.keys()
+    assert result == GALLERY_IMAGE_EXPECTED_DATA
+
+
+def test_populate_with_comment():
+    comment = pyimgur.Comment(COMMENT_POPULATE_DATA, im, True)
+    result = vars(comment)
+    del result["author"]
+    del result["_imgur"]
+    del result["image"]
+
+    assert result.keys() == COMMENT_EXPECTED_DATA.keys()
+    assert result == COMMENT_EXPECTED_DATA
+
+
+def test_populate_with_user():
+    user = pyimgur.User(USER_POPULATE_DATA, im, True)
+    result = vars(user)
+    del result["_imgur"]
+
+    assert result.keys() == USER_EXPECTED_DATA.keys()
+    assert result == USER_EXPECTED_DATA
 
 
 def test_is_imgur_url():

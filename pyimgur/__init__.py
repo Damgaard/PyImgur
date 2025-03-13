@@ -105,21 +105,40 @@ class Basic_object(object):
     def _populate(self, json_dict):
         for key, value in json_dict.items():
             setattr(self, key, value)
+
         # TODO: ups will need to be likes, because that's what the webinterface
         # is. But we also have "voted" which is the current users vote on it.
         # Update certain attributes for certain objects, to be link to lazily
         # created objects rather than a string of ID or similar.
-        if isinstance(self, (Album, Image)):
-            if "favorite" in vars(self):
-                self.is_favorited = self.favorite
-                del self.favorite
-            if "nsfw" in vars(self):
-                self.is_nsfw = self.nsfw
-                del self.nsfw
+
+        rename_attrs = {
+            "favorite": {"forObjects": (Album, Image), "to": "is_favorited"},
+            "nsfw": {"forObjects": (Album, Image), "to": "is_nsfw"},
+            "animated": {"forObjects": (Image,), "to": "is_animated"},
+            "comment": {"forObjects": (Comment,), "to": "text"},
+            "deleted": {"forObjects": (Comment,), "to": "is_deleted"},
+            "viewed": {"forObjects": (Notification,), "to": "is_viewed"},
+            "url": {"forObjects": (User,), "to": "name"},
+        }
+
+        for change_key, change_value in rename_attrs.items():
+            if isinstance(self, change_value["forObjects"]) and change_key in vars(
+                self
+            ):
+                value = self.__dict__[change_key]
+                self.__dict__[change_value["to"]] = value
+                del self.__dict__[change_key]
+
+        # author_id should be gotten with .author.id instead
+        dropped_attrs = [
+            "author_id",
+        ]
+
+        for attr in dropped_attrs:
+            if attr in vars(self):
+                del self.__dict__[attr]
+
         if isinstance(self, Image):
-            if "animated" in vars(self):
-                self.is_animated = self.animated
-                del self.animated
             if "link" in vars(self):
                 base, sep, ext = self.link.rpartition(".")
                 self.link_small_square = base + "s" + sep + ext
@@ -161,20 +180,9 @@ class Basic_object(object):
             # be replies to not procreated with. I've decided to use replies
             # and parent_comment as a compromise, where both attributes should
             # be individually obvious but their connection may not.
-            if "author_id" in vars(self):
-                # author_id is not used for anything, and can also be gotten
-                # with comment.author.id which fits with how the id of anything
-                # else is gotten. So having it here only complicates the API.
-                del self.author_id
             if "children" in vars(self):
                 self.replies = [Comment(com, self._imgur) for com in self.children]
                 del self.children
-            if "comment" in vars(self):
-                self.text = self.comment
-                del self.comment
-            if "deleted" in vars(self):
-                self.is_deleted = self.deleted
-                del self.deleted
             if "image_id" in vars(self):
                 self.permalink = (
                     f"http://imgur.com/gallery/{self.image_id}/comment/{self.id}"
@@ -214,33 +222,11 @@ class Basic_object(object):
                 )
                 del self.parent_id
         elif isinstance(self, Notification):
-            # Cannot be used for any calls.
-            # Also, since Notifications can only be returned for the
-            # authenticated user, the id can be found with get_user('me').id
-            if "account_id" in vars(self):
-                del self.account_id
-            if "viewed" in vars(self):
-                self.is_viewed = self.viewed
-                del self.viewed
             if "content" in vars(self):
-                if (
-                    "subject" in self.content
-                ):  # pylint: disable=access-member-before-definition
+                if "subject" in self.content:
                     self.content = Message(self.content, self._imgur, True)
                 elif "caption" in self.content:
                     self.content = Comment(self.content, self._imgur, True)
-        elif isinstance(self, User) and "url" in vars(self):
-            self.name = self.url
-            del self.url
-            # NOTE: In the API a Images popularity is noted as it's score, but
-            # referred on the webend as points. A Comment has the points
-            # attribute which is simply likes - dislikes. One might think this
-            # is the same thing for images, but comparing the two numbers show
-            # that they are different. Usually with a small margin, but
-            # sometimes a very substantial margin. I'm not sure of how score is
-            # calculated and it's relationship to likes and dislikes.
-            # NOTE: Image has the attribute "nsfw" which doesn't exist in
-            # documentation.
 
     def refresh(self):
         """
