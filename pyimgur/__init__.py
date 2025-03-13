@@ -84,7 +84,7 @@ class Basic_object(object):
             self.refresh()
             return getattr(self, attribute)
         raise AttributeError(
-            "{0} instance has no attribute '{1}'".format(type(self).__name__, attribute)
+            f"{type(self).__name__} instance has no attribute '{attribute}'"
         )
 
     def __init__(self, json_dict, imgur, has_fetched=True):
@@ -93,7 +93,7 @@ class Basic_object(object):
         self._populate(json_dict)
 
     def __repr__(self):
-        return "<{0} {1}>".format(type(self).__name__, self.id)
+        return f"<{type(self).__name__} {self.id}>"
 
     @property
     def _delete_or_id_hash(self):
@@ -282,7 +282,7 @@ class Album(Basic_object):
     """
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._info_url = imgur.base_url + "/3/album/{0}".format(json_dict["id"])
+        self._info_url = f"{imgur.base_url}/3/album/{json_dict['id']}"
         self.deletehash = None
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
@@ -595,7 +595,7 @@ class Image(Basic_object):
     # TODO: Looks like not all of these attributes are available still?
     # Alternatively, the lazy loading might have broken.
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._info_url = imgur.base_url + "/3/image/{0}".format(json_dict["id"])
+        self._info_url = imgur.base_url + f"/3/image/{json_dict['id']}"
         self.deletehash = None
         super(Image, self).__init__(json_dict, imgur, has_fetched)
 
@@ -648,9 +648,7 @@ class Image(Basic_object):
             size = size.lower().replace(" ", "_")
             if size not in valid_sizes:
                 raise InvalidParameterError(
-                    "Invalid size. Valid options are: {0}".format(
-                        ", ".join(valid_sizes.keys())
-                    )
+                    f"Invalid size. Valid options are: {', '.join(valid_sizes.keys())}"
                 )
         suffix = valid_sizes.get(size, "")
         base, sep, ext = self.link.rpartition(".")
@@ -669,7 +667,7 @@ class Image(Basic_object):
 
         Favoriting an already favorited image will unfavorite it.
         """
-        url = self._imgur.base_url + "/3/image/{0}/favorite".format(self.id)
+        url = self._imgur.base_url + f"/3/image/{self.id}/favorite"
         return self._imgur.send_request(url, needs_auth=True, method="POST")
 
     def submit_to_gallery(self, title, bypass_terms=False):
@@ -1054,8 +1052,9 @@ class Imgur:
             'user' section. Defaults to true.
         :param limit: The number of items to return.
         """
-        url = self.base_url + "/3/gallery/{}/{}/{}/{}?showViral={}".format(
-            section, sort, window, "{}", show_viral
+        url = (
+            self.base_url
+            + f"/3/gallery/{section}/{sort}/{window}/{{}}?showViral={show_viral}"
         )
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
@@ -1157,9 +1156,7 @@ class Imgur:
             "top", day | week | month | year | all, defaults to day.
         :param limit: The number of items to return.
         """
-        url = self.base_url + "/3/gallery/r/{0}/{1}/{2}/{3}".format(
-            subreddit, sort, window, "{}"
-        )
+        url = self.base_url + f"/3/gallery/r/{subreddit}/{sort}/{window}/{'{}'}"
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
@@ -1373,7 +1370,7 @@ class User(Basic_object):
 
     # Overrides __repr__ method in Basic_object
     def __repr__(self):
-        return "<{0} {1}>".format(type(self).__name__, self.name)
+        return f"<{type(self).__name__} {self.name}>"
 
     def change_settings(
         self,
@@ -1417,7 +1414,7 @@ class User(Basic_object):
         Secret and hidden albums are only returned if this is the logged-in
         user.
         """
-        url = self._imgur.base_url + "/3/account/{0}/albums/{1}".format(self.name, "{}")
+        url = f"{self._imgur.base_url}/3/account/{self.name}/albums/{{}}"
         resp = self._imgur.send_request(url, limit=limit)
         return [Album(alb, self._imgur, False) for alb in resp]
 
@@ -1457,7 +1454,7 @@ class User(Basic_object):
 
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
-        url = self._imgur.base_url + "/3/account/{0}/images/{1}".format(self.name, "{}")
+        url = f"{self._imgur.base_url}/3/account/{self.name}/images/{{}}"
         resp = self._imgur.send_request(url, limit=limit)
         return [Image(img, self._imgur) for img in resp]
 
@@ -1514,9 +1511,7 @@ class User(Basic_object):
 
     def get_submissions(self, limit=None):
         """Return a list of the images a user has submitted to the gallery."""
-        url = self._imgur.base_url + "/3/account/{0}/submissions/{1}".format(
-            self.name, "{}"
-        )
+        url = f"{self._imgur.base_url}/3/account/{self.name}/submissions/{{}}"
         resp = self._imgur.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self._imgur) for thing in resp]
 
