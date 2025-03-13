@@ -35,6 +35,8 @@ import os.path
 import re
 import sys
 
+from pyimgur.conversion import clean_imgur_params, get_content_to_send
+
 PY3 = sys.version_info.major == 3
 
 if PY3:
@@ -780,6 +782,7 @@ class Imgur:
         """
         # TODO: Add automatic test for timed_out access_tokens and
         # automatically refresh it before carrying out the request.
+
         if self.access_token is None and needs_auth:
             raise AuthenticationError(
                 "Authentication as a user is required to use this method."
@@ -787,11 +790,12 @@ class Imgur:
 
         if self.access_token is None:
             # Not authenticated as a user. Use anonymous access.
-            auth = {"Authorization": f"Client-ID {self.client_id}"}
+            authentication = {"Authorization": f"Client-ID {self.client_id}"}
         else:
-            auth = {"Authorization": f"Bearer {self.access_token}"}
+            authentication = {"Authorization": f"Bearer {self.access_token}"}
         if self.mashape_key:
-            auth.update({"X-Mashape-Key": self.mashape_key})
+            authentication.update({"X-Mashape-Key": self.mashape_key})
+
         content = []
         is_paginated = False
         base_url = url
@@ -803,8 +807,13 @@ class Imgur:
             page = 0
             url.format(page)
 
+        content_to_send = get_content_to_send(**kwargs)
+
         while True:
-            result = request.send_request(url, authentication=auth, **kwargs)
+            result = request.send_request(
+                url, content_to_send, headers=authentication, **kwargs
+            )
+
             new_content, ratelimit_info = result
             if is_paginated and new_content and limit > len(new_content):
                 content += new_content
@@ -816,11 +825,13 @@ class Imgur:
                 else:
                     content = new_content
                 break
+
         # Note: When the cache is implemented, it's important that the
         # ratelimit info doesn't get updated with the ratelimit info in the
         # cache since that's likely incorrect.
         for key, value in ratelimit_info.items():
             setattr(self, key[2:].replace("-", "_"), value)
+
         return content
 
     def authorization_url(self, response, state=""):
@@ -1565,26 +1576,3 @@ class Gallery_image(Image, Gallery_item):
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._INFO_URL = f"{imgur.BASE_URL}/3/gallery/image/{json_dict['id']}"
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
-
-
-# TODO: Given the name, this should probably be in requests.
-# Together with the other cleaning functions there.
-def clean_imgur_params(originals):
-    """Clean the params before sending to Imgur.
-
-    Remove keys set for internal purposes. Remove none
-    values, that otherwise cause Imgur to throw errors.
-
-    """
-    if not originals:
-        return {}
-
-    params = {}
-    for variable in originals.keys():
-        if variable == "self":
-            continue
-
-        if originals[variable] is not None:
-            params[variable] = originals[variable]
-
-    return params

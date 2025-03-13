@@ -17,7 +17,6 @@
 
 
 import os
-from numbers import Integral
 
 import requests
 
@@ -34,55 +33,11 @@ VERIFY_SSL = os.getenv("PYIMGUR_VERIFY_SSL", "True").lower() == "true"
 TIMEOUT_SECONDS = int(os.getenv("PYIMGUR_TIMEOUT", "30"))
 
 
-def convert_general(value):
-    """Take a python object and convert it to the format Imgur expects."""
-    if isinstance(value, bool):
-        return "true" if value else "false"
-
-    if isinstance(value, list):
-        value = [convert_general(item) for item in value]
-        value = convert_to_imgur_list(value)
-    elif isinstance(value, Integral):
-        return str(value)
-    elif "pyimgur" in str(type(value)):
-        return str(getattr(value, "id", value))
-
-    return value
-
-
-def convert_to_imgur_list(regular_list):
-    """Turn a python list into the list format Imgur expects."""
-    if regular_list is None:
-        return None
-    return ",".join(str(item) for item in regular_list)
-
-
-def to_imgur_format(params: dict | None, use_form_data=False):
-    """Convert the parameters to the format Imgur expects."""
-    files = []
-    if use_form_data:
-        if params and "ids" in params:
-            split_ids = convert_general(params["ids"]).split(",")
-            for split_id in split_ids:
-                files.append(("ids", (None, split_id)))
-
-            del params["ids"]
-
-    if params is None:
-        return {}, files
-
-    params = dict((k, convert_general(val)) for (k, val) in params.items())
-
-    return params, files
-
-
 def send_request(
     url: str,
-    params: dict | None = None,
+    content_to_send: dict | None = None,
+    headers: dict | None = None,
     method: str = "GET",
-    authentication: dict | None = None,
-    as_json: bool = False,
-    use_form_data: bool = False,
 ):
     """Send a request to the Imgur API.
 
@@ -92,34 +47,14 @@ def send_request(
         url: The API endpoint URL to send the request to.
         params: Optional dictionary of parameters to send with the request.
         method: HTTP method to use ('GET', 'POST', 'PUT'). Defaults to 'GET'.
-        authentication: Optional authentication headers.
+        headers: Headers to send with the request.
         as_json: Whether to use data as json. Defaults to False.
         use_form_data: Whether to send data as form data. Defaults to False.
 
     """
-    # TODO Add error checking
-    params, files = to_imgur_format(params, as_json and use_form_data)
 
-    # We may need to add more elements to the header later. For now, it seems
-    # the only thing in the header is the authentication
-    headers = authentication
-
-    print("As json", as_json)
-    print("Use form Data", use_form_data)
-    print(f"Headers: {headers}")
-    print(f"Url: {url}")
-    print(f"Method: {method}")
-    print(f"Params: {params}".replace("'", '"'))
-    print(f"Headers: {headers}")
-
-    content_to_send = {"files": files, "params": None, "data": None, "json": None}
-
-    if method == "GET":
-        content_to_send["params"] = params
-    elif as_json:
-        content_to_send["json"] = params
-    else:
-        content_to_send["data"] = params
+    if content_to_send is None:
+        content_to_send = {}
 
     response = perform_request(url, method, content_to_send, headers)
 
@@ -135,7 +70,9 @@ def send_request(
         raise UnexpectedImgurException(error_msg)
 
     ratelimit_info = dict(
-        (k, int(v)) for (k, v) in response.headers.items() if k.startswith("x-ratelimit")
+        (k, int(v))
+        for (k, v) in response.headers.items()
+        if k.startswith("x-ratelimit")
     )
     return content, ratelimit_info
 
