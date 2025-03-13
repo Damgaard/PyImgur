@@ -438,7 +438,16 @@ disable=raw-checker-failed,
         deprecated-pragma,
         use-symbolic-message-instead,
         use-implicit-booleaness-not-comparison-to-string,
-        use-implicit-booleaness-not-comparison-to-zero
+        use-implicit-booleaness-not-comparison-to-zero,
+
+        # These are ignore due to the way lazy loading is implemented.
+        # If an undefined attribute is accessed, we will try to fetch it from
+        # Imgur. If all attributes were defined in __init__, this would not work.
+        # Additionally, accessing an undefined attribute will trigger a fetch of
+        # the data from Imgur if it is not already there. Which it should be in
+        # most cases, but Pylint offcourse cannot see this.
+        attribute-defined-outside-init,
+        access-member-before-definition
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

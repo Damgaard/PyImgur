@@ -270,3 +270,41 @@ def test_change_authentication_client_can_swithc_refresh_auth():
     assert client.refresh_token != None
     assert client.client_id != None
     assert client.client_secret != None
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_lazy_loading_can_be_triggered_by_refresh():
+    album = im.get_album("PaUermF")
+    author = album.author
+    assert not author._has_fetched
+    author.refresh()
+    assert author._has_fetched
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_lazy_loading_can_be_triggered_attribute_access():
+    album = im.get_album("PaUermF")
+    author = album.author
+    assert not author._has_fetched
+    print(author.reputation)
+    assert author._has_fetched
+
+
+pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+
+
+def test_lazy_loading_attributes_are_not_visible_until_fetched():
+    album = im.get_album("PaUermF")
+    author = album.author
+    assert "reputation" not in vars(author).keys()
+    author.refresh()
+    assert "reputation" in vars(author).keys()
