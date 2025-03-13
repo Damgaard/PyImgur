@@ -35,23 +35,23 @@ import os.path
 import re
 import sys
 
+import requests  # NOQA
+
+from pyimgur import request
+from pyimgur.conversion import clean_imgur_params, get_content_to_send
+from pyimgur.exceptions import (
+    AuthenticationError,
+    InvalidParameterError,
+    ResourceNotFoundError,
+    FileOverwriteError,
+)
+
 PY3 = sys.version_info.major == 3
 
 if PY3:
     from urllib.parse import urlparse  # pylint: disable=no-name-in-module,import-error
 else:
     from urlparse import urlparse
-
-import requests  # NOQA
-
-from pyimgur.conversion import clean_imgur_params, get_content_to_send
-from pyimgur.exceptions import (
-    AuthenticationError,
-    InvalidParameterError,
-    ResourceNotFoundError,
-)
-
-from pyimgur import request  # NOQA
 
 __version__ = "0.5.3"
 
@@ -128,6 +128,7 @@ class Basic_object(object):
                 self.link_medium_thumbnail = base + "m" + sep + ext
                 self.link_large_thumbnail = base + "l" + sep + ext
                 self.link_huge_thumbnail = base + "h" + sep + ext
+
         if isinstance(self, Album):
             if "account_url" in vars(self):
                 self.author = User(
@@ -624,12 +625,13 @@ class Image(Basic_object):
             'medium_thumbnail', 'large_thumbnail' or 'huge_thumbnail'.
 
         :returns: Name of the new file.
+        :raises FileExistsError: If the file already exists and overwrite is False
         """
 
         def save_as(filename):
             local_path = os.path.join(path, filename)
             if os.path.exists(local_path) and not overwrite:
-                raise Exception(
+                raise FileOverwriteError(
                     f"Trying to save as {local_path}, but file already exists."
                 )
             with open(local_path, "wb") as out_file:
@@ -805,7 +807,10 @@ class Imgur:
 
         while True:
             result = request.send_request(
-                url, method=kwargs.get("method", "GET"), content_to_send=content_to_send, headers=authentication
+                url,
+                method=kwargs.get("method", "GET"),
+                content_to_send=content_to_send,
+                headers=authentication,
             )
 
             new_content, ratelimit_info = result
@@ -852,7 +857,7 @@ class Imgur:
         self, client_id=None, client_secret=None, access_token=None, refresh_token=None
     ):
         """Change the current authentication."""
-        if not ((client_id is None) == (client_secret is None)):
+        if not client_id is None == client_secret is None:
             # Temporary. Will add library errors.
             raise InvalidParameterError(
                 "Must set both or none of client_id and client_secret at once"
@@ -1040,7 +1045,7 @@ class Imgur:
 
     def get_gallery(
         self, section="hot", sort="viral", window="day", show_viral=True, limit=None
-    ):
+    ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
         """
         Return a list of gallery albums and gallery images.
 
@@ -1193,11 +1198,11 @@ class Imgur:
         new access_token which will also be returned.
         """
         if self.client_secret is None:
-            raise Exception(
+            raise AuthenticationError(
                 "client_secret must be set to execute refresh_access_token."
             )
         if self.refresh_token is None:
-            raise Exception(
+            raise AuthenticationError(
                 "refresh_token must be set to execute refresh_access_token."
             )
         params = {
@@ -1222,7 +1227,7 @@ class Imgur:
 
     def upload_image(
         self, path=None, url=None, title=None, description=None, album=None
-    ):
+    ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
         """
         Upload the image at either path or url.
 
@@ -1379,7 +1384,7 @@ class User(Basic_object):
         messaging_enabled=None,
         album_privacy=None,
         accepted_gallery_terms=None,
-    ):
+    ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
         """
         Update the settings for the user.
 

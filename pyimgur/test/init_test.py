@@ -296,12 +296,10 @@ def test_lazy_loading_can_be_triggered_attribute_access():
     assert author._has_fetched
 
 
-pytest.mark.skipif(
+@pytest.mark.skipif(
     USER_NOT_AUTHENTICATED,
     reason="Cannot run live test without authentication variables.",
 )
-
-
 def test_lazy_loading_attributes_are_not_visible_until_fetched():
     album = im.get_album("PaUermF")
     author = album.author

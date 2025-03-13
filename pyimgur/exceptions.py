@@ -20,6 +20,10 @@ class PyImgurError(Exception):
     """Base exception class for all PyImgur exceptions."""
 
 
+class FileOverwriteError(PyImgurError):
+    """Raised when attempting to save a file that already exists and overwrite is False."""
+
+
 class UnexpectedImgurException(PyImgurError):
     """Imgur behaved in a unexpected way unhandled by this library.
 

@@ -14,11 +14,21 @@
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pyimgur.conversion import convert_to_imgur_list, to_imgur_format, clean_imgur_params, get_content_to_send
+from pyimgur.conversion import (
+    convert_to_imgur_list,
+    to_imgur_format,
+    clean_imgur_params,
+    get_content_to_send,
+)
 
 
 def test_get_content_to_send_none():
-    assert get_content_to_send(None) == {"files": [], "params": {}, "data": None, "json": None}
+    assert get_content_to_send(None) == {
+        "files": [],
+        "params": {},
+        "data": None,
+        "json": None,
+    }
 
 
 def test_to_imgur_list():
@@ -111,7 +121,6 @@ def test_to_imgur_format_files_for_ids_multiple_and_params():
             ("ids", (None, "NsuNI")),
         ],
     ) == to_imgur_format({"ids": ["QK1fZ9L", "NsuNI"], "number": 5}, True)
-
 
 
 def test_clean_imgur_params_none():

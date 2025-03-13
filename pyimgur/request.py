@@ -74,6 +74,7 @@ def send_request(
         for (k, v) in response.headers.items()
         if k.startswith("x-ratelimit")
     )
+
     return content, ratelimit_info
 
 
