@@ -18,7 +18,11 @@ import responses
 
 import pytest
 from pyimgur.request import send_request
-from pyimgur.exceptions import UnexpectedImgurException, InvalidParameterError, ImgurIsDownException
+from pyimgur.exceptions import (
+    UnexpectedImgurException,
+    InvalidParameterError,
+    ImgurIsDownException,
+)
 
 
 @responses.activate
@@ -58,18 +62,17 @@ def test_send_request_unexpected_imgur_exception():
     with pytest.raises(UnexpectedImgurException):
         _, _ = send_request("https://api.imgur.com/3/test")
 
+
 @responses.activate
 def test_send_request_imgur_is_down():
     responses.get(
         "https://api.imgur.com/3/test",
         body="Varnish cache error",
         status=503,
-
     )
 
     with pytest.raises(ImgurIsDownException):
         _, _ = send_request("https://api.imgur.com/3/test")
-
 
 
 @responses.activate

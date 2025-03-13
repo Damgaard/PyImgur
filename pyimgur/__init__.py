@@ -1389,9 +1389,16 @@ class User(Basic_object):
         # NOTE: album_privacy should maybe be renamed to default_privacy
         # NOTE: public_images is a boolean, despite the documentation saying it
         # is a string.
+        payload = {
+            "bio": bio,
+            "public_images": public_images,
+            "messaging_enabled": messaging_enabled,
+            "album_privacy": album_privacy,
+            "accepted_gallery_terms": accepted_gallery_terms,
+        }
         url = f"{self._imgur.base_url}/3/account/{self.name}/settings"
         resp = self._imgur.send_request(
-            url, needs_auth=True, params=locals(), method="POST"
+            url, needs_auth=True, params=payload, method="POST"
         )
         return resp
 
@@ -1459,7 +1466,7 @@ class User(Basic_object):
             notifications.
         """
         url = f"{self._imgur.base_url}/3/account/{self.name}/notifications/messages"
-        result = self._imgur.send_request(url, params=locals(), needs_auth=True)
+        result = self._imgur.send_request(url, params={"new": new}, needs_auth=True)
         return [
             Notification(msg_dict, self._imgur, has_fetched=True) for msg_dict in result
         ]
@@ -1467,7 +1474,7 @@ class User(Basic_object):
     def get_notifications(self, new=True):
         """Return all the notifications for this user."""
         url = f"{self._imgur.base_url}/3/account/{self.name}/notifications"
-        resp = self._imgur.send_request(url, params=locals(), needs_auth=True)
+        resp = self._imgur.send_request(url, params={"new": new}, needs_auth=True)
         msgs = [
             Message(msg_dict, self._imgur, has_fetched=True)
             for msg_dict in resp["messages"]
@@ -1486,7 +1493,7 @@ class User(Basic_object):
             notifications.
         """
         url = f"{self._imgur.base_url}/3/account/{self.name}/notifications/replies"
-        return self._imgur.send_request(url, needs_auth=True)
+        return self._imgur.send_request(url, params={"new": new}, needs_auth=True)
 
     def get_settings(self):
         """

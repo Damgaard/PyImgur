@@ -62,7 +62,7 @@ def send_request(
     if response.status_code == 404:
         raise ResourceNotFoundError(f"Resource not found: {url}")
 
-    if response.status_code == 503 or response.status_code == 504:
+    if response.status_code in (503, 504):
         raise ImgurIsDownException()
 
     content = response.json()
@@ -71,7 +71,10 @@ def send_request(
         content = content["data"]
 
     if not response.ok:
-        error_msg = f"{response.status_code}: Imgur ERROR message: {content.get('error', 'unknown Error')}"
+        error_msg = (
+            f"{response.status_code}: Imgur ERROR message: "
+            + f"{content.get('error', 'unknown Error')}"
+        )
         raise UnexpectedImgurException(error_msg)
 
     ratelimit_info = dict(
