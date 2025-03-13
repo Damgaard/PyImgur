@@ -35,8 +35,6 @@ import os.path
 import re
 import sys
 
-from pyimgur.conversion import clean_imgur_params, get_content_to_send
-
 PY3 = sys.version_info.major == 3
 
 if PY3:
@@ -46,11 +44,13 @@ else:
 
 import requests  # NOQA
 
+from pyimgur.conversion import clean_imgur_params, get_content_to_send
 from pyimgur.exceptions import (
     AuthenticationError,
     InvalidParameterError,
     ResourceNotFoundError,
 )
+
 from pyimgur import request  # NOQA
 
 __version__ = "0.5.3"
@@ -248,7 +248,7 @@ class Basic_object(object):
         Attributes that weren't added to the object before, due to lazy
         loading, will be added by calling refresh.
         """
-        resp = self._imgur.send_request(self._INFO_URL)
+        resp = self._imgur.send_request(self._info_url)
         self._populate(resp)
         self._has_fetched = True
         # NOTE: What if the object has been deleted in the meantime? That might
@@ -282,7 +282,7 @@ class Album(Basic_object):
     """
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur.BASE_URL + "/3/album/{0}".format(json_dict["id"])
+        self._info_url = imgur.BASE_URL + "/3/album/{0}".format(json_dict["id"])
         self.deletehash = None
         super(Album, self).__init__(json_dict, imgur, has_fetched)
 
@@ -465,7 +465,7 @@ class Comment(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
-        self._INFO_URL = f"{imgur.BASE_URL}/3/comment/{json_dict['id']}"
+        self._info_url = f"{imgur.BASE_URL}/3/comment/{json_dict['id']}"
         super(Comment, self).__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
@@ -598,7 +598,7 @@ class Image(Basic_object):
     # TODO: Looks like not all of these attributes are available still?
     # Alternatively, the lazy loading might have broken.
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = imgur.BASE_URL + "/3/image/{0}".format(json_dict["id"])
+        self._info_url = imgur.BASE_URL + "/3/image/{0}".format(json_dict["id"])
         self.deletehash = None
         super(Image, self).__init__(json_dict, imgur, has_fetched)
 
@@ -1285,7 +1285,7 @@ class Message(Basic_object):
     """This corresponds to the messages users can send each other."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = f"{imgur.BASE_URL}/3/message/{json_dict['id']}"
+        self._info_url = f"{imgur.BASE_URL}/3/message/{json_dict['id']}"
         super(Message, self).__init__(json_dict, imgur, has_fetched)
 
     """
@@ -1347,7 +1347,7 @@ class Notification(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         # Is never gotten lazily, so _has_fetched is always True
-        self._INFO_URL = f"{imgur.BASE_URL}/3/notification/{json_dict['id']}"
+        self._info_url = f"{imgur.BASE_URL}/3/notification/{json_dict['id']}"
         super(Notification, self).__init__(json_dict, imgur, has_fetched)
 
     def mark_as_viewed(self):
@@ -1373,7 +1373,7 @@ class User(Basic_object):
     """
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = f"{imgur.BASE_URL}/3/account/{json_dict['url']}"
+        self._info_url = f"{imgur.BASE_URL}/3/account/{json_dict['url']}"
         super(User, self).__init__(json_dict, imgur, has_fetched)
 
     # Overrides __repr__ method in Basic_object
@@ -1566,7 +1566,7 @@ class Gallery_album(Album, Gallery_item):
     """Gallery Albums are albums submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = f"{imgur.BASE_URL}/3/gallery/album/{json_dict['id']}"
+        self._info_url = f"{imgur.BASE_URL}/3/gallery/album/{json_dict['id']}"
         super(Gallery_album, self).__init__(json_dict, imgur, has_fetched)
 
 
@@ -1574,5 +1574,5 @@ class Gallery_image(Image, Gallery_item):
     """Gallery images are images submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
-        self._INFO_URL = f"{imgur.BASE_URL}/3/gallery/image/{json_dict['id']}"
+        self._info_url = f"{imgur.BASE_URL}/3/gallery/image/{json_dict['id']}"
         super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
