@@ -295,7 +295,6 @@ class Album(Basic_object):
             cannot add (non-existing or not owned by you) will not cause
             exceptions, but fail silently.
         """
-        params = clean_imgur_params(locals())
         url = self._imgur.base_url + f"/3/album/{self.id}/add"
         params = {"ids": images}
         return self._imgur.send_request(
@@ -404,11 +403,9 @@ class Album(Basic_object):
         # TODO: Make more generic error here. Should be a decorator
         assert self._imgur.access_token is not None
 
-        params = clean_imgur_params(locals())
-
         url = self._imgur.base_url + f"/3/album/{self._delete_or_id_hash}"
         is_updated = self._imgur.send_request(
-            url, params=params, method="PUT", as_json=True
+            url, params=locals(), method="PUT", as_json=True
         )
         if is_updated:
             self.title = title or self.title
@@ -703,10 +700,8 @@ class Image(Basic_object):
                 "At least one of title or description must be provided."
             )
 
-        params = clean_imgur_params(locals())
-
         is_updated = self._imgur.send_request(
-            url, params=params, method="POST", as_json=True
+            url, params=locals(), method="POST", as_json=True
         )
         if is_updated:
             self.title = title or self.title
@@ -807,11 +802,12 @@ class Imgur:
             page = 0
             url.format(page)
 
+        kwargs["params"] = clean_imgur_params(kwargs.get("params", {}))
         content_to_send = get_content_to_send(**kwargs)
 
         while True:
             result = request.send_request(
-                url, content_to_send, headers=authentication, **kwargs
+                url, method=kwargs.get("method", "GET"), content_to_send=content_to_send, headers=authentication
             )
 
             new_content, ratelimit_info = result
@@ -901,7 +897,6 @@ class Imgur:
             "description": description,
             "cover": cover,
         }
-        payload = clean_imgur_params(payload)
 
         resp = self.send_request(
             url, params=payload, method="POST", as_json=True, use_form_data=True
