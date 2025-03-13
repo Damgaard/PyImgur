@@ -28,7 +28,12 @@ class UnexpectedImgurException(PyImgurError):
     """Imgur behaved in a unexpected way unhandled by this library.
 
     This could be a temporary issue with their service, a bug on their end
-    or something else unexpected."""
+    or something else unexpected.
+    """
+
+
+class ImgurIsDownException(PyImgurError):
+    """Imgur's API is not available."""
 
 
 class AuthenticationError(PyImgurError):

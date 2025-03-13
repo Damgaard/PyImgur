@@ -24,6 +24,7 @@ from pyimgur.exceptions import (
     UnexpectedImgurException,
     InvalidParameterError,
     ResourceNotFoundError,
+    ImgurIsDownException,
 )
 
 MAX_RETRIES = 3
@@ -61,12 +62,16 @@ def send_request(
     if response.status_code == 404:
         raise ResourceNotFoundError(f"Resource not found: {url}")
 
+    if response.status_code == 503 or response.status_code == 504:
+        raise ImgurIsDownException()
+
     content = response.json()
+
     if "data" in content.keys():
         content = content["data"]
 
     if not response.ok:
-        error_msg = f"Imgur ERROR message: {content.get('error', 'unknown Error')}"
+        error_msg = f"{response.status_code}: Imgur ERROR message: {content.get('error', 'unknown Error')}"
         raise UnexpectedImgurException(error_msg)
 
     ratelimit_info = dict(
