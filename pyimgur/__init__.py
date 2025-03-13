@@ -297,7 +297,7 @@ class Album(Basic_object):
         url = self._imgur.BASE_URL + f"/3/album/{self.id}/add"
         params = {"ids": images}
         return self._imgur.send_request(
-            url, needs_auth=True, params=params, method="POST", alternate=True
+            url, needs_auth=True, params=params, method="POST", as_json=True
         )
 
     def delete(self):
@@ -328,7 +328,7 @@ class Album(Basic_object):
         # Seems most likely to be upstream bug.
         params = {"ids": images}
         return self._imgur.send_request(
-            url, params=params, method="POST", alternate=True, use_form_data=True
+            url, params=params, method="POST", as_json=True, use_form_data=True
         )
 
     # Endpoint seem broken on Imgurs end. Keeping it a private function until it's fixed
@@ -349,7 +349,7 @@ class Album(Basic_object):
             needs_auth=True,
             params=params,
             method="POST",
-            alternate=True,
+            as_json=True,
             use_form_data=True,
         )
 
@@ -406,7 +406,7 @@ class Album(Basic_object):
 
         url = self._imgur.BASE_URL + f"/3/album/{self._delete_or_id_hash}"
         is_updated = self._imgur.send_request(
-            url, params=params, method="PUT", alternate=True
+            url, params=params, method="PUT", as_json=True
         )
         if is_updated:
             self.title = title or self.title
@@ -704,7 +704,7 @@ class Image(Basic_object):
         params = clean_imgur_params(locals())
 
         is_updated = self._imgur.send_request(
-            url, params=params, method="POST", alternate=True
+            url, params=params, method="POST", as_json=True
         )
         if is_updated:
             self.title = title or self.title
@@ -893,7 +893,7 @@ class Imgur:
         payload = clean_imgur_params(payload)
 
         resp = self.send_request(
-            url, params=payload, method="POST", alternate=True, use_form_data=True
+            url, params=payload, method="POST", as_json=True, use_form_data=True
         )
         return Album(resp, self, has_fetched=False)
 

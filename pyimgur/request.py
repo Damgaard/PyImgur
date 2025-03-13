@@ -81,7 +81,7 @@ def send_request(
     params: dict | None = None,
     method: str = "GET",
     authentication: dict | None = None,
-    alternate: bool = False,
+    as_json: bool = False,
     use_form_data: bool = False,
 ):
     """Send a request to the Imgur API.
@@ -93,18 +93,18 @@ def send_request(
         params: Optional dictionary of parameters to send with the request.
         method: HTTP method to use ('GET', 'POST', 'PUT'). Defaults to 'GET'.
         authentication: Optional authentication headers.
-        alternate: Whether to use alternate request format. Defaults to False.
+        as_json: Whether to use data as json. Defaults to False.
         use_form_data: Whether to send data as form data. Defaults to False.
 
     """
     # TODO Add error checking
-    params, files = to_imgur_format(params, alternate and use_form_data)
+    params, files = to_imgur_format(params, as_json and use_form_data)
 
     # We may need to add more elements to the header later. For now, it seems
     # the only thing in the header is the authentication
     headers = authentication
 
-    print("Alternate", alternate)
+    print("As json", as_json)
     print("Use form Data", use_form_data)
     print(f"Headers: {headers}")
     print(f"Url: {url}")
@@ -116,7 +116,7 @@ def send_request(
 
     if method == "GET":
         content_to_send["params"] = params
-    elif alternate:
+    elif as_json:
         content_to_send["json"] = params
     else:
         content_to_send["data"] = params
