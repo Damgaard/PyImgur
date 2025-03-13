@@ -300,20 +300,12 @@ def test_image_download_to_parent_folder():
     os.remove(new_file)
 
 
-@pytest.mark.skipif(
-    USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without authentication variables.",
-)
 def test_can_change_authentication_cannot_just_update_id():
     client = pyimgur.Imgur(client_id="123", client_secret="455")
     with pytest.raises(Exception):
         client.change_authentication(client_id="888")
 
 
-@pytest.mark.skipif(
-    USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without authentication variables.",
-)
 def test_change_authentication_client_resets_auth():
     client = pyimgur.Imgur(
         client_id="123",
@@ -329,10 +321,6 @@ def test_change_authentication_client_resets_auth():
     assert client.refresh_token == None
 
 
-@pytest.mark.skipif(
-    USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without authentication variables.",
-)
 def test_change_authentication_client_can_swithc_refresh_auth():
     client = pyimgur.Imgur(
         client_id="123",

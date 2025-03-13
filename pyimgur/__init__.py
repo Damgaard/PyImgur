@@ -843,7 +843,9 @@ class Imgur:
         self, client_id=None, client_secret=None, access_token=None, refresh_token=None
     ):
         """Change the current authentication."""
-        if not client_id is None == client_secret is None:
+        if not (
+            (client_id is None) == (client_secret is None)
+        ):  # pylint: disable=superfluous-parens
             # Temporary. Will add library errors.
             raise InvalidParameterError(
                 "Must set both or none of client_id and client_secret at once"
