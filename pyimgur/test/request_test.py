@@ -81,6 +81,20 @@ def test_send_request_imgur_is_down():
 
 
 @responses.activate
+def test_send_request_imgur_is_down_in_a_504_way():
+    # I've not seen this happen. But we treat it as a 503, so
+    # it should be tested for.
+    responses.get(
+        "https://api.imgur.com/3/test",
+        body="Varnish cache error",
+        status=504,
+    )
+
+    with pytest.raises(ImgurIsDownException):
+        _, _ = send_request("https://api.imgur.com/3/test")
+
+
+@responses.activate
 def test_send_request_adds_paramaters():
     responses.get(
         "https://api.imgur.com/3/test",

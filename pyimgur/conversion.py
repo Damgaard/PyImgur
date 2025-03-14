@@ -19,10 +19,10 @@ from numbers import Integral
 
 
 def get_content_to_send(
-    params = None,
-    method = "GET",
-    as_json = False,
-    use_form_data = False,
+    params=None,
+    method="GET",
+    as_json=False,
+    use_form_data=False,
 ):
     """Get the content to send to Imgur, in the format it expects.
 

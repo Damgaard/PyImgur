@@ -36,9 +36,9 @@ TIMEOUT_SECONDS = int(os.getenv("PYIMGUR_TIMEOUT", "30"))
 
 def send_request(
     url: str,
-    content_to_send = None,
-    headers = None,
-    method = "GET",
+    content_to_send=None,
+    headers=None,
+    method="GET",
 ):
     """Send a request to the Imgur API.
 
@@ -49,8 +49,6 @@ def send_request(
         params: Optional dictionary of parameters to send with the request.
         method: HTTP method to use ('GET', 'POST', 'PUT'). Defaults to 'GET'.
         headers: Headers to send with the request.
-        as_json: Whether to use data as json. Defaults to False.
-        use_form_data: Whether to send data as form data. Defaults to False.
 
     """
 

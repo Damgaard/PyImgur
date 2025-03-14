@@ -69,7 +69,7 @@ def _get_album_or_image(json, imgur):
     return Gallery_image(json, imgur)
 
 
-class Basic_object():
+class Basic_object:
     """Contains basic functionality shared by a lot of PyImgur's classes."""
 
     def __getattr__(self, attribute):
@@ -689,7 +689,7 @@ class Image(Basic_object):
         return is_updated
 
 
-class Imgur():
+class Imgur:
     """
     The base class containing general functionality for Imgur.
 
