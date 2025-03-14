@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"  # Location of your requirements.txt, setup.py, or Pipfile
+    schedule:
+      interval: "weekly"
