@@ -33,7 +33,7 @@ For more information on usage visit https://github.com/Damgaard/PyImgur
 from base64 import b64encode
 import os.path
 import re
-import sys
+from urllib.parse import urlparse
 
 import requests  # NOQA
 
@@ -45,13 +45,6 @@ from pyimgur.exceptions import (
     ResourceNotFoundError,
     FileOverwriteError,
 )
-
-PY3 = sys.version_info.major == 3
-
-if PY3:
-    from urllib.parse import urlparse  # pylint: disable=no-name-in-module,import-error
-else:
-    from urlparse import urlparse
 
 __version__ = "0.5.3"
 
@@ -76,7 +69,7 @@ def _get_album_or_image(json, imgur):
     return Gallery_image(json, imgur)
 
 
-class Basic_object(object):
+class Basic_object():
     """Contains basic functionality shared by a lot of PyImgur's classes."""
 
     def __getattr__(self, attribute):
@@ -696,7 +689,7 @@ class Image(Basic_object):
         return is_updated
 
 
-class Imgur:
+class Imgur():
     """
     The base class containing general functionality for Imgur.
 

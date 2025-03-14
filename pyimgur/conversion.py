@@ -19,10 +19,10 @@ from numbers import Integral
 
 
 def get_content_to_send(
-    params: dict | None = None,
-    method: str = "GET",
-    as_json: bool = False,
-    use_form_data: bool = False,
+    params = None,
+    method = "GET",
+    as_json = False,
+    use_form_data = False,
 ):
     """Get the content to send to Imgur, in the format it expects.
 
@@ -68,8 +68,8 @@ def convert_general(value):
     return value
 
 
-def to_imgur_format(params: dict | None, use_form_data=False):
-    """Convert the parameters to the format Imgur expects."""
+def to_imgur_format(params, use_form_data=False):
+    """Convert the parameters t o the format Imgur expects."""
     files = []
     if use_form_data:
         if params and "ids" in params:

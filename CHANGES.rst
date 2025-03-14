@@ -13,6 +13,24 @@ divided into four categories.
 Unreleased
 ----------
 
+ * **[CHANGE]** Dropped support for Python 2.7. Lowest supported version is now
+   Python 3.9.
+ * **[CHANGE]** Added PYIMGUR_TIMEOUT environment variable to set the timeout
+   for requests. Defaults to 30 seconds.
+ * **[CHANGE]** Added PYIMGUR_VERIFY_SSL environment variable to set whether
+   IMGUR's SSL certificates should be verified. Defaults to True. Note that
+   this is a _breaking_ change as the Imgur object no longer accepts a verify
+   argument.
+ * **[IMGUR]** Fixed a large amount of broken calls due to backwards incompatible
+   changes in the Imgur API. 🙏 Thanks to me for having written a decent amount
+   of tests in the past, making it possible to catch and fix these issues.
+   Some issues may persist. The intent of this release is to get out a minimal
+   version, that works and is of acceptable quality. It is still thought, quite
+   a large release with breaking changes.
+
+PyImgur 0.6.0
+-------------
+
  * **[FEATURE]** Increase python 3.x compatibility. PyImgur is still only
    officially compatible with python 2.7.
  * **[FEATURE]** Add support for Mashape API Keys for commercial usage of the
@@ -26,12 +44,6 @@ Unreleased
    than the expected `AttributeError`.
  * **[CHANGE]** Tests that require authentication will now be skipped if
    authentication has not been set up.
- * **[CHANGE]** Added PYIMGUR_TIMEOUT environment variable to set the timeout
-   for requests. Defaults to 30 seconds.
- * **[CHANGE]** Added PYIMGUR_VERIFY_SSL environment variable to set whether
-   IMGUR's SSL certificates should be verified. Defaults to True. Note that
-   this is a _breaking_ change as the Imgur object no longer accepts a verify
-   argument.
 
 PyImgur 0.5.3
 -------------

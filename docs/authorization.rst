@@ -23,8 +23,8 @@ to act on their behalf::
   im = pyimgur.Imgur(CLIENT_ID, CLIENT_SECRET)
   auth_url = im.authorization_url('pin')
   webbrowser.open(auth_url)
-  pin = input("What is the pin? ") # Python 3x
-  #pin = raw_input("What is the pin? ") # Python 2x
+  pin = input("What is the pin? ")
+
 
 The response argument in :meth:`.authorization_url` can be either 'pin' or
 'code'. If it's code then the user will be redirected to your redirect url
