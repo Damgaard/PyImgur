@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyimgur"
+dynamic = ["version"]
+description = "The easy way of using Imgur"
+readme = "README.rst"
+requires-python = ">=3.9"
+authors = [
+    {name = "Andreas Damgaard Pedersen", email = "andreas.damgaard.pedersen@gmail.com"}
+]
+keywords = ["imgur", "api", "wrapper", "PyImgur"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Utilities"
+]
+dependencies = [
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/Damgaard/PyImgur"
+Documentation = "https://pyimgur.readthedocs.org"
+
+[tool.hatch.version]
+path = "pyimgur/__init__.py"
+pattern = '__version__ = "(?P<version>[^"]+)"'
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pyimgur",
+    "COPYING",
+    "README.rst",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["pyimgur/test"]
+python_files = ["*_test.py"]
+addopts = "-ra -q"
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3 

@@ -3,6 +3,7 @@
 
 *.py[co]
 build/
+dist/
 venv/
 virtualenv/
 virtualenv.cache/
