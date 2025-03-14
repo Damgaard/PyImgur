@@ -10,8 +10,8 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased
-----------
+PyImgur 0.7.0
+-------------
 
  * **[CHANGE]** Dropped support for Python 2.7. Lowest supported version is now
    Python 3.9.

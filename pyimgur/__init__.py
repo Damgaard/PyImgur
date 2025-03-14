@@ -46,7 +46,7 @@ from pyimgur.exceptions import (
     FileOverwriteError,
 )
 
-__version__ = "0.5.3"
+__version__ = "0.7.0"
 
 MASHAPE_BASE = "https://imgur-apiv3.p.mashape.com"
 IMGUR_BASE = "https://api.imgur.com"
