@@ -264,7 +264,7 @@ class Album(Basic_object):
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = f"{imgur.base_url}/3/album/{json_dict['id']}"
         self.deletehash = None
-        super(Album, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
     def add_images(self, images):
         """
@@ -443,7 +443,7 @@ class Comment(Basic_object):
     def __init__(self, json_dict, imgur, has_fetched=True):
         self.deletehash = None
         self._info_url = f"{imgur.base_url}/3/comment/{json_dict['id']}"
-        super(Comment, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
         """Delete the comment."""
@@ -577,7 +577,7 @@ class Image(Basic_object):
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = imgur.base_url + f"/3/image/{json_dict['id']}"
         self.deletehash = None
-        super(Image, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
     def delete(self):
         """Delete the image."""
@@ -1264,7 +1264,7 @@ class Message(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = f"{imgur.base_url}/3/message/{json_dict['id']}"
-        super(Message, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
     """
     Maybe we cannot unblock users? Would be quite problematic if one of the
@@ -1326,7 +1326,7 @@ class Notification(Basic_object):
     def __init__(self, json_dict, imgur, has_fetched=True):
         # Is never gotten lazily, so _has_fetched is always True
         self._info_url = f"{imgur.base_url}/3/notification/{json_dict['id']}"
-        super(Notification, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
     def mark_as_viewed(self):
         """
@@ -1352,7 +1352,7 @@ class User(Basic_object):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = f"{imgur.base_url}/3/account/{json_dict['url']}"
-        super(User, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
     # Overrides __repr__ method in Basic_object
     def __repr__(self):
@@ -1550,7 +1550,7 @@ class Gallery_album(Album, Gallery_item):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = f"{imgur.base_url}/3/gallery/album/{json_dict['id']}"
-        super(Gallery_album, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
 
 
 class Gallery_image(Image, Gallery_item):
@@ -1558,4 +1558,4 @@ class Gallery_image(Image, Gallery_item):
 
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = f"{imgur.base_url}/3/gallery/image/{json_dict['id']}"
-        super(Gallery_image, self).__init__(json_dict, imgur, has_fetched)
+        super().__init__(json_dict, imgur, has_fetched)
