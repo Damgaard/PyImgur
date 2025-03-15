@@ -44,13 +44,10 @@ include = [
 [tool.pytest.ini_options]
 testpaths = ["pyimgur/test"]
 python_files = ["*_test.py"]
-addopts = "-ra -q"
 
 [tool.black]
-line-length = 100
 target-version = ["py39"]
 
 [tool.isort]
 profile = "black"
-line_length = 100
 multi_line_output = 3 
