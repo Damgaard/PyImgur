@@ -776,7 +776,11 @@ class Imgur:
 
         if "limit" in kwargs:
             is_paginated = True
-            limit = kwargs["limit"] or self.DEFAULT_LIMIT
+
+            limit = kwargs["limit"]
+            if not limit or limit < 0:
+                limit = self.DEFAULT_LIMIT
+
             del kwargs["limit"]
             page = 0
             url = url.format(page)
@@ -793,7 +797,11 @@ class Imgur:
             )
 
             new_content, ratelimit_info = result
-            if is_paginated and new_content and limit > len(new_content):
+            if (
+                is_paginated
+                and new_content
+                and limit > (len(new_content) + len(content))
+            ):
                 content += new_content
                 page += 1
                 url = base_url.format(page)

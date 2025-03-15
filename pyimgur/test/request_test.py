@@ -331,3 +331,193 @@ def test_get_subreddit_gallery_fetches_from_right_url():
         responses.calls[0].request.url
         == f"https://api.imgur.com/3/gallery/r/{subreddit}/time/top/0"
     )
+
+
+@responses.activate
+def test_pagination_fetches_multiple_pages():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    im.get_memes_gallery(limit=8)
+
+    assert len(responses.calls) == 2
+
+
+@responses.activate
+def test_pagination_right_amount_of_content():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    result = im.get_memes_gallery(limit=8)
+
+    assert len(result) == 8
+
+
+@responses.activate
+def test_pagination_does_not_fetch_more_data_than_needed():
+    """Request #2 fulfils requirement. Another request would be redundant."""
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    result = im.get_memes_gallery(limit=8)
+
+    assert len(responses.calls) == 2
+
+
+@responses.activate
+def test_pagination_handles_last_page_having_too_few_items():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": [ALBUM_POPULATE_DATA] * 2},
+        status=200,
+    )
+
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
+        json={"data": []},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    result = im.get_memes_gallery(limit=8)
+
+    assert len(result) == 7
+
+
+@responses.activate
+def test_pagination_last_page_has_no_items_doesnt_break_system():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": []},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    result = im.get_memes_gallery(limit=8)
+
+    assert len(result) == 5
+
+
+@responses.activate
+def test_pagination_limit_argument_is_respected():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/3",
+        json={"data": []},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    limited_result = im.get_memes_gallery(limit=8)
+    limited_calls = len(responses.calls)
+
+    no_limit_result = im.get_memes_gallery()
+    no_limit_calls = len(responses.calls) - limited_calls
+
+    assert len(limited_result) != len(no_limit_result)
+    assert limited_calls != no_limit_calls
+
+
+@responses.activate
+def test_pagination_negative_limit_reverts_to_default_limit():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [ALBUM_POPULATE_DATA] * 75},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
+        json={"data": [ALBUM_POPULATE_DATA] * 75},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
+        json={"data": [ALBUM_POPULATE_DATA] * 75},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/3",
+        json={"data": []},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    result = im.get_memes_gallery(limit=-1)
+
+    assert len(result) == 100

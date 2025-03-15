@@ -10,6 +10,14 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+Unreleased
+----------
+ * **[BUGFIX]** Fix an issue with pagination, where the limit argument would
+    be ignored and maximum content would always be fetched. Correct data would
+    be fetched, but the number of requests would be excessive.
+ * **[CHANGE]** Reverted changes in 0.7.0 that set some non-default configurations
+    for pylint, pytest and black.
+
 PyImgur 0.7.0
 -------------
 
