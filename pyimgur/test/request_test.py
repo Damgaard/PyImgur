@@ -26,6 +26,8 @@ from pyimgur.exceptions import (
     ImgurIsDownException,
 )
 
+from pyimgur.test.data import ALBUM_POPULATE_DATA
+
 MOCKED_UNAUTHED_IMGUR = Imgur("fake_client_id")
 MOCKED_AUTHED_IMGUR = Imgur("fake_client_id", "fake_client_secret", "fake access token")
 
@@ -273,3 +275,59 @@ def test_album_favorite_calls_right_url():
 
     assert responses.calls[0].request.url == f"https://api.imgur.com/3/album/{album_id}/favorite"
     assert responses.calls[0].request.method == "POST"
+
+
+@responses.activate
+def test_get_memes_gallery_calls_right_url():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
+        json={
+            "data": [
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+            ]
+        },
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    im.get_memes_gallery(limit=3)
+
+    assert len(responses.calls) == 1
+    assert (
+        responses.calls[0].request.url
+        == "https://api.imgur.com/3/gallery/g/memes/viral/week/0"
+    )
+
+
+@responses.activate
+def test_get_subreddit_gallery_fetches_from_right_url():
+    subreddit = "pics"
+
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/gallery/r/{subreddit}/time/top/0",
+        json={
+            "data": [
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+                ALBUM_POPULATE_DATA,
+            ]
+        },
+        status=200,
+    )
+
+    im = Imgur("fake_client_id")
+    im.get_subreddit_gallery(subreddit, limit=5)
+
+    assert len(responses.calls) == 1
+    assert (
+        responses.calls[0].request.url
+        == f"https://api.imgur.com/3/gallery/r/{subreddit}/time/top/0"
+    )

@@ -779,7 +779,7 @@ class Imgur:
             limit = kwargs["limit"] or self.DEFAULT_LIMIT
             del kwargs["limit"]
             page = 0
-            url.format(page)
+            url = url.format(page)
 
         kwargs["params"] = clean_imgur_params(kwargs.get("params", {}))
         content_to_send = get_content_to_send(**kwargs)
@@ -1106,9 +1106,7 @@ class Imgur:
             "top", day | week | month | year | all, defaults to week.
         :param limit: The number of items to return.
         """
-        url = self.base_url + "/3/gallery/g/memes/{0}/{1}/{2}".format(
-            sort, window, "{}"
-        )
+        url = self.base_url + f"/3/gallery/g/memes/{sort}/{window}/{'{}'}"
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
@@ -1142,7 +1140,7 @@ class Imgur:
             "top", day | week | month | year | all, defaults to day.
         :param limit: The number of items to return.
         """
-        url = self.base_url + f"/3/gallery/r/{subreddit}/{sort}/{window}/{'{}'}"
+        url = f"{self.base_url}/3/gallery/r/{subreddit}/{sort}/{window}/{'{}'}"
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
