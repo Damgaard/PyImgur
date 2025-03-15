@@ -263,17 +263,20 @@ def test_album_favorite_calls_right_url():
         responses.POST,
         f"https://api.imgur.com/3/album/{album_id}/favorite",
         json={"data": {"id": album_id, "title": "test"}},
-        status=200
+        status=200,
     )
 
     album = Album(
         {"id": album_id, "deletehash": "deletehash", "title": "test"},
         MOCKED_AUTHED_IMGUR,
-        True
+        True,
     )
     album.favorite()
 
-    assert responses.calls[0].request.url == f"https://api.imgur.com/3/album/{album_id}/favorite"
+    assert (
+        responses.calls[0].request.url
+        == f"https://api.imgur.com/3/album/{album_id}/favorite"
+    )
     assert responses.calls[0].request.method == "POST"
 
 
@@ -282,15 +285,7 @@ def test_get_memes_gallery_calls_right_url():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={
-            "data": [
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-            ]
-        },
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
         status=200,
     )
 
@@ -311,15 +306,7 @@ def test_get_subreddit_gallery_fetches_from_right_url():
     responses.add(
         responses.GET,
         f"https://api.imgur.com/3/gallery/r/{subreddit}/time/top/0",
-        json={
-            "data": [
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-                ALBUM_POPULATE_DATA,
-            ]
-        },
+        json={"data": [ALBUM_POPULATE_DATA] * 5},
         status=200,
     )
 

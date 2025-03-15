@@ -449,8 +449,6 @@ class Comment(Basic_object):
         """Delete the comment."""
         url = self._imgur.base_url + f"/3/image/{self._delete_or_id_hash}"
         return self._imgur.send_request(url, method="DELETE")
-        # TODO: Gives a 403 permission denied error on comment 77087313 which
-        # made by me.
 
     def downvote(self):
         """Downvote this comment."""
@@ -472,15 +470,6 @@ class Comment(Basic_object):
             url, params=payload, needs_auth=True, method="POST"
         )
         return Comment(resp, imgur=self._imgur, has_fetched=False)
-
-    '''
-    Testing this method would give Imgur false positives.
-    Discussions with Imgur will hopefully produce a way of consistently testing
-    this without giving Imgur problems.
-    def report(self):
-        """Reply comment for being inappropriate."""
-        pass
-    '''
 
     def upvote(self):
         """Upvote this comment."""
@@ -878,8 +867,7 @@ class Imgur:
         :returns: The newly created album.
         """
 
-        # TODO: Make more generic error here. Should be a decorator
-        # TODO: Test that this is required. Would imply documentaiton is wrong
+        # TODO: Test that this is required. Would imply documentation is wrong
         assert self.access_token is not None
 
         url = self.base_url + "/3/album/"
@@ -894,18 +882,6 @@ class Imgur:
             url, params=payload, method="POST", as_json=True, use_form_data=True
         )
         return Album(resp, self, has_fetched=False)
-
-    '''
-    Not currently implemented for 3 reasons.
-
-    It requires recaptcha info, which makes using it via the API inconvenient.
-    It is hard to test.
-    It creates users on Imgur that doesn't correspond to actual users.
-
-    def create_user(self, username):
-        """Create this user on Imgur."""
-        pass
-    '''
 
     def exchange_code(self, code):
         """Exchange one-use code for an access_token and request_token."""
@@ -1118,23 +1094,6 @@ class Imgur:
         resp = self.send_request(url, limit=limit)
         return [_get_album_or_image(thing, self) for thing in resp]
 
-    '''
-    This method does not seem to return any more data than get_gallery_image.
-    So I'm not sure whether it needs to be included. Speaking for is that
-    people may expect it to be here, speaking against is that the functionality
-    already exists and duplication will reduce usability of the API.
-    07-08-2013
-    def get_memes_image(self, id):
-        """
-        Return the Gallery_image with the id submitted to the memes gallery
-
-        :param id: The id of the image we want.
-        """
-        url = self.base_url + "/3/gallery/g/memes/" % id
-        resp = self.send_request(url)
-        return Gallery_image(resp, self)
-    '''
-
     def get_subreddit_gallery(self, subreddit, sort="time", window="top", limit=None):
         """
         Return a list of gallery albums/images submitted to a subreddit.
@@ -1272,16 +1231,6 @@ class Message(Basic_object):
         self._info_url = f"{imgur.base_url}/3/message/{json_dict['id']}"
         super().__init__(json_dict, imgur, has_fetched)
 
-    """
-    Maybe we cannot unblock users? Would be quite problematic if one of the
-    main acounts blocked the other and it couldn't be unblocked.
-
-    Perhaps this method should also be placed under User as its a user we
-    block, not the message itself.
-    def block(self):
-        pass
-    """
-
     def delete(self):
         """Delete the message."""
         url = f"{self._imgur.base_url}/3/message/{self.id}"
@@ -1304,21 +1253,6 @@ class Message(Basic_object):
         :param body: The body of the message.
         """
         return self.author.send_message(body=body, reply_to=self.id)
-
-    '''
-    Testing this method would give Imgur false positives.
-    Discussions with Imgur will hopefully produce a way of consistently testing
-    this without giving Imgur problems.
-
-    Maybe this method should be placed under User as it is the user that's
-    being reported. On the other hand the reason for the report is sending
-    messages against Imgurs TOS. Comments can also be against the TOS, but
-    there is a separate endpoint for reporting those.
-
-    def report():
-        """Report the author sending a message against the Terms of Service."""
-        pass
-    '''
 
 
 class Notification(Basic_object):
