@@ -105,19 +105,26 @@ class Basic_object:
         # created objects rather than a string of ID or similar.
 
         rename_attrs = {
-            "favorite": {"forObjects": (Album, Image), "to": "is_favorited"},
-            "nsfw": {"forObjects": (Album, Image), "to": "is_nsfw"},
-            "animated": {"forObjects": (Image,), "to": "is_animated"},
-            "comment": {"forObjects": (Comment,), "to": "text"},
-            "deleted": {"forObjects": (Comment,), "to": "is_deleted"},
-            "viewed": {"forObjects": (Notification,), "to": "is_viewed"},
-            "url": {"forObjects": (User,), "to": "name"},
+            "favorite": {
+                "forObjects": ("Album", "Image", "Gallery_album", "Gallery_image"),
+                "to": "is_favorited",
+            },
+            "nsfw": {
+                "forObjects": ("Album", "Image", "Gallery_album", "Gallery_image"),
+                "to": "is_nsfw",
+            },
+            "animated": {"forObjects": ("Image", "Gallery_image"), "to": "is_animated"},
+            "comment": {"forObjects": ("Comment",), "to": "text"},
+            "deleted": {"forObjects": ("Comment",), "to": "is_deleted"},
+            "viewed": {"forObjects": ("Notification",), "to": "is_viewed"},
+            "url": {"forObjects": ("User",), "to": "name"},
         }
 
         for change_key, change_value in rename_attrs.items():
-            if isinstance(self, change_value["forObjects"]) and change_key in vars(
-                self
-            ):
+            if any(
+                self.__class__.__name__ == class_name
+                for class_name in change_value["forObjects"]
+            ) and change_key in vars(self):
                 value = self.__dict__[change_key]
                 self.__dict__[change_value["to"]] = value
                 del self.__dict__[change_key]
@@ -130,96 +137,6 @@ class Basic_object:
         for attr in dropped_attrs:
             if attr in vars(self):
                 del self.__dict__[attr]
-
-        if isinstance(self, Image):
-            if "link" in vars(self):
-                base, sep, ext = self.link.rpartition(".")
-                self.link_small_square = base + "s" + sep + ext
-                self.link_big_square = base + "b" + sep + ext
-                self.link_small_thumbnail = base + "t" + sep + ext
-                self.link_medium_thumbnail = base + "m" + sep + ext
-                self.link_large_thumbnail = base + "l" + sep + ext
-                self.link_huge_thumbnail = base + "h" + sep + ext
-
-        if isinstance(self, Album):
-            if "account_url" in vars(self):
-                self.author = User(
-                    {"url": self.account_url}, self._imgur, has_fetched=False
-                )
-                del self.account_url
-            if (
-                "cover" in vars(self) and self.cover is not None
-            ):  # pylint: disable=access-member-before-definition
-                self.cover = Image({"id": self.cover}, self._imgur, has_fetched=False)
-            # Looks like Imgur has broken backwards compatibility here and it is no
-            # longer possible to favourite individual images. Only galleries, which
-            # may be single images.
-            if "images" in vars(self):
-                if self.images is None:
-                    self.images = []
-                else:
-                    self.images = [
-                        Image(img, self._imgur, has_fetched=False)
-                        for img in self.images
-                    ]
-            if "images_count" in vars(self):
-                del self.images_count
-        elif isinstance(self, Comment):
-            if "author" in vars(self):
-                self.author = User({"url": self.author}, self._imgur, has_fetched=False)
-            # Problem with this naming is that children / parent are normal
-            # terminology for tree structures such as this. But elsewhere the
-            # children are referred to as replies, for instance a comment can
-            # be replies to not procreated with. I've decided to use replies
-            # and parent_comment as a compromise, where both attributes should
-            # be individually obvious but their connection may not.
-            if "children" in vars(self):
-                self.replies = [Comment(com, self._imgur) for com in self.children]
-                del self.children
-            if "image_id" in vars(self):
-                self.permalink = (
-                    f"http://imgur.com/gallery/{self.image_id}/comment/{self.id}"
-                )
-                self.image = Image(
-                    {"id": self.image_id}, self._imgur, has_fetched=False
-                )
-                del self.image_id
-            if "parent_id" in vars(self):
-                if self.parent_id == 0:  # Top level comment
-                    self.parent = None
-                else:
-                    self.parent = Comment(
-                        {"id": self.parent_id}, self._imgur, has_fetched=False
-                    )
-                del self.parent_id
-        elif isinstance(self, Gallery_image):
-            if "account_url" in vars(self):
-                self.author = User(
-                    {"url": self.account_url}, self._imgur, has_fetched=False
-                )
-                del self.account_url
-        elif isinstance(self, Message):
-            # Should be gotten via self.author.id
-            if "account_id" in vars(self):
-                del self.account_id
-            if "from" in vars(self):
-                # Use getattr and delattr here as doing self.from gives a
-                # syntax error because "from" is a protected keyword in Python.
-                self.author = User(
-                    {"url": getattr(self, "from")}, self._imgur, has_fetched=False
-                )
-                delattr(self, "from")
-            if "parent_id" in vars(self):
-                self.first_message = Message(
-                    {"id": self.parent_id}, self._imgur, has_fetched=False
-                )
-                del self.parent_id
-        elif isinstance(self, Notification):
-            if "content" in vars(self):
-                if "subject" in self.content:
-                    self.content = Message(self.content, self._imgur, True)
-                elif "caption" in self.content:
-                    self.content = Comment(self.content, self._imgur, True)
 
     def refresh(self):
         """
@@ -265,6 +182,30 @@ class Album(Basic_object):
         self._info_url = f"{imgur.base_url}/3/album/{json_dict['id']}"
         self.deletehash = None
         super().__init__(json_dict, imgur, has_fetched)
+
+    def _populate(self, json_dict):
+        super()._populate(json_dict)
+        if "account_url" in vars(self):
+            self.author = User(
+                {"url": self.account_url}, self._imgur, has_fetched=False
+            )
+            del self.account_url
+        if (
+            "cover" in vars(self) and self.cover is not None
+        ):  # pylint: disable=access-member-before-definition
+            self.cover = Image({"id": self.cover}, self._imgur, has_fetched=False)
+        # Looks like Imgur has broken backwards compatibility here and it is no
+        # longer possible to favourite individual images. Only galleries, which
+        # may be single images.
+        if "images" in vars(self):
+            if self.images is None:
+                self.images = []
+            else:
+                self.images = [
+                    Image(img, self._imgur, has_fetched=False) for img in self.images
+                ]
+        if "images_count" in vars(self):
+            del self.images_count
 
     def add_images(self, images):
         """
@@ -445,6 +386,34 @@ class Comment(Basic_object):
         self._info_url = f"{imgur.base_url}/3/comment/{json_dict['id']}"
         super().__init__(json_dict, imgur, has_fetched)
 
+    def _populate(self, json_dict):
+        super()._populate(json_dict)
+        if "author" in vars(self):
+            self.author = User({"url": self.author}, self._imgur, has_fetched=False)
+        # Problem with this naming is that children / parent are normal
+        # terminology for tree structures such as this. But elsewhere the
+        # children are referred to as replies, for instance a comment can
+        # be replies to not procreated with. I've decided to use replies
+        # and parent_comment as a compromise, where both attributes should
+        # be individually obvious but their connection may not.
+        if "children" in vars(self):
+            self.replies = [Comment(com, self._imgur) for com in self.children]
+            del self.children
+        if "image_id" in vars(self):
+            self.permalink = (
+                f"http://imgur.com/gallery/{self.image_id}/comment/{self.id}"
+            )
+            self.image = Image({"id": self.image_id}, self._imgur, has_fetched=False)
+            del self.image_id
+        if "parent_id" in vars(self):
+            if self.parent_id == 0:  # Top level comment
+                self.parent = None
+            else:
+                self.parent = Comment(
+                    {"id": self.parent_id}, self._imgur, has_fetched=False
+                )
+            del self.parent_id
+
     def delete(self):
         """Delete the comment."""
         url = self._imgur.base_url + f"/3/image/{self._delete_or_id_hash}"
@@ -567,6 +536,17 @@ class Image(Basic_object):
         self._info_url = imgur.base_url + f"/3/image/{json_dict['id']}"
         self.deletehash = None
         super().__init__(json_dict, imgur, has_fetched)
+
+    def _populate(self, json_dict):
+        super()._populate(json_dict)
+        if "link" in vars(self):
+            base, sep, ext = self.link.rpartition(".")
+            self.link_small_square = base + "s" + sep + ext
+            self.link_big_square = base + "b" + sep + ext
+            self.link_small_thumbnail = base + "t" + sep + ext
+            self.link_medium_thumbnail = base + "m" + sep + ext
+            self.link_large_thumbnail = base + "l" + sep + ext
+            self.link_huge_thumbnail = base + "h" + sep + ext
 
     def delete(self):
         """Delete the image."""
@@ -1231,6 +1211,21 @@ class Message(Basic_object):
         self._info_url = f"{imgur.base_url}/3/message/{json_dict['id']}"
         super().__init__(json_dict, imgur, has_fetched)
 
+    def _populate(self, json_dict):
+        super()._populate(json_dict)
+        if "account_id" in vars(self):
+            del self.account_id
+        if "from" in vars(self):
+            self.author = User(
+                {"url": getattr(self, "from")}, self._imgur, has_fetched=False
+            )
+            delattr(self, "from")
+        if "parent_id" in vars(self):
+            self.first_message = Message(
+                {"id": self.parent_id}, self._imgur, has_fetched=False
+            )
+            del self.parent_id
+
     def delete(self):
         """Delete the message."""
         url = f"{self._imgur.base_url}/3/message/{self.id}"
@@ -1267,6 +1262,14 @@ class Notification(Basic_object):
         # Is never gotten lazily, so _has_fetched is always True
         self._info_url = f"{imgur.base_url}/3/notification/{json_dict['id']}"
         super().__init__(json_dict, imgur, has_fetched)
+
+    def _populate(self, json_dict):
+        super()._populate(json_dict)
+        if "content" in vars(self):
+            if "subject" in self.content:
+                self.content = Message(self.content, self._imgur, True)
+            elif "caption" in self.content:
+                self.content = Comment(self.content, self._imgur, True)
 
     def mark_as_viewed(self):
         """
@@ -1499,3 +1502,11 @@ class Gallery_image(Image, Gallery_item):
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = f"{imgur.base_url}/3/gallery/image/{json_dict['id']}"
         super().__init__(json_dict, imgur, has_fetched)
+
+    def _populate(self, json_dict):
+        super()._populate(json_dict)
+        if "account_url" in vars(self):
+            self.author = User(
+                {"url": self.account_url}, self._imgur, has_fetched=False
+            )
+            del self.account_url
