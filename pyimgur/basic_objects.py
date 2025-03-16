@@ -1,3 +1,27 @@
+# This file is part of PyImgur.
+
+# PyImgur is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# PyImgur is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Basic object, which all subsequent objects inherit from."""
+
+
+def _change_object(from_object, to_object):
+    from_object.__class__ = to_object.__class__
+    from_object.__dict__ = to_object.__dict__
+    from_object.__repr__ = to_object.__repr__
+
+
 class Basic_object:
     """Contains basic functionality shared by a lot of PyImgur's classes."""
 
@@ -83,7 +107,5 @@ def _change_object(from_object, to_object):
     from_object.__class__ = to_object.__class__
     from_object.__dict__ = to_object.__dict__
     from_object.__repr__ = to_object.__repr__
-        # NOTE: What if the object has been deleted in the meantime? That might
-        # give a pretty cryptic error.
-
-
+    # NOTE: What if the object has been deleted in the meantime? That might
+    # give a pretty cryptic error.
