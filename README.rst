@@ -83,6 +83,23 @@ methods modifying existing objects, this mean to keep the already existing
 value. For methods not modifying existing objects, this mean to use the Imgur
 default.
 
+Testing
+-------
+
+To run the tests, you can use the following command::
+
+.. code-block:: bash
+
+    pytest
+
+On an unmodified download of this repository, it will run all unit tests.
+These do not require an Imgur API key and include tests for API calls and
+general functionality.
+
+If you have configured a ´authentication.py´ file with your credentials,
+then integration tests will also be run. Ensuring that nothing has changed
+in the Imgur API, which would break functionality.
+
 Lazy objects
 ------------
 
