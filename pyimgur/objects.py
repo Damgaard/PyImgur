@@ -21,7 +21,7 @@ move them into multiple files have failed on circular imports.
 """
 
 from pyimgur.basic_objects import Basic_object, _change_object
-from pyimgur import Image
+from pyimgur.image import Image
 from pyimgur.exceptions import InvalidParameterError
 
 
