@@ -218,7 +218,7 @@ ALBUM_EXPECTED_DATA = {
     "is_nsfw": None,
 }
 
-GALLERY_ALBUM_POPULATE_DATA = {
+MOCKED_GALLERY_ALBUM_DATA = {
     "id": "vDtsSUW",
     "title": "Baby elephant asks for water from a man in Nepal",
     "description": None,
@@ -508,7 +508,7 @@ GALLERY_ALBUM_EXPECTED_DATA = {
     "is_nsfw": False,
 }
 
-GALLERY_IMAGE_POPULATE_DATA = {
+MOCKED_GALLERY_IMAGE_DATA = {
     "id": "CleiK2V",
     "title": "MRW When I go to the bathroom without my smartphone...",
     "description": None,
@@ -671,7 +671,7 @@ COMMENT_EXPECTED_DATA = {
     "parent": None,
 }
 
-USER_POPULATE_DATA = {
+MOCKED_USER_DATA = {
     "id": 718642,
     "url": "darthmonkey",
     "bio": "I saw a duck once.",

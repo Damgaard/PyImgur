@@ -18,7 +18,7 @@ import responses
 
 import pytest
 
-from pyimgur import Imgur, Album
+from pyimgur import Imgur, Album, Image, User
 from pyimgur.request import send_request
 from pyimgur.exceptions import (
     UnexpectedImgurException,
@@ -26,10 +26,16 @@ from pyimgur.exceptions import (
     ImgurIsDownException,
 )
 
-from pyimgur.test.data import ALBUM_POPULATE_DATA
+from pyimgur.test.data import (
+    ALBUM_POPULATE_DATA,
+    MOCKED_USER_DATA,
+    MOCKED_GALLERY_ALBUM_DATA,
+    MOCKED_GALLERY_IMAGE_DATA,
+)
 
 MOCKED_UNAUTHED_IMGUR = Imgur("fake_client_id")
 MOCKED_AUTHED_IMGUR = Imgur("fake_client_id", "fake_client_secret", "fake access token")
+MOCKED_USER = User(MOCKED_USER_DATA, MOCKED_AUTHED_IMGUR)
 
 
 @responses.activate
@@ -508,3 +514,45 @@ def test_pagination_negative_limit_reverts_to_default_limit():
     result = im.get_memes_gallery(limit=-1)
 
     assert len(result) == 100
+
+
+@responses.activate
+def test_get_favorites_uses_pagination():
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/account/{MOCKED_USER.name}/favorites/0",
+        json={"data": [MOCKED_GALLERY_ALBUM_DATA] * 25, "success": True, "status": 200},
+    )
+
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/account/{MOCKED_USER.name}/favorites/1",
+        json={"data": [MOCKED_GALLERY_ALBUM_DATA] * 25, "success": True, "status": 200},
+    )
+
+    result = MOCKED_USER.get_favorites(limit=40)
+
+    assert len(responses.calls) == 2
+    assert len(result) == 40
+
+
+@responses.activate
+def test_get_favorites_handles_mixed_types():
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/account/{MOCKED_USER.name}/favorites/0",
+        json={
+            "data": [
+                MOCKED_GALLERY_ALBUM_DATA,
+                MOCKED_GALLERY_IMAGE_DATA,
+            ],
+            "success": True,
+            "status": 200,
+        },
+    )
+
+    result = MOCKED_USER.get_favorites(limit=2)
+
+    assert len(result) == 2
+    assert isinstance(result[0], Album)
+    assert isinstance(result[1], Image)

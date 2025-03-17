@@ -564,10 +564,10 @@ class User(Basic_object):
         resp = self._imgur.send_request(url)
         return [Comment(com, self._imgur) for com in resp]
 
-    def get_favorites(self):
+    def get_favorites(self, limit=None):
         """Return the users favorited images."""
-        url = f"{self._imgur.base_url}/3/account/{self.name}/favorites"
-        resp = self._imgur.send_request(url, needs_auth=True)
+        url = f"{self._imgur.base_url}/3/account/{self.name}/favorites/{{}}"
+        resp = self._imgur.send_request(url, limit=limit, needs_auth=True)
         return [Gallery_item.get_album_or_image(thing, self._imgur) for thing in resp]
 
     def get_gallery_favorites(self):

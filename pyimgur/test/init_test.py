@@ -29,13 +29,13 @@ from .data import (
     IMAGE_EXPECTED_DATA,
     ALBUM_POPULATE_DATA,
     ALBUM_EXPECTED_DATA,
-    GALLERY_ALBUM_POPULATE_DATA,
+    MOCKED_GALLERY_ALBUM_DATA,
     GALLERY_ALBUM_EXPECTED_DATA,
-    GALLERY_IMAGE_POPULATE_DATA,
+    MOCKED_GALLERY_IMAGE_DATA,
     GALLERY_IMAGE_EXPECTED_DATA,
     COMMENT_POPULATE_DATA,
     COMMENT_EXPECTED_DATA,
-    USER_POPULATE_DATA,
+    MOCKED_USER_DATA,
     USER_EXPECTED_DATA,
 )
 
@@ -89,7 +89,7 @@ def test_populate_with_album():
 
 
 def test_populate_with_gallery_album():
-    gallery_album = pyimgur.Gallery_album(GALLERY_ALBUM_POPULATE_DATA, im, True)
+    gallery_album = pyimgur.Gallery_album(MOCKED_GALLERY_ALBUM_DATA, im, True)
     result = vars(gallery_album)
     del result["_imgur"]
     del result["author"]
@@ -101,7 +101,7 @@ def test_populate_with_gallery_album():
 
 
 def test_populate_with_gallery_image():
-    gallery_image = pyimgur.Gallery_image(GALLERY_IMAGE_POPULATE_DATA, im, True)
+    gallery_image = pyimgur.Gallery_image(MOCKED_GALLERY_IMAGE_DATA, im, True)
     result = vars(gallery_image)
     del result["_imgur"]
     del result["author"]
@@ -122,7 +122,7 @@ def test_populate_with_comment():
 
 
 def test_populate_with_user():
-    user = pyimgur.User(USER_POPULATE_DATA, im, True)
+    user = pyimgur.User(MOCKED_USER_DATA, im, True)
     result = vars(user)
     del result["_imgur"]
 

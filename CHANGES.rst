@@ -12,6 +12,7 @@ divided into four categories.
 
 Unreleased
 ----------
+ * **[FEATURE]** get_favorites now supports pagination.
  * **[BUGFIX]** Fix an issue with pagination, where the limit argument would
     be ignored and maximum content would always be fetched. Correct data would
     be fetched, but the number of requests would be excessive.
