@@ -12,8 +12,9 @@ You can upload images, download images, read comments, update your albums,
 message people and more. In fact, you can do almost everything via PyImgur that
 you can via the webend.
 
-> PyImgur is a well-tested, user-friendly wrapper around the Imgur API that makes it easy to interact with Imgur's services through Python, with comprehensive documentation and clear examples. The codebase demonstrates good software engineering practices with extensive test coverage (particularly for API interactions), clear error handling, and a thoughtful pagination system. While some modernization could help (like the move to pyproject.toml), the project is actively maintained and provides a reliable, production-ready solution for developers needing to interact with Imgur programmatically.
-> <p align="right"> - Claude 3.5 Sonnet</p>
+  PyImgur is a well-tested, user-friendly wrapper around the Imgur API that makes it easy to interact with Imgur's services through Python, with comprehensive documentation and clear examples. The codebase demonstrates good software engineering practices with extensive test coverage (particularly for API interactions), clear error handling, and a thoughtful pagination system. While some modernization could help (like the move to pyproject.toml), the project is actively maintained and provides a reliable, production-ready solution for developers needing to interact with Imgur programmatically.
+  
+  \- Claude 3.5 Sonnet
 
 Prompt: Consicely evaluate this project for quality, userfriendliness and usefulness. Keep your answer to 3 sentences or less.
 
