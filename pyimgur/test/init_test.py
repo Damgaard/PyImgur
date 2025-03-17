@@ -23,17 +23,18 @@ sys.path.insert(0, ".")
 import pyimgur
 from pyimgur import InvalidParameterError
 from pyimgur.basic_objects import Basic_object
+
 from . import USER_NOT_AUTHENTICATED, im
 from .data import (
-    IMAGE_POPULATE_DATA,
+    MOCKED_IMAGE_DATA,
     IMAGE_EXPECTED_DATA,
-    ALBUM_POPULATE_DATA,
+    MOCKED_ALBUM_DATA,
     ALBUM_EXPECTED_DATA,
     MOCKED_GALLERY_ALBUM_DATA,
     GALLERY_ALBUM_EXPECTED_DATA,
     MOCKED_GALLERY_IMAGE_DATA,
     GALLERY_IMAGE_EXPECTED_DATA,
-    COMMENT_POPULATE_DATA,
+    MOCKED_COMMENT_DATA,
     COMMENT_EXPECTED_DATA,
     MOCKED_USER_DATA,
     USER_EXPECTED_DATA,
@@ -69,7 +70,7 @@ def test_populate():
 
 
 def test_populate_with_image():
-    image = pyimgur.Image(IMAGE_POPULATE_DATA, im, True)
+    image = pyimgur.Image(MOCKED_IMAGE_DATA, im, True)
     result = vars(image)
     del result["_imgur"]
     assert result.keys() == IMAGE_EXPECTED_DATA.keys()
@@ -77,7 +78,7 @@ def test_populate_with_image():
 
 
 def test_populate_with_album():
-    album = pyimgur.Album(ALBUM_POPULATE_DATA, im, True)
+    album = pyimgur.Album(MOCKED_ALBUM_DATA, im, True)
     result = vars(album)
     del result["_imgur"]
     del result["author"]
@@ -111,7 +112,7 @@ def test_populate_with_gallery_image():
 
 
 def test_populate_with_comment():
-    comment = pyimgur.Comment(COMMENT_POPULATE_DATA, im, True)
+    comment = pyimgur.Comment(MOCKED_COMMENT_DATA, im, True)
     result = vars(comment)
     del result["author"]
     del result["_imgur"]

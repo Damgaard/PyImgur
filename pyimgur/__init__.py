@@ -53,7 +53,6 @@ from pyimgur.objects import (
     User,
 )
 
-
 __version__ = "0.7.1"
 
 MASHAPE_BASE = "https://imgur-apiv3.p.mashape.com"
@@ -104,7 +103,7 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         self.access_token = access_token
         self.client_id = client_id
         self.client_secret = client_secret
-        self.DEFAULT_LIMIT = 100
+        self.DEFAULT_LIMIT = 100  # pylint: disable=invalid-name
         self.ratelimit_clientlimit = None
         self.ratelimit_clientremaining = None
         self.ratelimit_userlimit = None
@@ -129,9 +128,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         :param needs_auth: Is authentication as a user needed for the execution
             of this method?
         """
-        # TODO: Add automatic test for timed_out access_tokens and
-        # automatically refresh it before carrying out the request.
-
         if self.access_token is None and needs_auth:
             raise AuthenticationError(
                 "Authentication as a user is required to use this method."
@@ -164,14 +160,13 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         content_to_send = get_content_to_send(**kwargs)
 
         while True:
-            result = request.send_request(
+            new_content, ratelimit_info = request.send_request(
                 url,
                 method=kwargs.get("method", "GET"),
                 content_to_send=content_to_send,
                 headers=authentication,
             )
 
-            new_content, ratelimit_info = result
             if (
                 is_paginated
                 and new_content
@@ -222,7 +217,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         if not (
             (client_id is None) == (client_secret is None)
         ):  # pylint: disable=superfluous-parens
-            # Temporary. Will add library errors.
             raise InvalidParameterError(
                 "Must set both or none of client_id and client_secret at once"
             )
@@ -252,8 +246,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
 
         :returns: The newly created album.
         """
-
-        # TODO: Test that this is required. Would imply documentation is wrong
         assert self.access_token is not None
 
         url = self.base_url + "/3/album/"
@@ -594,11 +586,7 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         resp = self.send_request(
             self.base_url + "/3/image", params=payload, method="POST"
         )
-        # TEMPORARY HACK:
-        # On 5-08-2013 I noticed Imgur now returned enough information from
-        # this call to fully populate the Image object. However those variables
-        # that matched arguments were always None, even if they had been given.
-        # See https://groups.google.com/forum/#!topic/imgur/F3uVb55TMGo
+
         resp["title"] = title
         resp["description"] = description
         if album is not None:

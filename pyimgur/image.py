@@ -50,8 +50,6 @@ class Image(Basic_object):  # pylint: disable=too-many-instance-attributes
 
     """
 
-    # TODO: Looks like not all of these attributes are available still?
-    # Alternatively, the lazy loading might have broken.
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._info_url = imgur.base_url + f"/3/image/{json_dict['id']}"
         self.deletehash = None

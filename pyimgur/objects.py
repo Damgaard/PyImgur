@@ -193,8 +193,6 @@ class Album(Basic_object):  # pylint: disable=too-many-instance-attributes
         :param layout: The way the album is displayed, can be blog, grid,
             horizontal or vertical.
         """
-
-        # TODO: Make more generic error here. Should be a decorator
         assert self._imgur.access_token is not None
 
         url = self._imgur.base_url + f"/3/album/{self._delete_or_id_hash}"
@@ -396,7 +394,7 @@ class Message(Basic_object):
         return self.author.send_message(body=body, reply_to=self.id)
 
 
-class Gallery_item:
+class Gallery_item:  # pylint: disable=invalid-name
     """Functionality shared by Gallery_image and Gallery_album."""
 
     def comment(self, text):
@@ -462,7 +460,7 @@ class Gallery_item:
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
 # from Gallery_item, Album and Image. It's thus impossible to place them
 # alphabetically without errors.
-class Gallery_album(Album, Gallery_item):
+class Gallery_album(Album, Gallery_item):  # pylint: disable=invalid-name
     """Gallery Albums are albums submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):
@@ -470,7 +468,7 @@ class Gallery_album(Album, Gallery_item):
         super().__init__(json_dict, imgur, has_fetched)
 
 
-class Gallery_image(Image, Gallery_item):
+class Gallery_image(Image, Gallery_item):  # pylint: disable=invalid-name
     """Gallery images are images submitted to the gallery."""
 
     def __init__(self, json_dict, imgur, has_fetched=True):

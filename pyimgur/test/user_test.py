@@ -23,12 +23,6 @@ from . import USER_NOT_AUTHENTICATED, user
 
 """Tests authenticated usage of the methods in the Album class."""
 
-# Make im protected, so it's not run on initialization
-# IDEA: To protect R and SR add a memorize class here, just like in the old
-# version of PRAW, that returns a R / SR object. For the first time it will
-# create the object, given an instance of PRAW, for the subsequent runs it will
-# return the previously created object.
-
 
 @pytest.mark.skipif(
     USER_NOT_AUTHENTICATED,

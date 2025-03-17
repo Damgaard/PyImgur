@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import responses
 
 import pytest
@@ -27,7 +26,7 @@ from pyimgur.exceptions import (
 )
 
 from pyimgur.test.data import (
-    ALBUM_POPULATE_DATA,
+    MOCKED_ALBUM_DATA,
     MOCKED_USER_DATA,
     MOCKED_GALLERY_ALBUM_DATA,
     MOCKED_GALLERY_IMAGE_DATA,
@@ -291,7 +290,7 @@ def test_get_memes_gallery_calls_right_url():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
 
@@ -312,7 +311,7 @@ def test_get_subreddit_gallery_fetches_from_right_url():
     responses.add(
         responses.GET,
         f"https://api.imgur.com/3/gallery/r/{subreddit}/time/top/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
 
@@ -331,13 +330,13 @@ def test_pagination_fetches_multiple_pages():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
 
@@ -352,13 +351,13 @@ def test_pagination_right_amount_of_content():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
 
@@ -374,19 +373,19 @@ def test_pagination_does_not_fetch_more_data_than_needed():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
 
@@ -401,13 +400,13 @@ def test_pagination_handles_last_page_having_too_few_items():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
-        json={"data": [ALBUM_POPULATE_DATA] * 2},
+        json={"data": [MOCKED_ALBUM_DATA] * 2},
         status=200,
     )
 
@@ -429,7 +428,7 @@ def test_pagination_last_page_has_no_items_doesnt_break_system():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
@@ -450,19 +449,19 @@ def test_pagination_limit_argument_is_respected():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
-        json={"data": [ALBUM_POPULATE_DATA] * 5},
+        json={"data": [MOCKED_ALBUM_DATA] * 5},
         status=200,
     )
     responses.add(
@@ -488,19 +487,19 @@ def test_pagination_negative_limit_reverts_to_default_limit():
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/0",
-        json={"data": [ALBUM_POPULATE_DATA] * 75},
+        json={"data": [MOCKED_ALBUM_DATA] * 75},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/1",
-        json={"data": [ALBUM_POPULATE_DATA] * 75},
+        json={"data": [MOCKED_ALBUM_DATA] * 75},
         status=200,
     )
     responses.add(
         responses.GET,
         "https://api.imgur.com/3/gallery/g/memes/viral/week/2",
-        json={"data": [ALBUM_POPULATE_DATA] * 75},
+        json={"data": [MOCKED_ALBUM_DATA] * 75},
         status=200,
     )
     responses.add(

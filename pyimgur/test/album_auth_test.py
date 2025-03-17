@@ -22,33 +22,13 @@ import pytest
 
 sys.path.insert(0, ".")
 
-try:
-    from authentication import client_id, client_secret, refresh_token
-except ImportError:
-    client_id = None
-    client_secret = None
-    refresh_token = None
-
-import pyimgur
-
-# Make im protected, so it's not run on initialization
-# IDEA: To protect R and SR add a memorize class here, just like in the old
-# version of PRAW, that returns a R / SR object. For the first time it will
-# create the object, given an instance of PRAW, for the subsequent runs it will
-# return the previously created object.
-
-im = pyimgur.Imgur(
-    client_id=client_id, client_secret=client_secret, refresh_token=refresh_token
-)
-if refresh_token:
-    im.refresh_access_token()
-
+from . import im
 
 IMAGE_IDS = ["4UoRzGc", "wHxiibZ", "w5pB7vT"]
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_add_images():
@@ -62,7 +42,7 @@ def test_add_images():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_remove_images():
@@ -78,7 +58,7 @@ def test_remove_images():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_remove_images_non_existing():
@@ -98,7 +78,7 @@ def test_remove_images_non_existing():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 @pytest.mark.skip(
@@ -116,7 +96,7 @@ def test_set_images():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_create():
@@ -128,7 +108,7 @@ def test_create():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_delete():
@@ -140,7 +120,7 @@ def test_delete():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_favorite():
@@ -153,7 +133,7 @@ def test_favorite():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_update():
@@ -166,7 +146,7 @@ def test_update():
 
 
 @pytest.mark.skipif(
-    refresh_token is None,
+    im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
 def test_update_with_images():

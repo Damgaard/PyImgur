@@ -22,7 +22,7 @@ def _change_object(from_object, to_object):
     from_object.__repr__ = to_object.__repr__
 
 
-class Basic_object:
+class Basic_object:  # pylint: disable=invalid-name
     """Contains basic functionality shared by a lot of PyImgur's classes."""
 
     def __getattr__(self, attribute):
@@ -51,11 +51,6 @@ class Basic_object:
     def _populate(self, json_dict):
         for key, value in json_dict.items():
             setattr(self, key, value)
-
-        # TODO: ups will need to be likes, because that's what the webinterface
-        # is. But we also have "voted" which is the current users vote on it.
-        # Update certain attributes for certain objects, to be link to lazily
-        # created objects rather than a string of ID or similar.
 
         rename_attrs = {
             "favorite": {

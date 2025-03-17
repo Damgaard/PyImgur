@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-
-IMAGE_POPULATE_DATA = {
+MOCKED_IMAGE_DATA = {
     "id": "JPz2i",
     "deletehash": "",
     "account_id": 326490,
@@ -85,7 +84,7 @@ IMAGE_EXPECTED_DATA = {
     "link_huge_thumbnail": "https://i.imgur.com/JPz2ih.png",
 }
 
-ALBUM_POPULATE_DATA = {
+MOCKED_ALBUM_DATA = {
     "id": "PaUermF",
     "title": "Scoots and the shoe",
     "description": "",
@@ -631,7 +630,7 @@ GALLERY_IMAGE_EXPECTED_DATA = {
     "link_huge_thumbnail": "https://i.imgur.com/CleiK2Vh.gif",
 }
 
-COMMENT_POPULATE_DATA = {
+MOCKED_COMMENT_DATA = {
     "id": 49538390,
     "image_id": "LA2RQqp",
     "comment": "I think you're right.",
