@@ -22,6 +22,7 @@ move them into multiple files have failed on circular imports.
 
 from pyimgur.basic_objects import Basic_object, _change_object
 from pyimgur import Image
+from pyimgur.exceptions import InvalidParameterError
 
 
 class Album(Basic_object):  # pylint: disable=too-many-instance-attributes
@@ -570,10 +571,17 @@ class User(Basic_object):
         resp = self._imgur.send_request(url, limit=limit, needs_auth=True)
         return [Gallery_item.get_album_or_image(thing, self._imgur) for thing in resp]
 
-    def get_gallery_favorites(self):
+    def get_gallery_favorites(self, sort=None, limit=None):
         """Get a list of the images in the gallery this user has favorited."""
-        url = f"{self._imgur.base_url}/3/account/{self.name}/gallery_favorites"
-        resp = self._imgur.send_request(url)
+        if sort not in (None, "oldest", "newest"):
+            raise InvalidParameterError("sort must be None, 'oldest' or 'newest'")
+
+        url = f"{self._imgur.base_url}/3/account/{self.name}/gallery_favorites/{{}}"
+
+        if sort:
+            url += f"/{sort}"
+
+        resp = self._imgur.send_request(url, limit=limit)
         return [Image(img, self._imgur) for img in resp]
 
     def get_gallery_profile(self):

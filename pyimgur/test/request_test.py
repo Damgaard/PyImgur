@@ -556,3 +556,45 @@ def test_get_favorites_handles_mixed_types():
     assert len(result) == 2
     assert isinstance(result[0], Album)
     assert isinstance(result[1], Image)
+
+
+@responses.activate
+def test_get_gallery_favorites_uses_pagination():
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/account/{MOCKED_USER.name}/gallery_favorites/0",
+        json={"data": [MOCKED_GALLERY_ALBUM_DATA] * 25, "success": True, "status": 200},
+    )
+
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/account/{MOCKED_USER.name}/gallery_favorites/1",
+        json={"data": [MOCKED_GALLERY_ALBUM_DATA] * 25, "success": True, "status": 200},
+    )
+
+    result = MOCKED_USER.get_gallery_favorites(limit=40)
+
+    assert len(responses.calls) == 2
+    assert len(result) == 40
+
+
+@responses.activate
+def test_get_gallery_favorites_optional_sort_argument():
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/account/{MOCKED_USER.name}/gallery_favorites/0/oldest",
+        json={"data": [MOCKED_GALLERY_ALBUM_DATA] * 25, "success": True, "status": 200},
+    )
+    result = MOCKED_USER.get_gallery_favorites(sort="oldest", limit=10)
+
+    assert len(result) == 10
+    assert (
+        responses.calls[0].request.url
+        == f"https://api.imgur.com/3/account/{MOCKED_USER.name}/gallery_favorites/0/oldest"
+    )
+
+
+@responses.activate
+def test_get_gallery_favorites_invalid_sort_argument():
+    with pytest.raises(InvalidParameterError):
+        MOCKED_USER.get_gallery_favorites(sort="invalid")

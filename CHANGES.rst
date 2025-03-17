@@ -12,7 +12,8 @@ divided into four categories.
 
 Unreleased
 ----------
- * **[FEATURE]** get_favorites now supports pagination.
+ * **[FEATURE]** get_favorites and get_gallery_favorites now supports pagination.
+ * **[FEATURE]** get_gallery_favorites now supports sorting by oldest and newest.
  * **[BUGFIX]** Fix an issue with pagination, where the limit argument would
     be ignored and maximum content would always be fetched. Correct data would
     be fetched, but the number of requests would be excessive.
