@@ -41,9 +41,7 @@ Getting Started
 
 Before we can start using PyImgur, we need to register our application with
 Imgur. This way, Imgur can see what each application is doing on their site.
-Go to https://api.imgur.com/oauth2/addclient to register your client. Note that
-you can't use an application registration for the old v2 version of the Imgur
-API, which was depreciated December 2012.
+Go to https://api.imgur.com/oauth2/addclient to register your client.
 
 When we registered our application we got a ``client_id`` and a
 ``client_secret``. The ``client_secret`` is used for authenticating as a user,
