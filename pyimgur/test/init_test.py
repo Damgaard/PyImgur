@@ -22,6 +22,7 @@ sys.path.insert(0, ".")
 
 import pyimgur
 from pyimgur import InvalidParameterError
+from pyimgur.basic_objects import Basic_object
 from . import USER_NOT_AUTHENTICATED, im
 from .data import (
     IMAGE_POPULATE_DATA,
@@ -49,12 +50,12 @@ current_directory = os.path.dirname(current_file_path)
 CAT_IMAGE_PATH = os.path.join(current_directory, "cat.jpg")
 
 
-class Empty(pyimgur.Basic_object):
+class Empty(Basic_object):
     pass
 
 
 def test_accessing_bad_attribute():
-    basic_object = pyimgur.Basic_object({}, None, True)
+    basic_object = Basic_object({}, None, True)
     with pytest.raises(AttributeError):
         basic_object.no_such_object  # pylint: disable=pointless-statement
 
