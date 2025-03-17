@@ -10,7 +10,7 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased
+PyImgur 0.7.1
 ----------
  * **[FEATURE]** get_favorites and get_gallery_favorites now supports pagination.
  * **[FEATURE]** get_gallery_favorites now supports sorting by oldest and newest.

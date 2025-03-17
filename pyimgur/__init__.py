@@ -54,7 +54,7 @@ from pyimgur.objects import (
 )
 
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 MASHAPE_BASE = "https://imgur-apiv3.p.mashape.com"
 IMGUR_BASE = "https://api.imgur.com"
