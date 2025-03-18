@@ -168,11 +168,11 @@ release breaking changes in a single release. This won't prevent future
 releases with breaking changes, but will reduce the number of them.
 Which will make it easier to upgrade.
 
- - Remove Mashape key argument from Imgur object. It currently does nothing.
-   As Mashape is no longer used by Imgur, instead RapidAPI is used. Which
-   is also supported by the Imgur object.
- - Fix some classes like Gallery_album not being in following PascalCase.
- - Rename / remove DEFAULT_LIMIT from Imgur. Also not following conventions.
-   Should maybe be set via an environment variable or other config instead.
+- Remove Mashape key argument from Imgur object. It currently does nothing.
+  As Mashape is no longer used by Imgur, instead RapidAPI is used. Which
+  is also supported by the Imgur object.
+- Fix some classes like Gallery_album not being in following PascalCase.
+- Rename / remove DEFAULT_LIMIT from Imgur. Also not following conventions.
+  Should maybe be set via an environment variable or other config instead.
 
 .. end_getting_started
