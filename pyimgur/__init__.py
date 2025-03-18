@@ -255,8 +255,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
 
         :returns: The newly created album.
         """
-        assert self.access_token is not None
-
         url = self.base_url + "/3/album/"
         payload = {
             "ids": images,

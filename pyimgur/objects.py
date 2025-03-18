@@ -193,8 +193,6 @@ class Album(Basic_object):  # pylint: disable=too-many-instance-attributes
         :param layout: The way the album is displayed, can be blog, grid,
             horizontal or vertical.
         """
-        assert self._imgur.access_token is not None
-
         url = self._imgur.base_url + f"/3/album/{self._delete_or_id_hash}"
         is_updated = self._imgur.send_request(
             url, params=locals(), method="PUT", as_json=True

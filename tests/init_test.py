@@ -24,7 +24,7 @@ import pyimgur
 from pyimgur import InvalidParameterError
 from pyimgur.basic_objects import Basic_object
 
-from . import USER_NOT_AUTHENTICATED, im
+from . import USER_NOT_AUTHENTICATED, im, unauthed_im
 from .data import (
     MOCKED_IMAGE_DATA,
     IMAGE_EXPECTED_DATA,
@@ -228,8 +228,8 @@ def test_get_subreddit_image():
     USER_NOT_AUTHENTICATED,
     reason="Cannot run live test without authentication variables.",
 )
-def test_create_album():
-    album = im.create_album()
+def test_create_album_unauthed():
+    album = unauthed_im.create_album()
     assert isinstance(album, pyimgur.Album)
     album.delete()
 
@@ -238,8 +238,8 @@ def test_create_album():
     USER_NOT_AUTHENTICATED,
     reason="Cannot run live test without authentication variables.",
 )
-def test_update_album():
-    album = im.create_album(TITLE)
+def test_update_album_unauthed():
+    album = unauthed_im.create_album(TITLE)
     assert album.title == TITLE
     album.update("Different title")
     assert album.title == "Different title"
