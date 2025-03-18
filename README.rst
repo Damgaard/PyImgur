@@ -174,5 +174,6 @@ Which will make it easier to upgrade.
 - Fix some classes like Gallery_album not being in following PascalCase.
 - Rename / remove DEFAULT_LIMIT from Imgur. Also not following conventions.
   Should maybe be set via an environment variable or other config instead.
+- Change to a more permissive license.
 
 .. end_getting_started
