@@ -383,3 +383,22 @@ def test_lazy_loading_attributes_are_not_visible_until_fetched():
     assert "reputation" not in vars(author).keys()
     author.refresh()
     assert "reputation" in vars(author).keys()
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_ratelimit_values_are_updated():
+    im.get_image("JPz2i")
+    clientlimit = im.ratelimit_clientlimit
+    clientremaining = im.ratelimit_clientremaining
+    userlimit = im.ratelimit_userlimit
+    userremaining = im.ratelimit_userremaining
+    userreset = im.ratelimit_userreset
+    im.get_image("wHxiibZ")
+    assert im.ratelimit_clientlimit == clientlimit
+    assert im.ratelimit_clientremaining == clientremaining - 1
+    assert im.ratelimit_userlimit == userlimit
+    assert im.ratelimit_userremaining == userremaining - 1
+    assert im.ratelimit_userreset == userreset
