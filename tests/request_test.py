@@ -25,7 +25,7 @@ from pyimgur.exceptions import (
     ImgurIsDownException,
 )
 
-from pyimgur.test.data import (
+from .data import (
     MOCKED_ALBUM_DATA,
     MOCKED_USER_DATA,
     MOCKED_GALLERY_ALBUM_DATA,
