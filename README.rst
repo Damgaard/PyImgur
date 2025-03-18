@@ -161,7 +161,7 @@ All of the code contained here is licensed by
 `the GNU GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>`_.
 
 Upcoming breaking changes
-------------------------
+-------------------------
 
 To avoid multiple releases with breaking changes, I will try to bulk
 release breaking changes in a single release. This won't prevent future
