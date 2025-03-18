@@ -15,6 +15,8 @@ Unreleased
 ----------
  * **[FEATURE]** Added support for RapidAPI. This supports commercial usage of
    the Imgur API.
+ * **[BUGFIX]** Fix an issue with uploading large MP4 files, that could result
+   in Winerror 10053.
 
 PyImgur 0.7.1
 -------------

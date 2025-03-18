@@ -79,6 +79,13 @@ def to_imgur_format(params, use_form_data=False):
 
             del params["ids"]
 
+    if params and "image_path" in params:
+        path = params["image_path"]
+        with open(path, "rb") as infile:
+            files.append(("image", infile.read()))
+
+        del params["image_path"]
+
     if params is None:
         return {}, files
 

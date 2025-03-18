@@ -49,6 +49,7 @@ DESCRIPTION = "Hello Description"
 current_file_path = os.path.abspath(__file__)
 current_directory = os.path.dirname(current_file_path)
 CAT_IMAGE_PATH = os.path.join(current_directory, "cat.jpg")
+COFFEE_MP4_PATH = os.path.join(current_directory, "coffee.mp4")
 
 
 class Empty(Basic_object):
@@ -170,6 +171,16 @@ def test_upload_image():
     assert image.title is None
     assert image.description is None
     assert image.deletehash is not None
+    image.delete()
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_upload_mp4():
+    image = im.upload_image(path=COFFEE_MP4_PATH)
+    assert isinstance(image, pyimgur.Image)
     image.delete()
 
 

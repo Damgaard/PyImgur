@@ -578,16 +578,11 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         """
         if bool(path) == bool(url):
             raise InvalidParameterError("Either path or url must be given.")
-        if path:
-            with open(path, "rb") as image_file:
-                binary_data = image_file.read()
-                image = b64encode(binary_data)
-        else:
-            image = url
 
         payload = {
             "album_id": album,
-            "image": image,
+            "image_path": path,
+            "image": url,
             "title": title,
             "description": description,
         }
