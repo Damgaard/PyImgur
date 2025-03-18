@@ -11,8 +11,8 @@ divided into four categories.
    a function.
 
 
-Unreleased
-----------
+PyImgur 0.7.2
+--------------
  * **[FEATURE]** Added support for RapidAPI. This supports commercial usage of
    the Imgur API.
  * **[BUGFIX]** Fix an issue with uploading large MP4 files, that could result

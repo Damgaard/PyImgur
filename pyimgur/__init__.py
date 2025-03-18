@@ -30,7 +30,6 @@ For more information on usage visit https://github.com/Damgaard/PyImgur
 """
 
 
-from base64 import b64encode
 import re
 from urllib.parse import urlparse
 
@@ -53,7 +52,7 @@ from pyimgur.objects import (
     User,
 )
 
-__version__ = "0.7.1"
+__version__ = "0.7.2"
 
 RAPIDAPI_BASE = "https://imgur-apiv3.p.rapidapi.com"
 IMGUR_BASE = "https://api.imgur.com"
