@@ -10,8 +10,14 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-PyImgur 0.7.1
+
+Unreleased
 ----------
+ * **[FEATURE]** Added support for RapidAPI. This supports commercial usage of
+   the Imgur API.
+
+PyImgur 0.7.1
+-------------
  * **[FEATURE]** get_favorites and get_gallery_favorites now supports pagination.
  * **[FEATURE]** get_gallery_favorites now supports sorting by oldest and newest.
  * **[BUGFIX]** Fix an issue with pagination, where the limit argument would

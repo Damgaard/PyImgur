@@ -33,7 +33,12 @@ from pyimgur.test.data import (
 )
 
 MOCKED_UNAUTHED_IMGUR = Imgur("fake_client_id")
-MOCKED_AUTHED_IMGUR = Imgur("fake_client_id", "fake_client_secret", "fake access token")
+MOCKED_AUTHED_IMGUR = Imgur(
+    "fake_client_id",
+    "fake_client_secret",
+    refresh_token="fake refresh token",
+    access_token="fake access token",
+)
 MOCKED_USER = User(MOCKED_USER_DATA, MOCKED_AUTHED_IMGUR)
 
 
@@ -513,6 +518,24 @@ def test_pagination_negative_limit_reverts_to_default_limit():
     result = im.get_memes_gallery(limit=-1)
 
     assert len(result) == 100
+
+
+@responses.activate
+def test_rapidapi_support():
+    responses.add(
+        responses.GET,
+        "https://imgur-apiv3.p.rapidapi.com/3/gallery/g/memes/viral/week/0",
+        json={"data": [MOCKED_ALBUM_DATA] * 75},
+        status=200,
+    )
+
+    im = Imgur("fake_client_id", rapidapi_key="fake_rapidapi_key")
+    im.get_memes_gallery(limit=1)
+
+    assert responses.calls[0].request.url.startswith(
+        "https://imgur-apiv3.p.rapidapi.com/"
+    )
+    assert responses.calls[0].request.headers["X-Mashape-Key"] == "fake_rapidapi_key"
 
 
 @responses.activate

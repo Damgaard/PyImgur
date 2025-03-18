@@ -55,7 +55,7 @@ from pyimgur.objects import (
 
 __version__ = "0.7.1"
 
-MASHAPE_BASE = "https://imgur-apiv3.p.mashape.com"
+RAPIDAPI_BASE = "https://imgur-apiv3.p.rapidapi.com"
 IMGUR_BASE = "https://api.imgur.com"
 
 AUTHORIZE_URL = "{}/oauth2/authorize?client_id={}&response_type={}&state={}"
@@ -78,7 +78,11 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         client_secret=None,
         access_token=None,
         refresh_token=None,
+        # Mashape KEY can no longer be used as Imgur has dropped support for it.
+        # Keeping it here for a few releases to reduce number of releases with
+        # breaking changes.
         mashape_key=None,
+        rapidapi_key=None,
     ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
         """
         Initialize the Imgur object.
@@ -111,9 +115,12 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         self.ratelimit_userreset = None
         self.refresh_token = refresh_token
         self.mashape_key = mashape_key
-        self.base_url = MASHAPE_BASE if self.mashape_key else IMGUR_BASE
+        self.rapidapi_key = rapidapi_key
+        self.base_url = RAPIDAPI_BASE if self.rapidapi_key else IMGUR_BASE
 
-    def send_request(self, url, needs_auth=False, **kwargs):
+    def send_request(
+        self, url, needs_auth=False, **kwargs
+    ):  # pylint: disable=too-many-branches
         """
         Handles top level functionality for sending requests to Imgur.
 
@@ -140,6 +147,8 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
             authentication = {"Authorization": f"Bearer {self.access_token}"}
         if self.mashape_key:
             authentication.update({"X-Mashape-Key": self.mashape_key})
+        if self.rapidapi_key:
+            authentication.update({"X-Mashape-Key": self.rapidapi_key})
 
         content = []
         is_paginated = False
