@@ -10,9 +10,16 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
+Unreleased
+----------
+ * **[FEATURE]** It is no longer neccessary to call get_refresh_token() to get
+   a new access token at the start of a program run. PyImgur will now automatically
+   get a fresh access token if none was set at initialization and a refresh token
+   was set. As such the "access_token" parameter on Imgur remains mostly for optimization
+   reasons as it allows reusing same key in paralization of tasks.
 
 PyImgur 0.7.2
---------------
+-------------
  * **[FEATURE]** Added support for RapidAPI. This supports commercial usage of
    the Imgur API.
  * **[BUGFIX]** Fix an issue with uploading large MP4 files, that could result

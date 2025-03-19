@@ -620,3 +620,42 @@ def test_get_gallery_favorites_optional_sort_argument():
 def test_get_gallery_favorites_invalid_sort_argument():
     with pytest.raises(InvalidParameterError):
         MOCKED_USER.get_gallery_favorites(sort="invalid")
+
+
+@responses.activate
+def test_refresh_token_flow():
+    # Mock the refresh token endpoint
+    responses.add(
+        responses.POST,
+        "https://api.imgur.com/oauth2/token",
+        json={
+            "access_token": "new_access_token",
+            "refresh_token": "new_refresh_token",
+            "expires_in": 3600,
+            "token_type": "bearer",
+            "account_username": "test_user",
+            "account_id": 12345,
+        },
+    )
+
+    # Mock the actual API endpoint that will be called after refresh
+    album_id = "xyz789"
+
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/album/{album_id}",
+        json={"data": {"id": album_id, "title": "test"}},
+        status=200,
+    )
+
+    # Set up Imgur instance with only refresh token
+    imgur = Imgur(
+        "test_client_id", "test_client_secret", refresh_token="test_refresh_token"
+    )
+    # Make the API call
+    imgur.get_album(album_id)
+
+    # Verify refresh token was called first
+    assert len(responses.calls) == 2
+    assert responses.calls[0].request.url == "https://api.imgur.com/oauth2/token"
+    assert "refresh_token=test_refresh_token" in responses.calls[0].request.body

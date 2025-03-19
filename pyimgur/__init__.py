@@ -134,6 +134,14 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         :param needs_auth: Is authentication as a user needed for the execution
             of this method?
         """
+        if (
+            self.refresh_token
+            and not self.access_token
+            and "/3/" in url
+            and all(not auth_url in url for auth_url in {"/oauth2/", "/auth"})
+        ):
+            self.refresh_access_token()
+
         if self.access_token is None and needs_auth:
             raise AuthenticationError(
                 "Authentication as a user is required to use this method."
