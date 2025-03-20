@@ -15,6 +15,7 @@
 
 import os
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -46,10 +47,10 @@ DESCRIPTION = "Hello Description"
 # Identify path to cat image. Needed as otherwise 2 tests might
 # break depending on whether test suite is run from root or from
 # the test folder.
-current_file_path = os.path.abspath(__file__)
-current_directory = os.path.dirname(current_file_path)
-CAT_IMAGE_PATH = os.path.join(current_directory, "cat.jpg")
-COFFEE_MP4_PATH = os.path.join(current_directory, "coffee.mp4")
+current_file_path = Path(__file__).resolve()
+current_directory = current_file_path.parent
+CAT_IMAGE_PATH = current_directory / "cat.jpg"
+COFFEE_MP4_PATH = current_directory / "coffee.mp4"
 
 
 class Empty(Basic_object):
@@ -253,7 +254,7 @@ def test_update_album_unauthed():
 def test_image_download():
     i = im.get_image("Hlddt")
     new_file = i.download()
-    assert new_file == "Hlddt.jpeg"
+    assert new_file.name == "Hlddt.jpeg"
     os.remove(new_file)
 
 
@@ -264,7 +265,7 @@ def test_image_download():
 def test_image_download_own_name():
     i = im.get_image("Hlddt")
     new_file = i.download(name="hello")
-    assert new_file == "hello.jpeg"
+    assert new_file.name == "hello.jpeg"
     os.remove(new_file)
 
 
@@ -287,7 +288,7 @@ def test_image_download_no_overwrite():
 def test_image_download_small_square():
     i = im.get_image("Hlddt")
     new_file = i.download(size="small square")
-    assert new_file == "Hlddts.jpeg"
+    assert new_file.name == "Hlddts.jpeg"
     os.remove(new_file)
 
 
@@ -308,7 +309,7 @@ def test_image_download_bad_size():
 def test_image_download_to_parent_folder():
     i = im.get_image("Hlddt")
     new_file = i.download(path="..")
-    expected_path = os.path.join("..", "Hlddt.jpeg")
+    expected_path = Path("..") / "Hlddt.jpeg"
     assert new_file == expected_path
     os.remove(new_file)
 

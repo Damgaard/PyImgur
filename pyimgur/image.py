@@ -15,7 +15,8 @@
 
 """Image object"""
 
-import os
+from pathlib import Path
+
 import requests
 
 from pyimgur.basic_objects import Basic_object, _change_object
@@ -95,8 +96,8 @@ class Image(Basic_object):  # pylint: disable=too-many-instance-attributes
         """
 
         def save_as(filename):
-            local_path = os.path.join(path, filename)
-            if os.path.exists(local_path) and not overwrite:
+            local_path = Path(path) / filename
+            if local_path.exists() and not overwrite:
                 raise FileOverwriteError(
                     f"Trying to save as {local_path}, but file already exists."
                 )
