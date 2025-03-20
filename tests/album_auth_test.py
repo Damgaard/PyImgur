@@ -22,9 +22,7 @@ import pytest
 
 sys.path.insert(0, ".")
 
-from . import im
-
-IMAGE_IDS = ["4UoRzGc", "wHxiibZ", "w5pB7vT"]
+from . import im, IMAGE_IDS
 
 
 @pytest.mark.skipif(
