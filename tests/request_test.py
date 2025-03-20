@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 import responses
 
 import pytest
@@ -659,3 +661,38 @@ def test_refresh_token_flow():
     assert len(responses.calls) == 2
     assert responses.calls[0].request.url == "https://api.imgur.com/oauth2/token"
     assert "refresh_token=test_refresh_token" in responses.calls[0].request.body
+
+
+@responses.activate
+def test_retry_logic_performs_backoff():
+    # Mock the actual API endpoint that will be called after refresh
+    album_id = "xyz789"
+    url = f"https://api.imgur.com/3/album/{album_id}"
+
+    # Mock multiple responses to trigger retries
+    responses.add(
+        responses.GET,
+        url,
+        status=500,
+        json={"data": [], "success": False, "status": 503},
+    )
+
+    responses.add(
+        responses.GET,
+        url,
+        json={"data": {"id": album_id, "title": "test"}},
+        status=200,
+    )
+
+    # Make request while tracking how long it takes.
+    # Since responses mock requests, without retry it would be instant
+    start = time.time()
+    MOCKED_AUTHED_IMGUR.get_album(album_id)
+    time_taken = time.time() - start
+
+    # Verify the request was made multiple times
+    assert len(responses.calls) == 2
+
+    # Verify we waited at least 1 second before retrying
+    # the request
+    assert time_taken > 1

@@ -17,6 +17,8 @@
 
 
 import os
+import time
+import random
 
 import requests
 
@@ -90,6 +92,8 @@ def perform_request(url, method, content_to_send, headers):
         raise InvalidParameterError("Unsupported Method used")
 
     tries = 0
+    backoff = 1
+
     while tries <= MAX_RETRIES:
         response = requests.request(
             method,
@@ -105,6 +109,9 @@ def perform_request(url, method, content_to_send, headers):
 
         if response.status_code in RETRY_CODES or response.content == "":
             tries += 1
+            delay = backoff * (2**tries) + random.uniform(0, 0.5)
+            time.sleep(delay)
+
         else:
             break
 

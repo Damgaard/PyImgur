@@ -12,6 +12,8 @@ divided into four categories.
 
 Unreleased
 ----------
+ * **[FEATURE]** Add exponential backoff logic with jitter to requests that fail on
+   issues, which PyImgur believes are transient issues. Backoff starts at 2 seconds.
  * **[FEATURE]** It is no longer neccessary to call get_refresh_token() to get
    a new access token at the start of a program run. PyImgur will now automatically
    get a fresh access token if none was set at initialization and a refresh token
