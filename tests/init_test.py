@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
 from pathlib import Path
 
@@ -253,9 +252,11 @@ def test_update_album_unauthed():
 )
 def test_image_download():
     i = im.get_image("Hlddt")
-    new_file = i.download()
-    assert new_file.name == "Hlddt.jpeg"
-    os.remove(new_file)
+    try:
+        new_file = i.download()
+        assert new_file.name == "Hlddt.jpeg"
+    finally:
+        Path(new_file).unlink(missing_ok=True)
 
 
 @pytest.mark.skipif(
@@ -264,9 +265,11 @@ def test_image_download():
 )
 def test_image_download_own_name():
     i = im.get_image("Hlddt")
-    new_file = i.download(name="hello")
-    assert new_file.name == "hello.jpeg"
-    os.remove(new_file)
+    try:
+        new_file = i.download(name="hello")
+        assert new_file.name == "hello.jpeg"
+    finally:
+        Path(new_file).unlink(missing_ok=True)
 
 
 @pytest.mark.skipif(
@@ -275,10 +278,12 @@ def test_image_download_own_name():
 )
 def test_image_download_no_overwrite():
     i = im.get_image("Hlddt")
-    new_file = i.download()
-    with pytest.raises(Exception):  # pylint: disable=E1101
-        i.download()
-    os.remove(new_file)
+    try:
+        new_file = i.download()
+        with pytest.raises(Exception):  # pylint: disable=E1101
+            i.download()
+    finally:
+        Path(new_file).unlink(missing_ok=True)
 
 
 @pytest.mark.skipif(
@@ -287,9 +292,11 @@ def test_image_download_no_overwrite():
 )
 def test_image_download_small_square():
     i = im.get_image("Hlddt")
-    new_file = i.download(size="small square")
-    assert new_file.name == "Hlddts.jpeg"
-    os.remove(new_file)
+    try:
+        new_file = i.download(size="small square")
+        assert new_file.name == "Hlddts.jpeg"
+    finally:
+        Path(new_file).unlink(missing_ok=True)
 
 
 @pytest.mark.skipif(
@@ -308,10 +315,12 @@ def test_image_download_bad_size():
 )
 def test_image_download_to_parent_folder():
     i = im.get_image("Hlddt")
-    new_file = i.download(path="..")
-    expected_path = Path("..") / "Hlddt.jpeg"
-    assert new_file == expected_path
-    os.remove(new_file)
+    try:
+        new_file = i.download(path="..")
+        expected_path = Path("..") / "Hlddt.jpeg"
+        assert new_file == expected_path
+    finally:
+        Path(new_file).unlink(missing_ok=True)
 
 
 def test_can_change_authentication_cannot_just_update_id():
