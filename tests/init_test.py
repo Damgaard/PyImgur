@@ -411,4 +411,8 @@ def test_ratelimit_values_are_updated():
     assert im.ratelimit_clientremaining == clientremaining - 1
     assert im.ratelimit_userlimit == userlimit
     assert im.ratelimit_userremaining == userremaining - 1
-    assert im.ratelimit_userreset == userreset
+
+    # In rare cases, the second request will happen after the clock ticks over to a new second.
+    # That means the time until reset of ratelimits has decreased by one second. Otherwise
+    # the value would not have changed.
+    assert im.ratelimit_userreset >= userreset - 1
