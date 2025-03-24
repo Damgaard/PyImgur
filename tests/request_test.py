@@ -625,6 +625,96 @@ def test_get_gallery_favorites_invalid_sort_argument():
 
 
 @responses.activate
+def test_user_follow_tag():
+    tag = "cats"
+
+    responses.add(
+        responses.POST,
+        f"https://api.imgur.com/3/account/me/follow/tag/{tag}",
+        json={"data": {"status": True}, "success": True, "status": 200},
+        status=200,
+    )
+
+    MOCKED_USER.follow_tag(tag)
+
+    assert len(responses.calls) == 1
+    assert (
+        responses.calls[0].request.url
+        == f"https://api.imgur.com/3/account/me/follow/tag/{tag}"
+    )
+
+
+@responses.activate
+def test_user_unfollow_tag():
+    tag = "cats"
+
+    responses.add(
+        responses.DELETE,
+        f"https://api.imgur.com/3/account/me/follow/tag/{tag}",
+        json={"data": {"status": True}, "success": True, "status": 200},
+        status=200,
+    )
+
+    MOCKED_USER.unfollow_tag(tag)
+
+    assert len(responses.calls) == 1
+    assert (
+        responses.calls[0].request.url
+        == f"https://api.imgur.com/3/account/me/follow/tag/{tag}"
+    )
+
+
+@responses.activate
+def test_user_follow_tag_already_following():
+    tag = "cats"
+
+    responses.add(
+        responses.POST,
+        f"https://api.imgur.com/3/account/me/follow/tag/{tag}",
+        json={
+            "data": {
+                "error": "Already following tag",
+                "request": f"/3/account/me/follow/tag/{tag}",
+                "method": "POST",
+            },
+            "success": False,
+            "status": 409,
+        },
+        status=409,
+    )
+
+    with pytest.raises(UnexpectedImgurException) as e:
+        MOCKED_USER.follow_tag(tag)
+
+    assert str(e.value) == "409: Imgur ERROR message: Already following tag"
+
+
+@responses.activate
+def test_user_unfollow_tag_not_following():
+    tag = "cats"
+
+    responses.add(
+        responses.DELETE,
+        f"https://api.imgur.com/3/account/me/follow/tag/{tag}",
+        json={
+            "data": {
+                "error": "Not following tag",
+                "request": f"/3/account/me/follow/tag/{tag}",
+                "method": "DELETE",
+            },
+            "success": False,
+            "status": 409,
+        },
+        status=409,
+    )
+
+    with pytest.raises(UnexpectedImgurException) as e:
+        MOCKED_USER.unfollow_tag(tag)
+
+    assert str(e.value) == "409: Imgur ERROR message: Not following tag"
+
+
+@responses.activate
 def test_refresh_token_flow():
     # Mock the refresh token endpoint
     responses.add(

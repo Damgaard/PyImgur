@@ -544,6 +544,11 @@ class User(Basic_object):
         url = f"{self._imgur.base_url}/3/account/{self.name}"
         return self._imgur.send_request(url, needs_auth=True, method="DELETE")
 
+    def follow_tag(self, tag):
+        """Follow a tag."""
+        url = f"{self._imgur.base_url}/3/account/me/follow/tag/{tag}"
+        return self._imgur.send_request(url, needs_auth=True, method="POST")
+
     def get_albums(self, limit=None):
         """
         Return  a list of the user's albums.
@@ -691,3 +696,8 @@ class User(Basic_object):
         """
         url = f"{self._imgur.base_url}/3/account/{self.name}/verifyemail"
         self._imgur.send_request(url, needs_auth=True, method="POST")
+
+    def unfollow_tag(self, tag):
+        """Unfollow a tag."""
+        url = f"{self._imgur.base_url}/3/account/me/follow/tag/{tag}"
+        return self._imgur.send_request(url, needs_auth=True, method="DELETE")

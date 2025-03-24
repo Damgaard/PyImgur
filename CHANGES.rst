@@ -12,6 +12,7 @@ divided into four categories.
 
 Unreleased
 ----------
+ * **[FEATURE]** Add methods follow_tag and unfollow_tag to User object. This can be used to follow tags like "cats" on Imgur.
  * **[FEATURE]** Add exponential backoff logic with jitter to requests that fail on
    issues, which PyImgur believes are transient issues. Backoff starts at 2 seconds.
  * **[FEATURE]** It is no longer neccessary to call get_refresh_token() to get
