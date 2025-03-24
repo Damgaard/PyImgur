@@ -20,4 +20,4 @@ jobs:
         pip install black
     - name: Analysing the code with black
       run: |
-        black pyimgur --check
+        black pyimgur tests *.py --check
