@@ -79,7 +79,10 @@ def test_to_imgur_format_with_list():
 
 
 def test_to_imgur_format_with_list_concats_on_string():
-    assert to_imgur_format({"values": ["QK1fZ9L", "NsuNI"]}) == ({"values": "QK1fZ9L,NsuNI"}, [])
+    assert to_imgur_format({"values": ["QK1fZ9L", "NsuNI"]}) == (
+        {"values": "QK1fZ9L,NsuNI"},
+        [],
+    )
 
 
 def test_to_imgur_format_multiple_values():
@@ -120,19 +123,27 @@ def test_to_imgur_format_files_for_ids_multiple_and_params():
 
 
 def test_clean_imgur_params_none():
-    assert clean_imgur_params(None) == {}
+    assert (  # pylint: disable=use-implicit-booleaness-not-comparison
+        clean_imgur_params(None) == {}
+    )
 
 
 def test_clean_imgur_params_empty_params():
-    assert clean_imgur_params({}) == {}
+    assert (  # pylint: disable=use-implicit-booleaness-not-comparison
+        clean_imgur_params({}) == {}
+    )
 
 
 def test_clean_imgur_params_purges_self():
-    assert clean_imgur_params({"self": "BOB"}) == {}
+    assert (  # pylint: disable=use-implicit-booleaness-not-comparison
+        clean_imgur_params({"self": "BOB"}) == {}
+    )
 
 
 def test_clean_imgur_params_purges_removes_none_keys():
-    assert clean_imgur_params({"number": None}) == {}
+    assert (  # pylint: disable=use-implicit-booleaness-not-comparison
+        clean_imgur_params({"number": None}) == {}
+    )
 
 
 def test_clean_imgur_params_keeps_regular_values():

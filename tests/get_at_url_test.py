@@ -15,11 +15,7 @@
 
 """Testing of the get_at_url method."""
 
-import sys
-
 import pytest
-
-sys.path.insert(0, ".")
 
 import pyimgur
 
@@ -64,7 +60,7 @@ def test_retrieve_album_with_fragment():
     im.refresh_token is None,
     reason="Cannot run live test without authentication variables.",
 )
-def test_retrieve_album_with_GET_params():
+def test_retrieve_album_with_params():
     album = im.get_at_url("http://imgur.com/a/SPlYO?sort=hot")
     assert isinstance(album, pyimgur.Album)
 

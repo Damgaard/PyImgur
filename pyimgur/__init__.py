@@ -138,7 +138,7 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
             self.refresh_token
             and not self.access_token
             and "/3/" in url
-            and all(not auth_url in url for auth_url in ("/oauth2/", "/auth"))
+            and all(auth_url not in url for auth_url in ("/oauth2/", "/auth"))
         ):
             self.refresh_access_token()
 

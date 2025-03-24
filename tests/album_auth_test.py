@@ -15,12 +15,9 @@
 
 """Tests authenticated usage of the methods in the Album class."""
 
-import sys
 import time
 
 import pytest
-
-sys.path.insert(0, ".")
 
 from . import im, IMAGE_IDS
 
@@ -32,7 +29,7 @@ from . import im, IMAGE_IDS
 def test_add_images():
     new_album = im.create_album("New fancy album")
     time.sleep(2)
-    assert not len(new_album.images)
+    assert not new_album.images
     new_album.add_images(IMAGE_IDS)
     new_album.refresh()
     assert len(new_album.images) == len(IMAGE_IDS)
@@ -46,12 +43,12 @@ def test_add_images():
 def test_remove_images():
     image_ids = IMAGE_IDS
     new_album = im.create_album("New fancy album", images=image_ids)
-    assert len(new_album.images)
+    assert new_album.images
     time.sleep(1)
     new_album.remove_images(image_ids)
     time.sleep(1)
     new_album.refresh()
-    assert not len(new_album.images)
+    assert not new_album.images
     new_album.delete()
 
 
@@ -80,12 +77,13 @@ def test_remove_images_non_existing():
     reason="Cannot run live test without authentication variables.",
 )
 @pytest.mark.skip(
-    reason="Endpoint seem broken on Imgurs end. Skipping until it's fixed or a wrongaround can be found.",
+    reason="Endpoint seem broken on Imgurs end. Skipping until fixed "
+    + " or a workaround can be found.",
 )
 def test_set_images():
     new_album = im.create_album("New fancy album", images=[IMAGE_IDS[0]])
     time.sleep(2)
-    assert len(new_album.images)
+    assert new_album.images
     old_images = new_album.images
     new_album._set_images(IMAGE_IDS[1:])
     new_album.refresh()
@@ -151,5 +149,5 @@ def test_update_with_images():
     new_album = im.create_album(title="Ok album")
     time.sleep(2)
     new_album.update(title="Great album", images=IMAGE_IDS)
-    assert len(new_album.images)
+    assert new_album.images
     new_album.delete()

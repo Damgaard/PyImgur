@@ -89,7 +89,13 @@ To run the tests, you can use the following command.
 
 .. code-block:: bash
 
-    pytest
+    pytest pyimgur
+    pytest tests --disable missing-function-docstring,missing-module-docstring,protected-access
+
+Some rules have been disabled in tests as they make less sense here.
+Test functions should not as a rule require docstrings. If they do,
+then they are badly written. The purpose of a test should be clear from
+function name and if need be a glance at the code.
 
 On an unmodified download of this repository, it will run all unit tests.
 These do not require an Imgur API key and include tests for API calls and

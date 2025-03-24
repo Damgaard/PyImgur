@@ -397,7 +397,7 @@ def test_pagination_does_not_fetch_more_data_than_needed():
     )
 
     im = Imgur("fake_client_id")
-    result = im.get_memes_gallery(limit=8)
+    im.get_memes_gallery(limit=8)
 
     assert len(responses.calls) == 2
 

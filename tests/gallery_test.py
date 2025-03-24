@@ -13,10 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-
-sys.path.insert(0, ".")
-
 import pytest
 
 from pyimgur import Album, Image, ResourceNotFoundError
@@ -29,7 +25,7 @@ from . import USER_NOT_AUTHENTICATED, im
 )
 def test_get_subreddit():
     response = im.get_subreddit_gallery("pic", limit=5)
-    assert isinstance(response[0], Image) or isinstance(response[0], Album)
+    assert isinstance(response[0], (Image, Album))
 
 
 @pytest.mark.skipif(

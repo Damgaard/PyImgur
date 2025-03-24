@@ -18,6 +18,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pylint
-    - name: Analysing the code with pylint
+    - name: Analysing the package code with pylint
       run: |
         pylint --rcfile pylintrc pyimgur --disable import-error
+    - name: Analysing the tests code with pylint
+      # The disabled rules are because they make less sense in test files.
+      # Test functions should not as a rule require docstrings. If they do,
+      # then they are badly written. The purpose of a test should be clear from
+      # function name and if need be a glance at the code.
+      run: |
+        pylint --rcfile pylintrc tests --disable import-error,missing-function-docstring,missing-module-docstring,protected-access

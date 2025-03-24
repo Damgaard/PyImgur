@@ -13,15 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
+"""Tests authenticated usage of the methods in the Album class."""
 
 import pytest
 
-sys.path.insert(0, ".")
-
 from . import USER_NOT_AUTHENTICATED, user
-
-"""Tests authenticated usage of the methods in the Album class."""
 
 
 @pytest.mark.skipif(
@@ -30,8 +26,7 @@ from . import USER_NOT_AUTHENTICATED, user
 )
 def test_change_settings():
     old_album_default = user.get_settings()["public_images"]
-    new_setting = False if old_album_default else True
-    user.change_settings(public_images=new_setting)
+    user.change_settings(public_images=not old_album_default)
     found_new = user.get_settings()["album_privacy"]
     assert old_album_default != found_new
 

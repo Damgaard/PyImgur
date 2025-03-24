@@ -110,7 +110,7 @@ MOCKED_ALBUM_DATA = {
             "ad_type": None,
             "ad_url": None,
             "title": None,
-            "description": "Scooty Booty has taken a shine to my tennis shoes. I went to put them on today to work out and the laces had all been pulled apart. Now I know why!! What an adorable little weirdo.",
+            "description": "Scooty Booty has taken a shine to my tennis shoes. I went to put them on today to work out and the laces had all been pulled apart. Now I know why!! What an adorable little weirdo.",  # pylint: disable=line-too-long
             "name": "",
             "type": "video/mp4",
             "width": 854,

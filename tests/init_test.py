@@ -13,12 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, ".")
 
 import pyimgur
 from pyimgur import InvalidParameterError
@@ -52,10 +49,6 @@ CAT_IMAGE_PATH = current_directory / "cat.jpg"
 COFFEE_MP4_PATH = current_directory / "coffee.mp4"
 
 
-class Empty(Basic_object):
-    pass
-
-
 def test_accessing_bad_attribute():
     basic_object = Basic_object({}, None, True)
     with pytest.raises(AttributeError):
@@ -64,7 +57,7 @@ def test_accessing_bad_attribute():
 
 def test_populate():
     info = {"score": 1, "hello": "world"}
-    inst = Empty(info, None)
+    inst = Basic_object(info, None)
     assert "score" in vars(inst)
     assert "hello" in vars(inst)
     assert inst.score == 1
@@ -148,7 +141,7 @@ def test_is_imgur_url():
 def test_get_image_i_didnt_upload():
     image = im.get_image("JPz2i")
     assert isinstance(image, pyimgur.Image)
-    assert image.deletehash is ""
+    assert image.deletehash == ""
 
 
 @pytest.mark.skipif(
@@ -158,7 +151,7 @@ def test_get_image_i_didnt_upload():
 def test_get_image_i_uploaded():
     image = im.get_image("4UoRzGc")
     assert isinstance(image, pyimgur.Image)
-    assert image.deletehash is not ""
+    assert image.deletehash != ""
 
 
 @pytest.mark.skipif(
@@ -278,12 +271,14 @@ def test_image_download_own_name():
 )
 def test_image_download_no_overwrite():
     i = im.get_image("Hlddt")
+    new_file = None
     try:
         new_file = i.download()
         with pytest.raises(Exception):  # pylint: disable=E1101
             i.download()
     finally:
-        Path(new_file).unlink(missing_ok=True)
+        if new_file:
+            Path(new_file).unlink(missing_ok=True)
 
 
 @pytest.mark.skipif(
@@ -340,8 +335,8 @@ def test_change_authentication_client_resets_auth():
     client.change_authentication(
         client_id="test test", client_secret="Something diffrent"
     )
-    assert client.access_token == None
-    assert client.refresh_token == None
+    assert client.access_token is None
+    assert client.refresh_token is None
 
 
 def test_change_authentication_client_can_swithc_refresh_auth():
@@ -353,10 +348,10 @@ def test_change_authentication_client_can_swithc_refresh_auth():
     )
 
     client.change_authentication(refresh_token="New refresh token")
-    assert client.access_token == None
-    assert client.refresh_token != None
-    assert client.client_id != None
-    assert client.client_secret != None
+    assert client.access_token is None
+    assert client.refresh_token is not None
+    assert client.client_id is not None
+    assert client.client_secret is not None
 
 
 @pytest.mark.skipif(

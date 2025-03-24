@@ -15,7 +15,7 @@ im = pyimgur.Imgur(
     client_id=client_id, client_secret=client_secret, refresh_token=refresh_token
 )
 unauthed_im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret)
-user = None
+user = None  # pylint: disable=invalid-name
 
 if refresh_token:
     try:
