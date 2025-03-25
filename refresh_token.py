@@ -5,14 +5,14 @@ general development of library.
 
 """
 
-import os
 from pathlib import Path
 
 import pyimgur
 
 
 def get_refresh_token():
-    im = pyimgur.Imgur(client_id, client_secret)
+    """Get and set refresh token for authentication with Imgur"""
+    im = pyimgur.Imgur(client_id, client_secret)  # pylint: disable=used-before-assignment)
     auth_url = im.authorization_url("pin")
 
     print("Go to the following url to authenticate with your app")
@@ -25,7 +25,7 @@ def get_refresh_token():
     print(f"Refresh Token: {refresh_token}")
     print(f"Access Token: {access_token}")
 
-    with open("authentication.py", "w") as outfile:
+    with open("authentication.py", "wb") as outfile:
         outfile.write(f'client_id = "{client_id}"\n')
         outfile.write(f'client_secret = "{client_secret}"\n')
         outfile.write(f'refresh_token = "{refresh_token}"\n')
