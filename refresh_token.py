@@ -12,7 +12,9 @@ import pyimgur
 
 def get_refresh_token():
     """Get and set refresh token for authentication with Imgur"""
-    im = pyimgur.Imgur(client_id, client_secret)  # pylint: disable=used-before-assignment)
+    im = pyimgur.Imgur(
+        client_id, client_secret
+    )  # pylint: disable=used-before-assignment)
     auth_url = im.authorization_url("pin")
 
     print("Go to the following url to authenticate with your app")
