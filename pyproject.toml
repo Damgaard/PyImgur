@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "pyimgur"
 dynamic = ["version"]
 description = "The easy way of using Imgur"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.9"
 authors = [
     {name = "Andreas Damgaard Pedersen", email = "andreas.damgaard.pedersen@gmail.com"}
