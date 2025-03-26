@@ -34,10 +34,10 @@ PyImgur 0.7.1
  * **[FEATURE]** get_favorites and get_gallery_favorites now supports pagination.
  * **[FEATURE]** get_gallery_favorites now supports sorting by oldest and newest.
  * **[BUGFIX]** Fix an issue with pagination, where the limit argument would
-    be ignored and maximum content would always be fetched. Correct data would
-    be fetched, but the number of requests would be excessive.
+ be ignored and maximum content would always be fetched. Correct data would
+ be fetched, but the number of requests would be excessive.
  * **[CHANGE]** Reverted changes in 0.7.0 that set some non-default configurations
-    for pylint, pytest and black.
+ for pylint, pytest and black.
 
 PyImgur 0.7.0
 -------------
