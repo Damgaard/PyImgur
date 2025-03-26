@@ -425,6 +425,12 @@ class Gallery_item:  # pylint: disable=invalid-name
         resp = self._imgur.send_request(url)
         return [Comment(com, self._imgur) for com in resp]
 
+    def get_votes(self):
+        """Get votes for this gallery item."""
+        url = self._imgur.base_url + f"/3/gallery/{self.id}/votes"
+        resp = self._imgur.send_request(url)
+        return resp
+
     def remove_from_gallery(self):
         """Remove this image from the gallery."""
         url = self._imgur.base_url + f"/3/gallery/{self.id}"

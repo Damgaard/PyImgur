@@ -19,7 +19,7 @@ import responses
 
 import pytest
 
-from pyimgur import Imgur, Album, Image, User
+from pyimgur import Imgur, Album, Image, User, Gallery_image
 from pyimgur.request import send_request
 from pyimgur.exceptions import (
     UnexpectedImgurException,
@@ -42,6 +42,7 @@ MOCKED_AUTHED_IMGUR = Imgur(
     access_token="fake access token",
 )
 MOCKED_USER = User(MOCKED_USER_DATA, MOCKED_AUTHED_IMGUR)
+MOCKED_GALLERY_IMAGE = Gallery_image(MOCKED_GALLERY_IMAGE_DATA, MOCKED_AUTHED_IMGUR)
 
 
 @responses.activate
@@ -712,6 +713,19 @@ def test_user_unfollow_tag_not_following():
         MOCKED_USER.unfollow_tag(tag)
 
     assert str(e.value) == "409: Imgur ERROR message: Not following tag"
+
+
+@responses.activate
+def test_gallery_image_get_votes():
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/gallery/{MOCKED_GALLERY_IMAGE.id}/votes",
+        json={"data": {"ups": 2225, "downs": 18}, "success": True, "status": 200},
+        status=200,
+    )
+
+    votes = MOCKED_GALLERY_IMAGE.get_votes()
+    assert votes == {"ups": 2225, "downs": 18}
 
 
 @responses.activate
