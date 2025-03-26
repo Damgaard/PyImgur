@@ -205,6 +205,12 @@ Imgur, that will update the object with the latest values.
 Remember that as usual you can use the ``dir``, ``vars`` and ``help`` builtin
 functions to introspect objects to learn more about them and how they work.
 
+## Dynamic Object Generation
+
+Attributes on objects in PyImgur are dynamically generated based on the response from Imgur. This mean that if Imgur for instance adds a new attribute to a User, then that attribute becomes instantly accessible to all versions of PyImgur. No need to upgrade is neccessary.
+
+The value on these attributes are set to proper Python objects, like int, bool or string. So there is no need to do any excess work. Only exception would be if the new attribute is a reference to an object. Then PyImgurs object generation and lazy loading of referenced objects will not work out of the box. A new version of PyImgur that explicitly handles that case will need for the object to be accessed in the same manner as other objects.
+
 ## Ratelimits
 
 There is currently no special handling of going over Imgurs API ratelimit and support of ratelimit handling is limited to exposing remaining queries via the Imgur object. Overall Imgur works on a more old-school generous model, where api credits are spread out. So as long as you don't keep usage high over a long time, then API limits are not hit. Being spikey in usage is  not a problem, the integration tests for instance never raise a ratelimit exception. Despite quickly making many calls and making images & albums.
