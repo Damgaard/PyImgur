@@ -75,7 +75,7 @@ def send_request(
             f"{response.status_code}: Imgur ERROR message: "
             + f"{content.get('error', 'unknown Error')}"
         )
-        raise UnexpectedImgurException(error_msg)
+        raise UnexpectedImgurException(error_msg, response=response)
 
     ratelimit_info = dict(
         (k, int(v))

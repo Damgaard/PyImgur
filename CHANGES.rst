@@ -21,6 +21,7 @@ Unreleased
    get a fresh access token if none was set at initialization and a refresh token
    was set. As such the "access_token" parameter on Imgur remains mostly for optimization
    reasons as it allows reusing same key in paralization of tasks.
+* **[FEATURE]** PyImgur now attempts to gracefully handle exceptions coming from expired / invalid access tokens by attempting to refresh the access token, then retrying the request.
 
 PyImgur 0.7.2
 -------------

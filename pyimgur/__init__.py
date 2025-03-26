@@ -39,6 +39,7 @@ from pyimgur.exceptions import (
     AuthenticationError,
     InvalidParameterError,
     ResourceNotFoundError,
+    UnexpectedImgurException,
 )
 from pyimgur.image import Image
 from pyimgur.objects import (
@@ -118,8 +119,8 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         self.base_url = RAPIDAPI_BASE if self.rapidapi_key else IMGUR_BASE
 
     def send_request(
-        self, url, needs_auth=False, **kwargs
-    ):  # pylint: disable=too-many-branches
+        self, url, needs_auth=False, force_client_auth=False, **kwargs
+    ):  # pylint: disable=too-many-branches,too-many-locals
         """
         Handles top level functionality for sending requests to Imgur.
 
@@ -147,11 +148,12 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
                 "Authentication as a user is required to use this method."
             )
 
-        if self.access_token is None:
-            # Not authenticated as a user. Use anonymous access.
+        if self.access_token is None or force_client_auth:
+            # Use non-authed request.
             authentication = {"Authorization": f"Client-ID {self.client_id}"}
         else:
             authentication = {"Authorization": f"Bearer {self.access_token}"}
+
         if self.mashape_key:
             authentication.update({"X-Mashape-Key": self.mashape_key})
         if self.rapidapi_key:
@@ -176,13 +178,42 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         content_to_send = get_content_to_send(**kwargs)
 
         while True:
-            new_content, ratelimit_info = request.send_request(
-                url,
-                method=kwargs.get("method", "GET"),
-                content_to_send=content_to_send,
-                headers=authentication,
-            )
+            try:
+                new_content, ratelimit_info = request.send_request(
+                    url,
+                    method=kwargs.get("method", "GET"),
+                    content_to_send=content_to_send,
+                    headers=authentication,
+                )
 
+            except UnexpectedImgurException as e:
+                # If Imgur raises an exception due to the access token being
+                # invalid/expired. Get a new access token and try again.
+
+                # The error seems to be able to trigger both a 401 access denied
+                # and a 429 rate limit error, depending on the access token.
+                # Possibly this is due to a bug in how Imgur handles old or
+                # malformed access tokens.
+                print("Caught")
+                if e.response.status_code not in (401, 429):
+                    raise
+
+                # Not authed request. No need to retry
+                # request with refreshed access token.
+                if self.access_token is None or force_client_auth:
+                    raise
+
+                self.refresh_access_token()
+                authentication = {"Authorization": f"Bearer {self.access_token}"}
+
+                new_content, ratelimit_info = request.send_request(
+                    url,
+                    method=kwargs.get("method", "GET"),
+                    content_to_send=content_to_send,
+                    headers=authentication,
+                )
+
+            # Move this logic into the request sending or helper func
             if (
                 is_paginated
                 and new_content
@@ -553,6 +584,7 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
             REFRESH_URL.format(self.base_url),
             params=params,
             method="POST",
+            force_client_auth=True,
         )
         self.access_token = result["access_token"]
         return self.access_token

@@ -768,6 +768,68 @@ def test_refresh_token_flow():
 
 
 @responses.activate
+def test_retry_on_429_error():
+    # We rety as this error is thown sometimes on invalid / expired access tokens
+    # which can be gracefully resolved by refreshing the access token.
+    album_id = "xyz789"
+    url = f"https://api.imgur.com/3/album/{album_id}"
+
+    responses.add(
+        responses.GET,
+        url,
+        status=429,
+        json={
+            "errors": [
+                {
+                    "id": "legacy-api-7dd44684d9-v66jl/6ykBZ3fSll-9984757",
+                    "code": "429",
+                    "status": "Too Many Requests",
+                    "detail": "Too Many Requests",
+                }
+            ]
+        },
+    )
+
+    # Call to refresh access token
+    responses.add(
+        responses.POST,
+        "https://api.imgur.com/oauth2/token",
+        status=200,
+        json={
+            "access_token": "valid_access_token",
+            "expires_in": 315360000,
+            "token_type": "bearer",
+            "scope": None,
+            "refresh_token": "valid_refresh_token",
+            "account_id": 1,
+            "account_username": "me",
+        },
+    )
+
+    # Now succeeds
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/album/{album_id}",
+        json={"data": {"id": album_id, "title": "test"}},
+        status=200,
+    )
+
+    MOCKED_AUTHED_IMGUR.get_album(album_id)
+
+    assert (
+        responses.calls[0].request.headers["Authorization"]
+        != "Bearer valid_access_token"
+    )
+
+    assert (
+        responses.calls[2].request.headers["Authorization"]
+        == "Bearer valid_access_token"
+    )
+
+    assert len(responses.calls) == 3
+
+
+@responses.activate
 def test_retry_logic_performs_backoff():
     # Mock the actual API endpoint that will be called after refresh
     album_id = "xyz789"
