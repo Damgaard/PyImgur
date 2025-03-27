@@ -636,7 +636,7 @@ def test_user_follow_tag():
         status=200,
     )
 
-    MOCKED_USER.follow_tag(tag)
+    MOCKED_USER._follow_tag(tag)
 
     assert len(responses.calls) == 1
     assert (
@@ -656,7 +656,7 @@ def test_user_unfollow_tag():
         status=200,
     )
 
-    MOCKED_USER.unfollow_tag(tag)
+    MOCKED_USER._unfollow_tag(tag)
 
     assert len(responses.calls) == 1
     assert (
@@ -685,7 +685,7 @@ def test_user_follow_tag_already_following():
     )
 
     with pytest.raises(UnexpectedImgurException) as e:
-        MOCKED_USER.follow_tag(tag)
+        MOCKED_USER._follow_tag(tag)
 
     assert str(e.value) == "409: Imgur ERROR message: Already following tag"
 
@@ -710,7 +710,7 @@ def test_user_unfollow_tag_not_following():
     )
 
     with pytest.raises(UnexpectedImgurException) as e:
-        MOCKED_USER.unfollow_tag(tag)
+        MOCKED_USER._unfollow_tag(tag)
 
     assert str(e.value) == "409: Imgur ERROR message: Not following tag"
 

@@ -550,7 +550,11 @@ class User(Basic_object):
         url = f"{self._imgur.base_url}/3/account/{self.name}"
         return self._imgur.send_request(url, needs_auth=True, method="DELETE")
 
-    def follow_tag(self, tag):
+    # Tag functions are _temporarily_ disabled. This is to support adding them
+    # in one big block. Likely, they need to be supported as a Object. And in
+    # cases like this one "tag" needs to be called both with a string and with a
+    # Tag object.
+    def _follow_tag(self, tag):
         """Follow a tag."""
         url = f"{self._imgur.base_url}/3/account/me/follow/tag/{tag}"
         return self._imgur.send_request(url, needs_auth=True, method="POST")
@@ -703,7 +707,7 @@ class User(Basic_object):
         url = f"{self._imgur.base_url}/3/account/{self.name}/verifyemail"
         self._imgur.send_request(url, needs_auth=True, method="POST")
 
-    def unfollow_tag(self, tag):
+    def _unfollow_tag(self, tag):
         """Unfollow a tag."""
         url = f"{self._imgur.base_url}/3/account/me/follow/tag/{tag}"
         return self._imgur.send_request(url, needs_auth=True, method="DELETE")

@@ -12,7 +12,6 @@ divided into four categories.
 
 Unreleased
 ----------
- * **[FEATURE]** Add methods `follow_tag` and `unfollow_tag` to `User` object. This can be used to follow tags like "cats" on Imgur.
   * **[FEATURE]** Add method `get_votes` on `Gallery_image` and `Gallery_album`, to get the upvotes and downvotes.
  * **[FEATURE]** Update `search_gallery` to support advanced querying, sort on time/viral, limit on time window and add pagination.
  * **[FEATURE]** Add exponential backoff logic with jitter to requests that fail on
