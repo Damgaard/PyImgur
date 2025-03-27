@@ -589,10 +589,59 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         self.access_token = result["access_token"]
         return self.access_token
 
-    def search_gallery(self, q):
-        """Search the gallery with the given query string."""
-        url = self.base_url + f"/3/gallery/search?q={q}"
-        resp = self.send_request(url)
+    def search_gallery(
+        self,
+        q=None,
+        q_all=None,
+        q_any=None,
+        q_exactly=None,
+        q_not=None,
+        q_type=None,
+        q_size_px=None,
+        sort="time",
+        window="all",
+        limit=None,
+    ):  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        """Search the gallery.
+
+        :param q: Query string (note: if advanced search parameters are set,
+        this query string is ignored). This parameter also supports boolean
+        operators (AND, OR, NOT) and indices (tag: user: title: ext: subreddit:
+        album: meme:). An example compound query would be 'title: cats AND dogs
+        ext: gif'
+        :param q_all: Search for all of these words (and)
+        :param q_any: Search for any of these words (or)
+        :param q_exactly: 	Search for exactly this word or phrase
+        :param q_not: 	Exclude results matching this
+        :param q_type: Show results for any file type, jpg | png | gif |
+        anigif (animated gif) | album
+        :param q_size_px: Size ranges, small (500 pixels square or less) | med
+        (500 to 2,000 pixels square) | big (2,000 to 5,000 pixels square) | lrg
+        (5,000 to 10,000 pixels square) | huge (10,000 square pixels and above)
+        :param sort: time | viral | top - defaults to time
+        :param window: all | day | week | month | year - defaults to all
+        :param limit: The number of items to return.
+
+        """
+        if all(
+            x is None for x in [q, q_all, q_any, q_exactly, q_not, q_type, q_size_px]
+        ):
+            raise InvalidParameterError(
+                "At least one of q, q_all, q_any, q_exactly, q_not, q_type,"
+                "q_size_px must be provided"
+            )
+
+        url = self.base_url + f"/3/gallery/search/{sort}/{window}/{{}}"
+        payload = {
+            "q": q,
+            "q_all": q_all,
+            "q_any": q_any,
+            "q_exactly": q_exactly,
+            "q_not": q_not,
+            "q_type": q_type,
+            "q_size_px": q_size_px,
+        }
+        resp = self.send_request(url, params=payload, limit=limit)
         return [Gallery_item.get_album_or_image(thing, self) for thing in resp]
 
     def upload_image(

@@ -869,6 +869,30 @@ def test_retry_on_429_error():
 
 
 @responses.activate
+def test_search_gallery_calls_right_url_defaults():
+    with pytest.raises(InvalidParameterError):
+        MOCKED_AUTHED_IMGUR.search_gallery(limit=2)
+
+
+@responses.activate
+def test_search_gallery_calls_right_url_query_cats():
+    responses.add(
+        responses.GET,
+        "https://api.imgur.com/3/gallery/search/time/all/0",
+        json={"data": [MOCKED_GALLERY_ALBUM_DATA] * 5},
+        status=200,
+    )
+
+    MOCKED_AUTHED_IMGUR.search_gallery(q="cats", limit=2)
+
+    assert len(responses.calls) == 1
+    assert (
+        responses.calls[0].request.url
+        == "https://api.imgur.com/3/gallery/search/time/all/0?q=cats"
+    )
+
+
+@responses.activate
 def test_retry_logic_performs_backoff():
     # Mock the actual API endpoint that will be called after refresh
     album_id = "xyz789"
