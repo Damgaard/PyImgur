@@ -194,7 +194,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
                 # and a 429 rate limit error, depending on the access token.
                 # Possibly this is due to a bug in how Imgur handles old or
                 # malformed access tokens.
-                print("Caught")
                 if e.response.status_code not in (401, 429):
                     raise
 
