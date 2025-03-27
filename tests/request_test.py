@@ -768,6 +768,45 @@ def test_refresh_token_flow():
 
 
 @responses.activate
+def test_refresh_token_retry_flow_if_only_access_token_is_set():
+    album_id = "xyz789"
+
+    responses.add(
+        responses.GET,
+        f"https://api.imgur.com/3/album/{album_id}",
+        json={
+            "data": {
+                "error": "The access token provided is invalid.",
+                "request": f"https://api.imgur.com/3/album/{album_id}",
+                "method": "GET",
+            },
+            "success": False,
+            "status": 403,
+        },
+        status=403,
+    )
+
+    # Set up Imgur instance with only refresh token
+    imgur = Imgur(
+        "test_client_id",
+        "test_client_secret",
+        access_token="Invalid access token",
+        refresh_token=None,
+    )
+
+    # Make the API call
+    with pytest.raises(UnexpectedImgurException) as e:
+        imgur.get_album(album_id)
+
+    # Verify refresh token was called first
+    assert len(responses.calls) == 1
+    assert (
+        str(e.value)
+        == "403: Imgur ERROR message: The access token provided is invalid."
+    )
+
+
+@responses.activate
 def test_retry_on_429_error():
     # We rety as this error is thown sometimes on invalid / expired access tokens
     # which can be gracefully resolved by refreshing the access token.
