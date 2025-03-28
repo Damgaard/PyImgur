@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyImgur: Authenticate by code example</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .message.success {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .messages-container {
+            margin-top: 2rem;
+        }
+        .success-banner {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .error-banner {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .usage-text {
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="h3 mb-0">PyImgur: Authenticate by code example</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container">
+            {% if code %}
+                {% if error_message %}
+                <div class="error-banner">
+                    <h2 class="h4 mb-0">You did it rockstar</h2>
+                    <p class="mb-0">But it wasn't perfect, we couldn't get the user. Instead we got this error: {{ error_message }}</p>
+                    {% if state %}
+                    <p class="mb-0">Returned state was: {{ state }}</p>
+                    {% endif %}
+                </div>
+                {% elif username %}
+                <div class="success-banner">
+                    <h2 class="h4 mb-0">You did it rockstar</h2>
+                    <p class="mb-0">You are now authorized as {{ username }} 🥳</p>
+                    {% if state %}
+                    <p class="mb-0">Returned state was: {{ state }}</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="success-banner">
+                    <h2 class="h4 mb-0">You did it rockstar</h2>
+                    {% if state %}
+                    <p class="mb-0">Returned state was: {{ state }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <div class="usage-text">
+                <p>Use this form to test creating a code using PyImgur. Input your credentials in the form below and hit submit. You will get a url to go to, here you can go authorize.</p>
+                <p>Normally in your app, you would directly redirect the user. In this example, I'm asking you to do that step manually as it makes it easier to understand the process if you run the authorization in a separate tab while this remains visible.</p>
+                <p>State isn't used by PyImgur or Imgur. Instead Imgur simply passes it back. It can be used to differentiate the user experience depending on the state or other things. That's up to you :)</p>
+            </div>
+            
+            <form id="authForm">
+                <div class="mb-3">
+                    <label for="client_id" class="form-label">Client ID</label>
+                    <input type="text" class="form-control" id="client_id" name="client_id" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="client_secret" class="form-label">Client Secret</label>
+                    <input type="text" class="form-control" id="client_secret" name="client_secret" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="state" class="form-label">State (Optional)</label>
+                    <input type="text" class="form-control" id="state" name="state">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be inserted here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function addMessage(message, isError = false) {
+            const container = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isError ? 'error' : 'success'}`;
+            messageDiv.textContent = message;
+            container.insertBefore(messageDiv, container.firstChild);
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                client_id: document.getElementById('client_id').value,
+                client_secret: document.getElementById('client_secret').value,
+                state: document.getElementById('state').value
+            };
+            
+            try {
+                const response = await fetch('/api/authorize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                addMessage(data.message, data.error);
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('An error occurred while sending the request.', true);
+            }
+        });
+    </script>
+</body>
+</html> 

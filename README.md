@@ -54,8 +54,9 @@ that user.
     print(image.title) # Ssshhhh
     print(image.link) # https://i.imgur.com/5JTvLlM.gif
 
-Same request. Just made authenticated. To get a users refresh token, first get
-an authentorization url. Then exchange that with a pin to get authenticated.
+## Authorization
+
+To get a users refresh token, you need the user to authorize your application. For development using pin authorization is easiest. It requires user to go the authorization_url and then giving you the pin they see there.
 
     import pyimgur
 
@@ -69,8 +70,12 @@ an authentorization url. Then exchange that with a pin to get authenticated.
     pin = input("What is the pin? ")
     access_token, refresh_token = im.exchange_pin(pin)
 
-This authentication flow is also demonstrated in the refresh_token.py file, located at the
+Authorization by pin flow is also demonstrated in the refresh_token.py file, located at the
 root of this repository. Which you can run to get a refresh token.
+
+For applications running in production, it is preferable to use either code or token authorization as that requires manual inputs by the user. Demonstrating these use cases require running a web instance, so has a bit too much setup to be described in a README file.
+
+The authorization_by_code folder inside the examples folder show a working example of a simple web application utilizing exchange by code. It has it's own README going into details on how it works.
 
 ## Examples
 
