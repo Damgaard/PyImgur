@@ -245,11 +245,19 @@ def test_update_album_unauthed():
 )
 def test_image_download():
     i = im.get_image("Hlddt")
+    new_filename = "NotExistingFile.jpg"
     try:
-        new_file = i.download()
-        assert new_file.name == "Hlddt.jpeg"
-    finally:
-        Path(new_file).unlink(missing_ok=True)
+        new_filename = i.download(name="Hlddt").name
+    except Exception:  # pylint: disable=broad-exception-caught
+        Path(new_filename).unlink(missing_ok=True)
+
+    assert new_filename == "Hlddt.jpeg"
+
+    # Assert file exists and not just in name only
+    assert Path(new_filename).exists()
+    filesize = Path(new_filename).stat().st_size
+    Path(new_filename).unlink(missing_ok=True)
+    assert filesize > 0
 
 
 @pytest.mark.skipif(
