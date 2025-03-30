@@ -79,25 +79,17 @@ The authorization_by_code folder inside the examples folder show a working examp
 
 ## Examples
 
-Let's use another example to show how to upload an image::
+The examples folder contains programs demonstrating how to use PyImgur to achieve various tasks.
 
-    import pyimgur
+### Authorization By Code
 
-    PATH = "A Filepath to an image on your computer"
+Shows how to use the code based authorization. If you are running a service in production, with users accessing it through a website or app then this is superior to PIN based authorization. User is simply redirected to a url on Imgur's side, then just need to click a button to authorize. No need to copy or paste anything.
 
-    im = pyimgur.Imgur(CLIENT_ID)
+Example shows a full working example powered by a Flask web application.
 
-    uploaded_image = im.upload_image(PATH, title="Uploaded with PyImgur")
+## Delete empty albums
 
-    print(uploaded_image.title)
-    print(uploaded_image.link)
-    print(uploaded_image.size)
-    print(uploaded_image.type)
-
-Some methods here one or more arguments with the default value `None`. For
-methods modifying existing objects, this mean to keep the already existing
-value. For methods not modifying existing objects, this mean to use the Imgur
-default.
+Cycles through all albums owned by the currently authorized user. Useful while experimentation, as this can build up a number of empty albums. Also useful generally as it shows a simple example of using PyImgur to access a users albums and make decisions based on their contents.
 
 ## Commercial Usage
 
