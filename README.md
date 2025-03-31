@@ -18,7 +18,7 @@ Prompt: Consicely evaluate this project for quality, userfriendliness and useful
 
 ## Installation
 
-The recommended way to install is via [pip](http://pypi.python.org/pypi/pip>).
+The recommended way to install is via [pip](http://pypi.python.org/pypi/pip).
 
     $ pip install pyimgur
 
@@ -56,7 +56,7 @@ that user.
 
 ## Authorization
 
-To get a users refresh token, you need the user to authorize your application. For development using pin authorization is easiest. It requires user to go the authorization_url and then giving you the pin they see there.
+To get a user's refresh token, you need the user to authorize your application. For development using pin authorization is easiest. It requirest the user to go to the authorization_url and then give you the pin they see there.
 
     import pyimgur
 
@@ -73,9 +73,9 @@ To get a users refresh token, you need the user to authorize your application. F
 Authorization by pin flow is also demonstrated in the refresh_token.py file, located at the
 root of this repository. Which you can run to get a refresh token.
 
-For applications running in production, it is preferable to use either code or token authorization as that requires manual inputs by the user. Demonstrating these use cases require running a web instance, so has a bit too much setup to be described in a README file.
+For applications running in production, it is preferable to use either code or token authorization as that requires no manual inputs by the user. Demonstrating these use cases requires running a web instance, so has a bit too much setup to be described in a README file.
 
-The authorization_by_code folder inside the examples folder show a working example of a simple web application utilizing exchange by code. It has it's own README going into details on how it works.
+The authorization_by_code folder inside the examples folder shows a working example of a simple web application utilizing exchange by code. It has its own README going into details on how it works.
 
 ## Examples
 
@@ -83,20 +83,20 @@ The examples folder contains programs demonstrating how to use PyImgur to achiev
 
 ### Authorization By Code
 
-Shows how to use the code based authorization. If you are running a service in production, with users accessing it through a website or app then this is superior to PIN based authorization. User is simply redirected to a url on Imgur's side, then just need to click a button to authorize. No need to copy or paste anything.
+Shows how to use the code based authorization. If you are running a service in production, with users accessing it through a website or app then this is superior to PIN based authorization. User is simply redirected to a url on Imgur's side, then just needs to click a button to authorize. No need to copy or paste anything.
 
 Example shows a full working example powered by a Flask web application.
 
 ## Delete empty albums
 
-Cycles through all albums owned by the currently authorized user. Useful while experimentation, as this can build up a number of empty albums. Also useful generally as it shows a simple example of using PyImgur to access a users albums and make decisions based on their contents.
+Cycles through all albums owned by the currently authorized user. Useful while experimenting, as this can build up a number of empty albums. Also useful generally as it shows a simple example of using PyImgur to access a user's albums and make decisions based on their contents.
 
 ## Commercial Usage
 
 Imgur supports commercial usage via RapidAPI. A paid subscription via them allows
 for more monthly uploads and a higher ratelimit. To utilize it, requests must
-be sent in a diffrent way. This is abstracted away by PyImgur. You simply need to
-provide your RapidAPI key on initialization of the Imgur object::
+be sent in a different way. This is abstracted away by PyImgur. You simply need to
+provide your RapidAPI key on initialization of the Imgur object.
 
     import pyimgur
 
@@ -108,7 +108,7 @@ not written. This is because I'm not paying 500$ a month for it. If you want ext
 support of the RapidAPI I will be happy to accept a PR or do it as a paid service.
 
 More information on RapidAPI can be found on the [RapidAPI
-website](https://rapidapi.com/imgur/api/imgur-9>).
+website](https://rapidapi.com/imgur/api/imgur-9).
 
 # Contribute
 
@@ -204,13 +204,13 @@ functions to introspect objects to learn more about them and how they work.
 
 ## Dynamic Object Generation
 
-Attributes on objects in PyImgur are dynamically generated based on the response from Imgur. This mean that if Imgur for instance adds a new attribute to a User, then that attribute becomes instantly accessible to all versions of PyImgur. No need to upgrade is neccessary.
+Attributes on objects in PyImgur are dynamically generated based on the response from Imgur. This means that if Imgur for instance adds a new attribute to a User, then that attribute becomes instantly accessible to all versions of PyImgur. No need to upgrade is necessary.
 
-The value on these attributes are set to proper Python objects, like int, bool or string. So there is no need to do any excess work. Only exception would be if the new attribute is a reference to an object. Then PyImgurs object generation and lazy loading of referenced objects will not work out of the box. A new version of PyImgur that explicitly handles that case will need for the object to be accessed in the same manner as other objects.
+The value on these attributes are set to proper Python objects, like int, bool or string. So there is no need to do any extra work. Only exception would be if the new attribute is a reference to an object. Then PyImgur's object generation and lazy loading of referenced objects will not work out of the box. A new version of PyImgur that explicitly handles that case will need for the object to be accessed in the same manner as other objects.
 
 ## Ratelimits
 
-There is currently no special handling of going over Imgurs API ratelimit and support of ratelimit handling is limited to exposing remaining queries via the Imgur object. Overall Imgur works on a more old-school generous model, where api credits are spread out. So as long as you don't keep usage high over a long time, then API limits are not hit. Being spikey in usage is  not a problem, the integration tests for instance never raise a ratelimit exception. Despite quickly making many calls and making images & albums.
+There is currently no special handling of going over Imgur's API ratelimit and support of ratelimit handling is limited to exposing remaining queries via the Imgur object. Overall Imgur works on a more old-school generous model, where api credits are given in chunks. So as long as you don't keep usage high over a long time, then API limits are not going to be a problem. Being spikey in usage is not a problem, the integration tests for instance never raise a ratelimit exception. Despite quickly making many calls and making images & albums.
 
 For now, the decision is not to add extra complexity by adding more handling of the ratelimits.
 
@@ -224,14 +224,14 @@ The changelog can be found inside the CHANGES.rst file.
 
 ## Support
 
-If you find an bug, have any questions about how to use PyImgur or have
+If you find a bug, have any questions about how to use PyImgur or have
 suggestions for improvements then feel free to file an issue on the [Github
-project page](https://github.com/Damgaard/PyImgur>).
+project page](https://github.com/Damgaard/PyImgur).
 
 ## Documentation
 
-PyImgur's full documentation is located on [ReadTheDocs](https://pyimgur.readthedocs.org>).
+PyImgur's full documentation is located on [ReadTheDocs](https://pyimgur.readthedocs.org).
 
 ## License
 
-All of the code contained here is licensed by [the GNU GPLv3](<http://www.gnu.org/licenses/gpl-3.0.html>).
+All of the code contained here is licensed by [the GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0.html).
