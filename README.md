@@ -87,7 +87,7 @@ Shows how to use the code based authorization. If you are running a service in p
 
 Example shows a full working example powered by a Flask web application.
 
-## Delete empty albums
+### Delete empty albums
 
 Cycles through all albums owned by the currently authorized user. Useful while experimenting, as this can build up a number of empty albums. Also useful generally as it shows a simple example of using PyImgur to access a user's albums and make decisions based on their contents.
 

@@ -12,7 +12,7 @@ divided into four categories.
 
 Unreleased
 ----------
-  * **[FEATURE]** Add method `get_votes` on `Gallery_image` and `Gallery_album`, to get the upvotes and downvotes.
+ * **[FEATURE]** Add method `get_votes` on `Gallery_image` and `Gallery_album`, to get the upvotes and downvotes.
  * **[FEATURE]** Update `search_gallery` to support advanced querying, sort on time/viral, limit on time window and add pagination.
  * **[FEATURE]** Add exponential backoff logic with jitter to requests that fail on
    issues, which PyImgur believes are transient issues. Backoff starts at 2 seconds.
@@ -21,7 +21,7 @@ Unreleased
    get a fresh access token if none was set at initialization and a refresh token
    was set. As such the "access_token" parameter on Imgur remains mostly for optimization
    reasons as it allows reusing same key in paralization of tasks.
-* **[FEATURE]** PyImgur now attempts to gracefully handle exceptions coming from expired / invalid access tokens by attempting to refresh the access token, then retrying the request.
+ * **[FEATURE]** PyImgur now attempts to gracefully handle exceptions coming from expired / invalid access tokens by attempting to refresh the access token, then retrying the request.
 
 PyImgur 0.7.2
 -------------
@@ -34,11 +34,8 @@ PyImgur 0.7.1
 -------------
  * **[FEATURE]** get_favorites and get_gallery_favorites now supports pagination.
  * **[FEATURE]** get_gallery_favorites now supports sorting by oldest and newest.
- * **[BUGFIX]** Fix an issue with pagination, where the limit argument would
- be ignored and maximum content would always be fetched. Correct data would
- be fetched, but the number of requests would be excessive.
- * **[CHANGE]** Reverted changes in 0.7.0 that set some non-default configurations
- for pylint, pytest and black.
+ * **[BUGFIX]** Fix an issue with pagination, where the limit argument would be ignored and maximum content would always be fetched. Correct data would be fetched, but the number of requests would be excessive.
+ * **[CHANGE]** Reverted changes in 0.7.0 that set some non-default configurations for pylint, pytest and black.
 
 PyImgur 0.7.0
 -------------
