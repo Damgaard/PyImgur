@@ -20,7 +20,11 @@ from pathlib import Path
 import requests
 
 from pyimgur.basic_objects import Basic_object, _change_object
-from pyimgur.exceptions import InvalidParameterError, FileOverwriteError
+from pyimgur.exceptions import (
+    InvalidParameterError,
+    FileOverwriteError,
+    UnexpectedImgurException,
+)
 
 
 class Image(Basic_object):  # pylint: disable=too-many-instance-attributes
@@ -113,21 +117,35 @@ class Image(Basic_object):  # pylint: disable=too-many-instance-attributes
             "large_thumbnail": "l",
             "huge_thumbnail": "h",
         }
+
         if size is not None:
             size = size.lower().replace(" ", "_")
             if size not in valid_sizes:
                 raise InvalidParameterError(
                     f"Invalid size. Valid options are: {', '.join(valid_sizes.keys())}"
                 )
+
         suffix = valid_sizes.get(size, "")
-        base, sep, ext = self.link.rpartition(".")
-        resp = requests.get(base + suffix + sep + ext, timeout=60)
-        if name or self.title:
-            try:
-                return save_as((name or self.title) + suffix + sep + ext)
-            except IOError:
-                pass
-            # Invalid filename
+        _, sep, ext = self.link.rpartition(".")
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "referer": "https://imgur.com/gallery/cat-synth-AgnksJY",
+        }
+
+        url = f"https://imgur.com/download/{self.id}/undefined"
+        # Should be a way to reuse existing functionality without making things too complicated
+        resp = requests.get(url, headers=headers, stream=True, timeout=60)
+
+        if resp.status_code != 200:
+            raise UnexpectedImgurException(
+                f"Failed to download image: {resp.status_code} {resp.text}"
+            )
+
+        if name:
+            return save_as(name + suffix + sep + ext)
+
         return save_as(self.id + suffix + sep + ext)
 
     def favorite(self):

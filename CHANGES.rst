@@ -22,6 +22,7 @@ Unreleased
    was set. As such the "access_token" parameter on Imgur remains mostly for optimization
    reasons as it allows reusing same key in paralization of tasks.
  * **[FEATURE]** PyImgur now attempts to gracefully handle exceptions coming from expired / invalid access tokens by attempting to refresh the access token, then retrying the request.
+ * **[IMGUR]** Fix downloading of images by handling the backwards incompatible changes, Imgur has made on how to fetch images.
 
 PyImgur 0.7.2
 -------------
