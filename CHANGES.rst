@@ -10,8 +10,8 @@ divided into four categories.
  * **[CHANGE]** Other changes affecting user programs, such as the renaming of
    a function.
 
-Unreleased
-----------
+PyImgur 0.8.0
+-------------
  * **[FEATURE]** Add method `get_votes` on `Gallery_image` and `Gallery_album`, to get the upvotes and downvotes.
  * **[FEATURE]** Update `search_gallery` to support advanced querying, sort on time/viral, limit on time window and add pagination.
  * **[FEATURE]** Add exponential backoff logic with jitter to requests that fail on
