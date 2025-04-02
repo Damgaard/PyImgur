@@ -178,6 +178,8 @@ Which will make it easier to upgrade.
 - Rename / remove DEFAULT_LIMIT from Imgur. Also not following conventions.
   Should maybe be set via an environment variable or other config instead.
 - Change to a more permissive license.
+- Rename User -> Account. Is is how it is referenced on Imgur and also
+  cross referenced between objects.
 
 # Deep dive
 
