@@ -38,7 +38,7 @@ pattern = '__version__ = "(?P<version>[^"]+)"'
 include = [
     "/pyimgur",
     "COPYING",
-    "README.rst",
+    "README.rmd",
 ]
 
 [tool.pytest.ini_options]

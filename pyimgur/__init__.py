@@ -53,7 +53,7 @@ from pyimgur.objects import (
     User,
 )
 
-__version__ = "0.7.2"
+__version__ = "0.8.0"
 
 RAPIDAPI_BASE = "https://imgur-apiv3.p.rapidapi.com"
 IMGUR_BASE = "https://api.imgur.com"
