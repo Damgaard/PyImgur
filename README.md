@@ -87,6 +87,12 @@ Shows how to use the code based authorization. If you are running a service in p
 
 Example shows a full working example powered by a Flask web application.
 
+### Set Background
+
+Set your windows background to a beautiful image found on Image. It will be one of 5 random themes, beautiful places on earch, beautiful views of space, awe inspiring megaliths on earth, visions for how the future might look and simply great views.
+
+You can set this up to run every day, when you start your machine, so you always start your day with a new inspirational view.
+
 ### Delete empty albums
 
 Cycles through all albums owned by the currently authorized user. Useful while experimenting, as this can build up a number of empty albums. Also useful generally as it shows a simple example of using PyImgur to access a user's albums and make decisions based on their contents.
