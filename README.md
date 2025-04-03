@@ -224,6 +224,14 @@ For now, the decision is not to add extra complexity by adding more handling of 
 
 Do note that Imgur is more aggressive on usage for non-authed usage. Ie. where you are just authenticated with client_id, so if you're doing that then I would recommend authenticating as a user by instantiating the Imgur object with a refresh_token.
 
+## Pagination
+
+Imgur serves endpoints via page based pagination. This is a bit cumbersome to use directly as you need to call the same endpoint multiple times with incrementing page count, until you have the data you want. And expecting say 100 items will always be sent over 4 pages is an assumption doomed to fail. Endpoints can return different volumes of data. Optimizations around caching can result in some pages not returning the full count and sometimes there just isn't 4 pages worth of content.
+
+PyImgur therefore abstracts away the pagination. Instead, when requesting data you simply specify the number of items you want your request to be limited to via the `limit` parameter and PyImgur will ensure you get that number of items if it is available.
+
+If you do not specify the `limit` parameter. It will instead use the default of 100 items.
+
 # Related documents
 
 ## Changelog
