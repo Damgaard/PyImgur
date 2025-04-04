@@ -702,23 +702,3 @@ USER_EXPECTED_DATA = {
     "is_blocked": False,
     "name": "darthmonkey",
 }
-
-MOCKED_COMMENT_DATA = {
-    "id": 2452134603,
-    "image_id": "4XE3XPc",
-    "comment": "A sweeter sound has never been heard throughout the universe",
-    "author": "todaytomorrowwillbeyesterday",
-    "author_id": 163472661,
-    "on_album": True,
-    "album_cover": "r1Lzfqj",
-    "ups": 6,
-    "downs": 0,
-    "points": 6,
-    "datetime": 1743735582,
-    "parent_id": 0,
-    "deleted": False,
-    "vote": None,
-    "platform": "api",
-    "has_admin_badge": False,
-    "children": [],
-}
