@@ -189,11 +189,11 @@ class TestBasicUrlsGalleryAlbum:
         responses.add(
             responses.GET,
             f"https://api.imgur.com/3/gallery/{self.MOCKED_GALLERY_ALBUM.id}/comments",
-            json={"data": [MOCKED_COMMENT_DATA] * 5},
+            json={"data": [MOCKED_COMMENT_DATA] * 50},
             status=200,
         )
 
-        self.MOCKED_GALLERY_ALBUM.get_comments()
+        self.MOCKED_GALLERY_ALBUM.get_comments(limit=10)
 
         assert (
             responses.calls[0].request.url
@@ -622,11 +622,11 @@ class TestBasicUrlsGalleryImage:
         responses.add(
             responses.GET,
             f"https://api.imgur.com/3/gallery/{self.MOCKED_GALLERY_IMAGE.id}/comments",
-            json={"data": [MOCKED_COMMENT_DATA] * 5},
+            json={"data": [MOCKED_COMMENT_DATA] * 50},
             status=200,
         )
 
-        self.MOCKED_GALLERY_IMAGE.get_comments()
+        self.MOCKED_GALLERY_IMAGE.get_comments(limit=10)
 
         assert (
             responses.calls[0].request.url

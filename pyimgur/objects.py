@@ -419,10 +419,13 @@ class Gallery_item:  # pylint: disable=invalid-name
         url = self._imgur.base_url + f"/3/gallery/{self.id}/vote/down"
         return self._imgur.send_request(url, needs_auth=True, method="POST")
 
-    def get_comments(self):
+    def get_comments(self, sort="new", limit=None):
         """Get a list of the top-level comments."""
-        url = self._imgur.base_url + f"/3/gallery/{self.id}/comments"
-        resp = self._imgur.send_request(url)
+        if sort not in (None, "best", "top", "new"):
+            raise InvalidParameterError("sort must be None, 'best', 'top', or 'new'")
+
+        url = self._imgur.base_url + f"/3/gallery/{self.id}/comments/{sort}/{{}}"
+        resp = self._imgur.send_request(url, limit=limit)
         return [Comment(com, self._imgur) for com in resp]
 
     def get_votes(self):
@@ -570,10 +573,15 @@ class User(Basic_object):
         resp = self._imgur.send_request(url, limit=limit)
         return [Album(alb, self._imgur, False) for alb in resp]
 
-    def get_comments(self):
+    def get_comments(self, sort="newest", limit=None):
         """Return the comments made by the user."""
-        url = f"{self._imgur.base_url}/3/account/{self.name}/comments"
-        resp = self._imgur.send_request(url)
+        if sort not in (None, "best", "worst", "oldest", "newest"):
+            raise InvalidParameterError(
+                "sort must be None, 'best', 'worst', 'oldest' or 'newest'"
+            )
+
+        url = f"{self._imgur.base_url}/3/account/{self.name}/comments/{sort}/{{}}"
+        resp = self._imgur.send_request(url, limit=limit)
         return [Comment(com, self._imgur) for com in resp]
 
     def get_favorites(self, limit=None):

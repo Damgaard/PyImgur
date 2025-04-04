@@ -47,6 +47,6 @@ def test_get_comment_replies():
 def test_get_comments():
     gallery = im.get_gallery()
     gallery_item = gallery[0]
-    comments = gallery_item.get_comments()
+    comments = gallery_item.get_comments(limit=1)
     assert isinstance(comments, list)
     assert isinstance(comments[0], Comment)
