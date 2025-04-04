@@ -138,7 +138,7 @@ actions are run on each commit to ensure they comply to this standard.
 To check for correct linting please run
 
     pylint pyimgur
-    pylint tests --disable missing-function-docstring,missing-module-docstring,protected-access
+    pylint tests --disable missing-function-docstring,missing-module-docstring,protected-access,missing-class-docstring
 
 Some rules have been disabled in tests as they make less sense here.
 Test functions should not as a rule require docstrings. If they do,

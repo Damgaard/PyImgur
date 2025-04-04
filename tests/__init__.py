@@ -1,5 +1,12 @@
 from requests import HTTPError
 
+from pyimgur import Gallery_album, Gallery_image, Imgur, User
+from tests.data import (
+    MOCKED_GALLERY_ALBUM_DATA,
+    MOCKED_GALLERY_IMAGE_DATA,
+    MOCKED_USER_DATA,
+)
+
 try:
     from authentication import client_id, client_secret, refresh_token
 except ImportError:
@@ -28,3 +35,13 @@ if refresh_token:
         pass
 
 USER_NOT_AUTHENTICATED = refresh_token is None or user is None
+MOCKED_UNAUTHED_IMGUR = Imgur("fake_client_id")
+MOCKED_AUTHED_IMGUR = Imgur(
+    "fake_client_id",
+    "fake_client_secret",
+    refresh_token="fake refresh token",
+    access_token="fake access token",
+)
+MOCKED_USER = User(MOCKED_USER_DATA, MOCKED_AUTHED_IMGUR)
+MOCKED_GALLERY_IMAGE = Gallery_image(MOCKED_GALLERY_IMAGE_DATA, MOCKED_AUTHED_IMGUR)
+MOCKED_GALLERY_ALBUM = Gallery_album(MOCKED_GALLERY_ALBUM_DATA, MOCKED_AUTHED_IMGUR)

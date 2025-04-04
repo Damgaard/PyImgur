@@ -2,3 +2,5 @@ Here are some best practices and rules you must follow:
 
 - You use Python 3.9
 - Do not use type hints
+
+- Read and follow instructions given in any file located within the ai_instructions folder

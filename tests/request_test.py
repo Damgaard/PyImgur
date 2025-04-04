@@ -19,30 +19,23 @@ import responses
 
 import pytest
 
-from pyimgur import Imgur, Album, Image, User, Gallery_image
+from pyimgur import Imgur, Album, Image
 from pyimgur.request import send_request
 from pyimgur.exceptions import (
     UnexpectedImgurException,
     InvalidParameterError,
     ImgurIsDownException,
 )
+from tests import MOCKED_UNAUTHED_IMGUR
+from tests import MOCKED_AUTHED_IMGUR
+from tests import MOCKED_USER
+from tests import MOCKED_GALLERY_IMAGE
 
 from .data import (
     MOCKED_ALBUM_DATA,
-    MOCKED_USER_DATA,
     MOCKED_GALLERY_ALBUM_DATA,
     MOCKED_GALLERY_IMAGE_DATA,
 )
-
-MOCKED_UNAUTHED_IMGUR = Imgur("fake_client_id")
-MOCKED_AUTHED_IMGUR = Imgur(
-    "fake_client_id",
-    "fake_client_secret",
-    refresh_token="fake refresh token",
-    access_token="fake access token",
-)
-MOCKED_USER = User(MOCKED_USER_DATA, MOCKED_AUTHED_IMGUR)
-MOCKED_GALLERY_IMAGE = Gallery_image(MOCKED_GALLERY_IMAGE_DATA, MOCKED_AUTHED_IMGUR)
 
 
 @responses.activate

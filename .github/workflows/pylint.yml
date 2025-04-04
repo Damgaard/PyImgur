@@ -27,4 +27,4 @@ jobs:
       # then they are badly written. The purpose of a test should be clear from
       # function name and if need be a glance at the code.
       run: |
-        pylint --rcfile pylintrc tests --disable import-error,missing-function-docstring,missing-module-docstring,protected-access
+        pylint --rcfile pylintrc tests --disable import-error,missing-function-docstring,missing-module-docstring,protected-access,missing-class-docstring
