@@ -93,6 +93,10 @@ Set your windows background to a beautiful image found on Image. It will be one 
 
 You can set this up to run every day, when you start your machine, so you always start your day with a new inspirational view.
 
+### User Analysis
+
+Fetch information about a given user. Extracts both basic information, recent comments, submissions to the gallery of albums and what images they have favorited. You could use this as a basis for building an RSS Feed, or feeding that data into some sort of Machine Learning algorithm for analyzing user behavior or text.
+
 ### Delete empty albums
 
 Cycles through all albums owned by the currently authorized user. Useful while experimenting, as this can build up a number of empty albums. Also useful generally as it shows a simple example of using PyImgur to access a user's albums and make decisions based on their contents.
