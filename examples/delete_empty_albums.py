@@ -2,7 +2,8 @@
 Delete any of the authenticated users albums that doesn't contain at least one image.
 
 Usage:
-    python delete_empty_albums.py --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET --refresh-token YOUR_REFRESH_TOKEN
+    python delete_empty_albums.py --client-id YOUR_CLIENT_ID
+    --client-secret YOUR_CLIENT_SECRET --refresh-token YOUR_REFRESH_TOKEN
 """
 
 import argparse
@@ -11,20 +12,22 @@ from pyimgur import Imgur
 
 
 def delete_empty_albums(client_id, client_secret, refresh_token):
+    """Delete all the authed users albums that doesn't contain at least one image."""
     im = Imgur(
         client_id=client_id, client_secret=client_secret, refresh_token=refresh_token
     )
 
     user = im.get_user("me")
     for album in user.get_albums():
-        if not len(album.images):
-            print("Deleting album {}".format(album.id))
+        if not album.images:
+            print(f"Deleting album {album.id}")
             album.delete()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Delete all of the authenticated user's albums that doesn't contain at least one image"
+        description="Delete all of the authenticated user's albums that "
+        "doesn't contain at least one image"
     )
     parser.add_argument("--client-id", required=True, help="Imgur client ID")
     parser.add_argument("--client-secret", required=True, help="Imgur client secret")

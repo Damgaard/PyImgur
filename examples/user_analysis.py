@@ -9,27 +9,15 @@ Usage:
 """
 
 import argparse
-import pprint
-from pyimgur import Imgur
 from datetime import datetime
+import pprint
+
+from pyimgur import Imgur
 
 
-def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        description="Fetch and display information about an Imgur user"
-    )
-    parser.add_argument("--client-id", required=True, help="Your Imgur API client ID")
-    parser.add_argument(
-        "--username", required=True, help="The Imgur username to analyze"
-    )
-    args = parser.parse_args()
+def print_general_information(user):
+    """Print general meta information, like username or reputation."""
 
-    # Initialize the Imgur client
-    imgur = Imgur(client_id=args.client_id)
-    user = imgur.get_user(args.username)
-
-    # Print general user information
     print("\n=== User Information ===")
     user_info = {
         "Username": user.name,
@@ -42,31 +30,58 @@ def main():
     }
     pprint.pprint(user_info)
 
-    # Get and print the last 10 post
-    print("\n=== Last 10 Posts ===")
-    posts = user.get_submissions(limit=10)
+
+def print_last_few_posts(user, amount=10):
+    """Print the last few posts of the user."""
+    print(f"\n=== Last {amount} Posts ===")
+    posts = user.get_submissions(limit=amount)
     if posts:
         for i, post in enumerate(posts, 1):
             print(f"{i}. {post.title[:100]}{'...' if len(post.title) > 100 else ''}")
     else:
         print("No posts found.")
 
-    # Get and print the last 10 comments
-    print("\n=== Last 10 Comments ===")
+
+def print_last_few_comments(user, amount=10):
+    """Print the last few comments of the user."""
+    print(f"\n=== Last {amount} Comments ===")
     comments = user.get_comments()
     if comments:
-        for i, comment in enumerate(comments[:10], 1):
+        for i, comment in enumerate(comments[:amount], 1):
             print(
                 f"{i}. {comment.text[:100]}{'...' if len(comment.text) > 100 else ''}"
             )
     else:
         print("No comments found.")
 
-    gallery_favorites = user.get_gallery_favorites(sort="newest", limit=10)
-    print("\n=== Last 10 Gallery Favorites ===")
+
+def print_last_few_gallery_favorites(user, amount=10):
+    """Print the last few gallery favorites of the user."""
+    print(f"\n=== Last {amount} Gallery Favorites ===")
+    gallery_favorites = user.get_gallery_favorites(sort="newest", limit=amount)
     for i, gallery_favorite in enumerate(gallery_favorites, 1):
         print(f"{i}. {gallery_favorite.title}")
 
 
+def print_user_analysis(client_id, username):
+    """Print all analysis about the user."""
+    imgur = Imgur(client_id=client_id)
+    user = imgur.get_user(username)
+
+    print_general_information(user)
+    print_last_few_posts(user)
+    print_last_few_comments(user)
+    print_last_few_gallery_favorites(user)
+
+
 if __name__ == "__main__":
-    main()
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description="Fetch and display information about an Imgur user"
+    )
+    parser.add_argument("--client-id", required=True, help="Your Imgur API client ID")
+    parser.add_argument(
+        "--username", required=True, help="The Imgur username to analyze"
+    )
+    args = parser.parse_args()
+    print_user_analysis(args.client_id, args.username)

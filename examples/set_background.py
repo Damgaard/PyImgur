@@ -13,11 +13,13 @@ Client_secret and refresh_token are not required for this script.
 
 import ctypes
 import os
+import sys
 from pathlib import Path
 import random
 import argparse
 
-from pyimgur import Imgur, ImgurIsDownException
+from pyimgur import Imgur
+from pyimgur.exceptions import ImgurIsDownException
 
 
 def set_wallpaper(image_path):
@@ -91,9 +93,11 @@ if __name__ == "__main__":
         downloaded_image_name = chosen_image.download()
     except ImgurIsDownException:
         print(
-            "Ohh no! Looks like Imgur is having some issues. This could be a temporary issue or it could be more permanent. Please wait a minute or so and try again."
+            "Ohh no! Looks like Imgur is having some issues. This could be a "
+            "temporary issue or it could be more permanent. Please wait a minute"
+            " or so and try again."
         )
-        exit(1)
+        sys.exit(1)
 
     set_wallpaper(downloaded_image_name)
     print(f"New wallpaper is: {chosen_image.title}")
