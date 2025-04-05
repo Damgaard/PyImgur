@@ -17,7 +17,7 @@ from pathlib import Path
 import random
 import argparse
 
-from pyimgur import Imgur
+from pyimgur import Imgur, ImgurIsDownException
 
 
 def set_wallpaper(image_path):
@@ -85,7 +85,17 @@ if __name__ == "__main__":
         "ViewPorn",
     ]
     random_subreddit = random.choice(possible_subreddits)
-    chosen_image = get_random_image(random_subreddit)
-    downloaded_image_name = chosen_image.download()
+
+    try:
+        chosen_image = get_random_image(random_subreddit)
+        downloaded_image_name = chosen_image.download()
+    except ImgurIsDownException:
+        print(
+            "Ohh no! Looks like Imgur is having some issues. This could be a temporary issue or it could be more permanent. Please wait a minute or so and try again."
+        )
+        exit(1)
 
     set_wallpaper(downloaded_image_name)
+    print(f"New wallpaper is: {chosen_image.title}")
+    print(f"View it on Imgur: {chosen_image.link}")
+    print(f"Downloaded to: {downloaded_image_name}")
