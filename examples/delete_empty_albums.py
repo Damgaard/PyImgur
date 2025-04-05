@@ -1,6 +1,11 @@
 """
-Delete any of the authenticated users albums that doesn't contain an image.
+Delete any of the authenticated users albums that doesn't contain at least one image.
+
+Usage:
+    python delete_empty_albums.py --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET --refresh-token YOUR_REFRESH_TOKEN
 """
+
+import argparse
 
 from pyimgur import Imgur
 
@@ -18,7 +23,12 @@ def delete_empty_albums(client_id, client_secret, refresh_token):
 
 
 if __name__ == "__main__":
-    client_id = input("What is the client_id? ")
-    client_secret = input("What is the client_secret? ")
-    refresh_token = input("What is the refresh_token? ")
-    delete_empty_albums(client_id, client_secret, refresh_token)
+    parser = argparse.ArgumentParser(
+        description="Delete all of the authenticated user's albums that doesn't contain at least one image"
+    )
+    parser.add_argument("--client-id", required=True, help="Imgur client ID")
+    parser.add_argument("--client-secret", required=True, help="Imgur client secret")
+    parser.add_argument("--refresh-token", required=True, help="Imgur refresh token")
+    args = parser.parse_args()
+
+    delete_empty_albums(args.client_id, args.client_secret, args.refresh_token)

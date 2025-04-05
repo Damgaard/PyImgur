@@ -5,7 +5,7 @@ This script demonstrates how to use PyImgur to fetch and display information abo
 It requires a client_id and username to be provided as command-line arguments.
 
 Usage:
-    python user_analysis.py --client_id YOUR_CLIENT_ID --username USERNAME
+    python user_analysis.py --client-id YOUR_CLIENT_ID --username USERNAME
 """
 
 import argparse
@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Fetch and display information about an Imgur user"
     )
-    parser.add_argument("--client_id", required=True, help="Your Imgur API client ID")
+    parser.add_argument("--client-id", required=True, help="Your Imgur API client ID")
     parser.add_argument(
         "--username", required=True, help="The Imgur username to analyze"
     )
