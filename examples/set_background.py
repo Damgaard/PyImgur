@@ -102,4 +102,4 @@ if __name__ == "__main__":
     set_wallpaper(downloaded_image_name)
     print(f"New wallpaper is: {chosen_image.title}")
     print(f"View it on Imgur: {chosen_image.link}")
-    print(f"Downloaded to: {downloaded_image_name}")
+    print(f"Downloaded file : {downloaded_image_name}")
