@@ -20,9 +20,9 @@ For each of the following objects: Album, Image, User, Gallery_album, Gallery_im
 Tests for Gallery_album should not include tests of methods inherited from the Album class.
 Tests for Gallery_image should not include tests of methods inherited from the Image class.
 
-Create a test class called TestBasicUrls{object_name} where the part in braces is replaced with the name of the object. The class should create a mocked instance of the object, see example in TestBasicUrlsAlbum
+Create a test class called TestBasicUrls{object_name} where the part in braces is replaced with the name of the object. The class should create a mocked instance of the object, see example in TestBasicUrlsAlbum.
 
-Within the class, for each public method on the class create a new test. It should be called 
-test_{method_name}_uses_right_url where the part in braces is replaced by the name of the method. When the method is called, it should be called with no arguments. Except if it has a limit parameter. In which case it should be called with limit=10.
+Within the class, for each public method on the class create a new test. It should be called
+test_{method_name}_uses_right_url where the part in braces is replaced by the name of the method. When the method is called, it should be called with no arguments. Except if it has a limit parameter, in which case it should be called with limit=10.
 
 New test methods should follow the format of the test test_album_favorite_calls_right_url.
