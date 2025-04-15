@@ -292,3 +292,8 @@ def test_ratelimit_values_are_updated():
     # That means the time until reset of ratelimits has decreased by one second. Otherwise
     # the value would not have changed.
     assert im.ratelimit_userreset >= userreset - 1
+
+
+def test_get_subreddit_invalid_sort():
+    with pytest.raises(InvalidParameterError):
+        im.get_subreddit_gallery("pic", sort="invalid")

@@ -524,11 +524,13 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         can, among other things, post images.
 
         :param subreddit: A valid subreddit name.
-        :param sort: time | top - defaults to top.
+        :param sort: time | top - defaults to time.
         :param window: Change the date range of the request if the section is
             "top", day | week | month | year | all, defaults to day.
         :param limit: The number of items to return.
         """
+        if sort not in ["time", "top"]:
+            raise InvalidParameterError("sort parameter must be either 'time' or 'top'")
         url = f"{self.base_url}/3/gallery/r/{subreddit}/{sort}/{window}/{'{}'}"
         resp = self.send_request(url, limit=limit)
         return [Gallery_item.get_album_or_image(thing, self) for thing in resp]
