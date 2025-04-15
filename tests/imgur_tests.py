@@ -13,12 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Tests of the Imgur class."""
+
 from pathlib import Path
 
 import pytest
 
 import pyimgur
-from pyimgur import InvalidParameterError
+from pyimgur import Album, Image, InvalidParameterError, ResourceNotFoundError
 
 from . import USER_NOT_AUTHENTICATED, im, unauthed_im
 
@@ -109,21 +111,6 @@ def test_update_image():
     image.update(TITLE)
     assert image.title == TITLE
     image.delete()
-
-
-@pytest.mark.skipif(
-    USER_NOT_AUTHENTICATED,
-    reason="Cannot run live test without authentication variables.",
-)
-def test_get_subreddit_image():
-    image = im.get_subreddit_image("memes", "DqaPOFs")
-    assert (
-        image.title
-        == "Maybe we got this whole ”Canada joining the US” thing backwards?"
-    )
-    assert image.datetime == 1741288211
-    assert image.id == "DqaPOFs"
-    assert image.link == "https://i.imgur.com/DqaPOFs.jpg"
 
 
 @pytest.mark.skipif(
@@ -297,3 +284,144 @@ def test_ratelimit_values_are_updated():
 def test_get_subreddit_invalid_sort():
     with pytest.raises(InvalidParameterError):
         im.get_subreddit_gallery("pic", sort="invalid")
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_subreddit():
+    response = im.get_subreddit_gallery("pic", limit=5)
+    assert isinstance(response[0], (Image, Album))
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_subreddit_image():
+    image = im.get_subreddit_image("memes", "DqaPOFs")
+    assert (
+        image.title
+        == "Maybe we got this whole ”Canada joining the US” thing backwards?"
+    )
+    assert image.datetime == 1741288211
+    assert image.id == "DqaPOFs"
+    assert image.link == "https://i.imgur.com/DqaPOFs.jpg"
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_subreddit_gallery_low_limit():
+    requested_limit = 5
+    response = im.get_subreddit_gallery("pic", limit=requested_limit)
+    assert len(response) == requested_limit
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_gallery_album():
+    album = im.get_gallery_album("vDtsSUW")
+    assert album.title == "Baby elephant asks for water from a man in Nepal"
+
+
+@pytest.mark.skipif(
+    USER_NOT_AUTHENTICATED,
+    reason="Cannot run live test without authentication variables.",
+)
+def test_get_gallery_album_does_not_exist():
+    with pytest.raises(ResourceNotFoundError):
+        im.get_gallery_album("NotExist")
+
+
+class GetAtUrlTests:
+    def test_retrieve_non_imgur_url(self):
+        url = "http://github.com"
+        result = im.get_at_url(url)
+        assert result is None
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_comment(self):
+        url = "http://imgur.com/gallery/CleiK2V/comment/87511312"
+        comment = im.get_at_url(url)
+        assert isinstance(comment, pyimgur.Comment)
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_album(self):
+        album = im.get_at_url("http://imgur.com/a/SPlYO")
+        assert isinstance(album, pyimgur.Album)
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_album_with_fragment(self):
+        album = im.get_at_url("http://imgur.com/a/SPlYO#0")
+        assert isinstance(album, pyimgur.Album)
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_album_with_params(self):
+        album = im.get_at_url("http://imgur.com/a/SPlYO?sort=hot")
+        assert isinstance(album, pyimgur.Album)
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_image(self):
+        image = im.get_at_url("http://imgur.com/c79sp")
+        assert isinstance(image, pyimgur.Image)
+        assert image.title is not None
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_user(self):
+        user = im.get_at_url("http://imgur.com/user/sarah")
+        assert isinstance(user, pyimgur.User)
+        assert user.name is not None
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_gallery_image(self):
+        gallery_image = im.get_at_url("http://imgur.com/gallery/CleiK2V")
+        assert isinstance(gallery_image, pyimgur.Gallery_image)
+        assert gallery_image.title is not None
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_subreddit_image(self):
+        gallery_image = im.get_at_url("http://imgur.com/gallery/RSwYGcc")
+        assert isinstance(gallery_image, pyimgur.Gallery_image)
+        assert gallery_image.title is not None
+
+    @pytest.mark.skipif(
+        im.refresh_token is None,
+        reason="Cannot run live test without authentication variables.",
+    )
+    def test_retrieve_gallery_album(self):
+        gallery_album = im.get_at_url("http://imgur.com/gallery/mpVzS")
+        assert isinstance(gallery_album, pyimgur.Gallery_album)
+        assert gallery_album.title is not None
+
+    def test_retrive_non_existing_url_format(self):
+        bad_result = im.get_at_url("http://imgur.com/bad/mpVzS")
+        assert bad_result is None
