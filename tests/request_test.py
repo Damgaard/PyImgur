@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PyImgur.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import time
 
 import responses
@@ -886,6 +887,10 @@ def test_search_gallery_calls_right_url_query_cats():
 
 
 @responses.activate
+@pytest.mark.skipif(
+    os.getenv("FAST_TESTS") == "TRUE",
+    reason="Skipping slow test.",
+)
 def test_retry_logic_performs_backoff():
     # Mock the actual API endpoint that will be called after refresh
     album_id = "xyz789"
