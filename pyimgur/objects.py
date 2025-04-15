@@ -428,6 +428,13 @@ class Gallery_item:  # pylint: disable=invalid-name
         resp = self._imgur.send_request(url, limit=limit)
         return [Comment(com, self._imgur) for com in resp]
 
+    @staticmethod
+    def get_album_or_image(json, imgur):
+        """Return a gallery image/album depending on what the json represent."""
+        if json["is_album"]:
+            return Gallery_album(json, imgur, has_fetched=False)
+        return Gallery_image(json, imgur)
+
     def get_votes(self):
         """Get votes for this gallery item."""
         url = self._imgur.base_url + f"/3/gallery/{self.id}/votes"
@@ -455,13 +462,6 @@ class Gallery_item:  # pylint: disable=invalid-name
         """
         url = self._imgur.base_url + f"/3/gallery/{self.id}/vote/up"
         return self._imgur.send_request(url, needs_auth=True, method="POST")
-
-    @staticmethod
-    def get_album_or_image(json, imgur):
-        """Return a gallery image/album depending on what the json represent."""
-        if json["is_album"]:
-            return Gallery_album(json, imgur, has_fetched=False)
-        return Gallery_image(json, imgur)
 
 
 # Gallery_album and Gallery_image are placed at the end as they need to inherit
@@ -608,17 +608,6 @@ class User(Basic_object):
         url = f"{self._imgur.base_url}/3/account/{self.name}/gallery_profile"
         return self._imgur.send_request(url)
 
-    def has_verified_email(self):
-        """
-        Has the user verified that the email he has given is legit?
-
-        Verified e-mail is required to the gallery. Confirmation happens by
-        sending an email to the user and the owner of the email user verifying
-        that he is the same as the Imgur user.
-        """
-        url = f"{self._imgur.base_url}/3/account/{self.name}/verifyemail"
-        return self._imgur.send_request(url, needs_auth=True)
-
     def get_images(self, limit=None):
         """Return all of the images associated with the user."""
         url = f"{self._imgur.base_url}/3/account/{self.name}/images/{{}}"
@@ -681,6 +670,17 @@ class User(Basic_object):
         url = f"{self._imgur.base_url}/3/account/{self.name}/submissions/{{}}"
         resp = self._imgur.send_request(url, limit=limit)
         return [Gallery_item.get_album_or_image(thing, self._imgur) for thing in resp]
+
+    def has_verified_email(self):
+        """
+        Has the user verified that the email he has given is legit?
+
+        Verified e-mail is required to the gallery. Confirmation happens by
+        sending an email to the user and the owner of the email user verifying
+        that he is the same as the Imgur user.
+        """
+        url = f"{self._imgur.base_url}/3/account/{self.name}/verifyemail"
+        return self._imgur.send_request(url, needs_auth=True)
 
     def send_message(self, body, subject=None, reply_to=None):
         """

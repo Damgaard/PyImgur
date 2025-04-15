@@ -25,28 +25,10 @@ def _change_object(from_object, to_object):
 class Basic_object:  # pylint: disable=invalid-name
     """Contains basic functionality shared by a lot of PyImgur's classes."""
 
-    def __getattr__(self, attribute):
-        if not self._has_fetched:
-            self.refresh()
-            return getattr(self, attribute)
-        raise AttributeError(
-            f"{type(self).__name__} instance has no attribute '{attribute}'"
-        )
-
     def __init__(self, json_dict, imgur, has_fetched=True):
         self._has_fetched = has_fetched
         self._imgur = imgur
         self._populate(json_dict)
-
-    def __repr__(self):
-        return f"<{type(self).__name__} {self.id}>"
-
-    @property
-    def _delete_or_id_hash(self):
-        if self._imgur.access_token:
-            return self.id
-
-        return self.deletehash
 
     def _populate(self, json_dict):
         for key, value in json_dict.items():
@@ -85,6 +67,24 @@ class Basic_object:  # pylint: disable=invalid-name
         for attr in dropped_attrs:
             if attr in vars(self):
                 del self.__dict__[attr]
+
+    def __repr__(self):
+        return f"<{type(self).__name__} {self.id}>"
+
+    def __getattr__(self, attribute):
+        if not self._has_fetched:
+            self.refresh()
+            return getattr(self, attribute)
+        raise AttributeError(
+            f"{type(self).__name__} instance has no attribute '{attribute}'"
+        )
+
+    @property
+    def _delete_or_id_hash(self):
+        if self._imgur.access_token:
+            return self.id
+
+        return self.deletehash
 
     def refresh(self):
         """

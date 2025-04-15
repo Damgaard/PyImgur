@@ -118,124 +118,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         self.rapidapi_key = rapidapi_key
         self.base_url = RAPIDAPI_BASE if self.rapidapi_key else IMGUR_BASE
 
-    def send_request(
-        self, url, needs_auth=False, force_client_auth=False, **kwargs
-    ):  # pylint: disable=too-many-branches,too-many-locals
-        """
-        Handles top level functionality for sending requests to Imgur.
-
-        This mean
-            - Raising client-side error if insufficient authentication.
-            - Adding authentication information to the request.
-            - Split the request into multiple request for pagination.
-            - Retry calls for certain server-side errors.
-            - Refresh access token automatically if expired.
-            - Updating ratelimit info
-
-        :param needs_auth: Is authentication as a user needed for the execution
-            of this method?
-        """
-        if (
-            self.refresh_token
-            and not self.access_token
-            and "/3/" in url
-            and all(auth_url not in url for auth_url in ("/oauth2/", "/auth"))
-        ):
-            self.refresh_access_token()
-
-        if self.access_token is None and needs_auth:
-            raise AuthenticationError(
-                "Authentication as a user is required to use this method."
-            )
-
-        if self.access_token is None or force_client_auth:
-            # Use non-authed request.
-            authentication = {"Authorization": f"Client-ID {self.client_id}"}
-        else:
-            authentication = {"Authorization": f"Bearer {self.access_token}"}
-
-        if self.mashape_key:
-            authentication.update({"X-Mashape-Key": self.mashape_key})
-        if self.rapidapi_key:
-            authentication.update({"X-Mashape-Key": self.rapidapi_key})
-
-        content = []
-        is_paginated = False
-        base_url = url
-
-        if "limit" in kwargs:
-            is_paginated = True
-
-            limit = kwargs["limit"]
-            if not limit or limit < 0:
-                limit = self.DEFAULT_LIMIT
-
-            del kwargs["limit"]
-            page = 0
-            url = url.format(page)
-
-        kwargs["params"] = clean_imgur_params(kwargs.get("params", {}))
-        content_to_send = get_content_to_send(**kwargs)
-
-        while True:
-            try:
-                new_content, ratelimit_info = request.send_request(
-                    url,
-                    method=kwargs.get("method", "GET"),
-                    content_to_send=content_to_send,
-                    headers=authentication,
-                )
-
-            except UnexpectedImgurException as e:
-                # If Imgur raises an exception due to the access token being
-                # invalid/expired. Get a new access token and try again.
-
-                # The error seems to be able to trigger both a 401 access denied
-                # and a 429 rate limit error, depending on the access token.
-                # Possibly this is due to a bug in how Imgur handles old or
-                # malformed access tokens.
-                if e.response.status_code not in (401, 429):
-                    raise
-
-                # Not authed request. No need to retry
-                # request with refreshed access token.
-                if self.access_token is None or force_client_auth:
-                    raise
-
-                self.refresh_access_token()
-                authentication = {"Authorization": f"Bearer {self.access_token}"}
-
-                new_content, ratelimit_info = request.send_request(
-                    url,
-                    method=kwargs.get("method", "GET"),
-                    content_to_send=content_to_send,
-                    headers=authentication,
-                )
-
-            # Move this logic into the request sending or helper func
-            if (
-                is_paginated
-                and new_content
-                and limit > (len(new_content) + len(content))
-            ):
-                content += new_content
-                page += 1
-                url = base_url.format(page)
-            else:
-                if is_paginated:
-                    content = (content + new_content)[:limit]
-                else:
-                    content = new_content
-                break
-
-        # Note: When the cache is implemented, it's important that the
-        # ratelimit info doesn't get updated with the ratelimit info in the
-        # cache since that's likely incorrect.
-        for key, value in ratelimit_info.items():
-            setattr(self, key[2:].replace("-", "_"), value)
-
-        return content
-
     def authorization_url(self, response, state=""):
         """
         Return the authorization url that's needed to authorize as a user.
@@ -491,16 +373,6 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         resp = self.send_request(url)
         return Message(resp, self)
 
-    def get_notification(self, notification_id):
-        """
-        Return a Notification object.
-
-        :param id: The id of the notification object to return.
-        """
-        url = self.base_url + f"/3/notification/{notification_id}"
-        resp = self.send_request(url)
-        return Notification(resp, self)
-
     def get_memes_gallery(self, sort="viral", window="week", limit=None):
         """
         Return a list of gallery albums/images submitted to the memes gallery
@@ -515,6 +387,16 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         url = self.base_url + f"/3/gallery/g/memes/{sort}/{window}/{'{}'}"
         resp = self.send_request(url, limit=limit)
         return [Gallery_item.get_album_or_image(thing, self) for thing in resp]
+
+    def get_notification(self, notification_id):
+        """
+        Return a Notification object.
+
+        :param id: The id of the notification object to return.
+        """
+        url = self.base_url + f"/3/notification/{notification_id}"
+        resp = self.send_request(url)
+        return Notification(resp, self)
 
     def get_subreddit_gallery(self, subreddit, sort="time", window="top", limit=None):
         """
@@ -644,6 +526,124 @@ class Imgur:  # pylint: disable=too-many-instance-attributes,too-many-public-met
         }
         resp = self.send_request(url, params=payload, limit=limit)
         return [Gallery_item.get_album_or_image(thing, self) for thing in resp]
+
+    def send_request(
+        self, url, needs_auth=False, force_client_auth=False, **kwargs
+    ):  # pylint: disable=too-many-branches,too-many-locals
+        """
+        Handles top level functionality for sending requests to Imgur.
+
+        This mean
+            - Raising client-side error if insufficient authentication.
+            - Adding authentication information to the request.
+            - Split the request into multiple request for pagination.
+            - Retry calls for certain server-side errors.
+            - Refresh access token automatically if expired.
+            - Updating ratelimit info
+
+        :param needs_auth: Is authentication as a user needed for the execution
+            of this method?
+        """
+        if (
+            self.refresh_token
+            and not self.access_token
+            and "/3/" in url
+            and all(auth_url not in url for auth_url in ("/oauth2/", "/auth"))
+        ):
+            self.refresh_access_token()
+
+        if self.access_token is None and needs_auth:
+            raise AuthenticationError(
+                "Authentication as a user is required to use this method."
+            )
+
+        if self.access_token is None or force_client_auth:
+            # Use non-authed request.
+            authentication = {"Authorization": f"Client-ID {self.client_id}"}
+        else:
+            authentication = {"Authorization": f"Bearer {self.access_token}"}
+
+        if self.mashape_key:
+            authentication.update({"X-Mashape-Key": self.mashape_key})
+        if self.rapidapi_key:
+            authentication.update({"X-Mashape-Key": self.rapidapi_key})
+
+        content = []
+        is_paginated = False
+        base_url = url
+
+        if "limit" in kwargs:
+            is_paginated = True
+
+            limit = kwargs["limit"]
+            if not limit or limit < 0:
+                limit = self.DEFAULT_LIMIT
+
+            del kwargs["limit"]
+            page = 0
+            url = url.format(page)
+
+        kwargs["params"] = clean_imgur_params(kwargs.get("params", {}))
+        content_to_send = get_content_to_send(**kwargs)
+
+        while True:
+            try:
+                new_content, ratelimit_info = request.send_request(
+                    url,
+                    method=kwargs.get("method", "GET"),
+                    content_to_send=content_to_send,
+                    headers=authentication,
+                )
+
+            except UnexpectedImgurException as e:
+                # If Imgur raises an exception due to the access token being
+                # invalid/expired. Get a new access token and try again.
+
+                # The error seems to be able to trigger both a 401 access denied
+                # and a 429 rate limit error, depending on the access token.
+                # Possibly this is due to a bug in how Imgur handles old or
+                # malformed access tokens.
+                if e.response.status_code not in (401, 429):
+                    raise
+
+                # Not authed request. No need to retry
+                # request with refreshed access token.
+                if self.access_token is None or force_client_auth:
+                    raise
+
+                self.refresh_access_token()
+                authentication = {"Authorization": f"Bearer {self.access_token}"}
+
+                new_content, ratelimit_info = request.send_request(
+                    url,
+                    method=kwargs.get("method", "GET"),
+                    content_to_send=content_to_send,
+                    headers=authentication,
+                )
+
+            # Move this logic into the request sending or helper func
+            if (
+                is_paginated
+                and new_content
+                and limit > (len(new_content) + len(content))
+            ):
+                content += new_content
+                page += 1
+                url = base_url.format(page)
+            else:
+                if is_paginated:
+                    content = (content + new_content)[:limit]
+                else:
+                    content = new_content
+                break
+
+        # Note: When the cache is implemented, it's important that the
+        # ratelimit info doesn't get updated with the ratelimit info in the
+        # cache since that's likely incorrect.
+        for key, value in ratelimit_info.items():
+            setattr(self, key[2:].replace("-", "_"), value)
+
+        return content
 
     def upload_image(
         self, path=None, url=None, title=None, description=None, album=None
