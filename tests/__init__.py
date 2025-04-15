@@ -1,3 +1,5 @@
+import os
+
 from requests import HTTPError
 
 from pyimgur import Gallery_album, Gallery_image, Imgur, User
@@ -24,7 +26,9 @@ im = pyimgur.Imgur(
 unauthed_im = pyimgur.Imgur(client_id=client_id, client_secret=client_secret)
 user = None  # pylint: disable=invalid-name
 
-if refresh_token:
+FAST_TESTS = os.getenv("FAST_TESTS") == "TRUE"
+
+if refresh_token and not FAST_TESTS:
     try:
         im.refresh_access_token()
         user = im.get_user("me")

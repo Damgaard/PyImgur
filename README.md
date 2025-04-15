@@ -8,9 +8,9 @@ You can upload images, download images, read comments, update your albums,
 message people and more. In fact, you can do almost everything via PyImgur that
 you can via the webend.
 
->  PyImgur is a well-tested, user-friendly wrapper around the Imgur API that makes it easy to interact with Imgur's services through Python, with comprehensive documentation and clear examples. The codebase demonstrates good software engineering practices with extensive test coverage (particularly for API interactions), clear error handling, and a thoughtful pagination system. While some modernization could help (like the move to pyproject.toml), the project is actively maintained and provides a reliable, production-ready solution for developers needing to interact with Imgur programmatically.
->  
->  \- Claude 3.5 Sonnet
+> PyImgur is a well-tested, user-friendly wrapper around the Imgur API that makes it easy to interact with Imgur's services through Python, with comprehensive documentation and clear examples. The codebase demonstrates good software engineering practices with extensive test coverage (particularly for API interactions), clear error handling, and a thoughtful pagination system. While some modernization could help (like the move to pyproject.toml), the project is actively maintained and provides a reliable, production-ready solution for developers needing to interact with Imgur programmatically.
+>
+> \- Claude 3.5 Sonnet
 
 Prompt: Consicely evaluate this project for quality, userfriendliness and usefulness. Keep your answer to 3 sentences or less.
 
@@ -31,7 +31,7 @@ Go to https://api.imgur.com/oauth2/addclient to register your client.
 Once you've registered. You can start using PyImgur.
 
     import pyimgur
-    
+
     im = pyimgur.Imgur(client_id=YOUR_CLIENT_ID, client_secret=YOUR_CLIENT_SECRET)
     image = im.get_image('5JTvLlM')
 
@@ -199,7 +199,7 @@ the newest values. You can also use the method `refresh()` to force a call to
 Imgur, that will update the object with the latest values.
 
     import pyimgur
-    
+
     im = pyimgur.Imgur(client_id=CLIENT_ID)
 
     gallery_album =  im.get_gallery_album("W9Vouvn")
@@ -211,7 +211,7 @@ Imgur, that will update the object with the latest values.
 
 ## Introspection
 
-Remember that as usual you can use the ``dir``, ``vars`` and ``help`` builtin
+Remember that as usual you can use the `dir`, `vars` and `help` builtin
 functions to introspect objects to learn more about them and how they work.
 
 ## Dynamic Object Generation
