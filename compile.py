@@ -15,9 +15,8 @@
 
 """Compile stage. Run after cursor change to ensure quality."""
 
-import subprocess
-
 import os
+import subprocess
 
 os.environ["FAST_TESTS"] = "TRUE"
 
@@ -44,5 +43,5 @@ subprocess.run(
 
 # Everything is good. Cleanup. This should never fail...
 print("Formatting code and documentation...")
-subprocess.run(r"black *.py pyimgur tests", shell=True, check=True)
+subprocess.run(r"black *.py examples pyimgur tests", shell=True, check=True)
 subprocess.run(r"prettier --write README.md", shell=True, check=True)

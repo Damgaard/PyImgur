@@ -44,6 +44,9 @@ if __name__ == "__main__":
         print("client_secret in it.")
 
     else:
-        from authentication import client_id, client_secret
+        from authentication import (  # pylint: disable=import-error
+            client_id,
+            client_secret,
+        )
 
         get_refresh_token()
