@@ -1,6 +1,6 @@
 # PyImgur
 
-![https://badge.fury.io/py/pyimgur](https://badge.fury.io/py/pyimgur.svg)
+![https://badge.fury.io/py/pyimgur](https://badge.fury.io/py/pyimgur.svg) [![PyPI Downloads](https://static.pepy.tech/badge/pyimgur)](https://pepy.tech/projects/pyimgur)
 
 The simple way of using Imgur.
 
